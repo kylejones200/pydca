@@ -1,7 +1,8 @@
 from dataclasses import dataclass
+from typing import Literal, Tuple
+
 import numpy as np
 import pandas as pd
-from typing import Literal, Tuple
 from scipy.optimize import curve_fit
 
 

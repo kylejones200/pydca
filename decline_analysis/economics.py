@@ -1,6 +1,7 @@
+from typing import Dict
+
 import numpy as np
 from numpy_financial import npv
-from typing import Dict
 
 
 def economic_metrics(

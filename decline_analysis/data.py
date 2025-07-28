@@ -1,6 +1,7 @@
-import pandas as pd
 from pathlib import Path
 from typing import List, Optional
+
+import pandas as pd
 
 
 def load_production_csvs(

@@ -1,20 +1,26 @@
 from typing import Literal, Optional
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 
-from .models import fit_arps, predict_arps
-from .forecast_timesfm import forecast_timesfm
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 from .forecast_chronos import forecast_chronos
+from .forecast_timesfm import forecast_timesfm
+from .models import fit_arps, predict_arps
+
 try:
     from .forecast_arima import forecast_arima
+
     ARIMA_AVAILABLE = True
 except ImportError:
     ARIMA_AVAILABLE = False
+
     def forecast_arima(*args, **kwargs):
         raise ImportError("ARIMA forecasting is not available due to dependency issues")
-from .evaluate import rmse, mae, smape
-from .plot import tufte_style, _range_markers
+
+
+from .evaluate import mae, rmse, smape
+from .plot import _range_markers, tufte_style
 
 
 class Forecaster:

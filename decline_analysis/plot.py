@@ -2,11 +2,12 @@
 Plotting utilities for decline curve analysis with Tufte-style aesthetics.
 """
 
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import pandas as pd
-import numpy as np
 from typing import Optional
+
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 
 def tufte_style():
@@ -128,7 +129,7 @@ def plot_forecast(
 
     # Add metrics text box if requested
     if show_metrics and len(hist_data) > 0:
-        from .evaluate import rmse, mae, smape
+        from .evaluate import mae, rmse, smape
 
         common_idx = y_true.index.intersection(hist_data.index)
         if len(common_idx) > 0:

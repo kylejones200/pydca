@@ -2,10 +2,11 @@
 Chronos (Amazon's time series foundation model) integration for decline curve forecasting.
 """
 
-import pandas as pd
-import numpy as np
-from typing import Optional
 import warnings
+from typing import Optional
+
+import numpy as np
+import pandas as pd
 
 
 def forecast_chronos(series: pd.Series, horizon: int = 12) -> pd.Series:
@@ -22,7 +23,7 @@ def forecast_chronos(series: pd.Series, horizon: int = 12) -> pd.Series:
     try:
         # Try to import Chronos dependencies
         import torch
-        from transformers import AutoTokenizer, AutoModelForCausalLM
+        from transformers import AutoModelForCausalLM, AutoTokenizer
 
         # Check if CUDA is available
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -221,7 +222,7 @@ def check_chronos_availability() -> bool:
     """Check if Chronos dependencies are available."""
     try:
         import torch
-        from transformers import AutoTokenizer, AutoModelForCausalLM
+        from transformers import AutoModelForCausalLM, AutoTokenizer
 
         return True
     except ImportError:

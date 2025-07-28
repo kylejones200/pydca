@@ -1,9 +1,10 @@
-import pandas as pd
-import requests
-import xlrd
 from datetime import datetime
 from pathlib import Path
 from typing import List
+
+import pandas as pd
+import requests
+import xlrd
 
 
 def scrape_ndic(months_list: List[str], output_dir: str = "ndic_raw") -> pd.DataFrame:

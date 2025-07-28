@@ -2,10 +2,11 @@
 TimesFM (Time Series Foundation Model) integration for decline curve forecasting.
 """
 
-import pandas as pd
-import numpy as np
-from typing import Optional
 import warnings
+from typing import Optional
+
+import numpy as np
+import pandas as pd
 
 
 def forecast_timesfm(series: pd.Series, horizon: int = 12) -> pd.Series:
@@ -21,8 +22,8 @@ def forecast_timesfm(series: pd.Series, horizon: int = 12) -> pd.Series:
     """
     try:
         # Try to import TimesFM
-        from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
         import torch
+        from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
         # Check if CUDA is available
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -174,8 +175,8 @@ def _fallback_timesfm_forecast(series: pd.Series, horizon: int) -> pd.Series:
 def check_timesfm_availability() -> bool:
     """Check if TimesFM dependencies are available."""
     try:
-        import transformers
         import torch
+        import transformers
 
         return True
     except ImportError:

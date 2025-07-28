@@ -22,7 +22,9 @@ dependencies = [
   "accelerate>=0.29",
   "einops>=0.7",
   "pmdarima>=2.0",
-  "numpy-financial>=1.0"
+  "numpy-financial>=1.0",
+  "requests>=2.25",
+  "xlrd>=2.0"
 ]
 
 [project.scripts]

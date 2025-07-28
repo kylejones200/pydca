@@ -1,9 +1,12 @@
-import pandas as pd
-import numpy as np
 from typing import Optional, Tuple
+
+import numpy as np
+import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
+
 try:
     from pmdarima import auto_arima
+
     PMDARIMA_AVAILABLE = True
 except ImportError:
     PMDARIMA_AVAILABLE = False

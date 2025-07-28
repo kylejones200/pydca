@@ -1,7 +1,9 @@
-import pytest
-import pandas as pd
+from unittest.mock import MagicMock, Mock, patch
+
 import numpy as np
-from unittest.mock import patch, Mock, MagicMock
+import pandas as pd
+import pytest
+
 from decline_analysis.utils.data_loader import scrape_ndic
 
 

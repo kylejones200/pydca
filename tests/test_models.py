@@ -2,17 +2,12 @@
 Unit tests for Arps decline curve models.
 """
 
-import pytest
 import numpy as np
 import pandas as pd
-from decline_analysis.models import (
-    q_exp,
-    q_hyp,
-    fit_arps,
-    predict_arps,
-    ArpsParams,
-    estimate_reserves,
-)
+import pytest
+
+from decline_analysis.models import (ArpsParams, estimate_reserves, fit_arps,
+                                     predict_arps, q_exp, q_hyp)
 
 
 class TestDeclineCurves:

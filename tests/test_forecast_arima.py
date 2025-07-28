@@ -2,9 +2,10 @@
 Unit tests for ARIMA forecasting functionality.
 """
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
+
 from decline_analysis.forecast_arima import forecast_arima
 
 

@@ -2,20 +2,17 @@
 Unit tests for plotting functionality.
 """
 
-import pytest
+import matplotlib
 import numpy as np
 import pandas as pd
-import matplotlib
+import pytest
 
 matplotlib.use("Agg")  # Use non-interactive backend for testing
 import matplotlib.pyplot as plt
-from decline_analysis.plot import (
-    tufte_style,
-    _range_markers,
-    plot_forecast,
-    plot_decline_curve,
-    plot_benchmark_results,
-)
+
+from decline_analysis.plot import (_range_markers, plot_benchmark_results,
+                                   plot_decline_curve, plot_forecast,
+                                   tufte_style)
 
 
 class TestPlottingUtilities:

@@ -1,8 +1,9 @@
-import pytest
-import pandas as pd
 import numpy as np
-from decline_analysis.reserves import forecast_and_reserves
+import pandas as pd
+import pytest
+
 from decline_analysis.models import ArpsParams
+from decline_analysis.reserves import forecast_and_reserves
 
 
 class TestReservesEstimation:
@@ -155,7 +156,7 @@ class TestReservesIntegration:
 
     def test_reserves_with_dca_api(self):
         """Test reserves calculation through main DCA API."""
-        from decline_analysis.dca import reserves, ArpsParams
+        from decline_analysis.dca import ArpsParams, reserves
 
         params = ArpsParams(qi=1000, di=0.10, b=0.5)
         result = reserves(params, t_max=120, econ_limit=15.0)

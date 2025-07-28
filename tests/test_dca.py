@@ -2,9 +2,10 @@
 Unit tests for the main DCA API functions.
 """
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
+
 from decline_analysis import dca
 
 

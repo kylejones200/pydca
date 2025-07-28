@@ -2,17 +2,12 @@
 Unit tests for evaluation metrics.
 """
 
-import pytest
 import numpy as np
 import pandas as pd
-from decline_analysis.evaluate import (
-    rmse,
-    mae,
-    smape,
-    mape,
-    r2_score,
-    evaluate_forecast,
-)
+import pytest
+
+from decline_analysis.evaluate import (evaluate_forecast, mae, mape, r2_score,
+                                       rmse, smape)
 
 
 class TestEvaluationMetrics:

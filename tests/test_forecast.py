@@ -2,18 +2,15 @@
 Unit tests for forecasting functionality.
 """
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
+
 from decline_analysis.forecast import Forecaster
-from decline_analysis.forecast_timesfm import (
-    forecast_timesfm,
-    check_timesfm_availability,
-)
-from decline_analysis.forecast_chronos import (
-    forecast_chronos,
-    check_chronos_availability,
-)
+from decline_analysis.forecast_chronos import (check_chronos_availability,
+                                               forecast_chronos)
+from decline_analysis.forecast_timesfm import (check_timesfm_availability,
+                                               forecast_timesfm)
 
 
 class TestForecaster:
