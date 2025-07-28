@@ -6,7 +6,13 @@ import matplotlib.pyplot as plt
 from .models import fit_arps, predict_arps
 from .forecast_timesfm import forecast_timesfm
 from .forecast_chronos import forecast_chronos
-from .forecast_arima import forecast_arima
+try:
+    from .forecast_arima import forecast_arima
+    ARIMA_AVAILABLE = True
+except ImportError:
+    ARIMA_AVAILABLE = False
+    def forecast_arima(*args, **kwargs):
+        raise ImportError("ARIMA forecasting is not available due to dependency issues")
 from .evaluate import rmse, mae, smape
 from .plot import tufte_style, _range_markers
 
