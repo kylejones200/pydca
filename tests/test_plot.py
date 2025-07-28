@@ -10,9 +10,13 @@ import pytest
 matplotlib.use("Agg")  # Use non-interactive backend for testing
 import matplotlib.pyplot as plt
 
-from decline_analysis.plot import (_range_markers, plot_benchmark_results,
-                                   plot_decline_curve, plot_forecast,
-                                   tufte_style)
+from decline_analysis.plot import (
+    _range_markers,
+    plot_benchmark_results,
+    plot_decline_curve,
+    plot_forecast,
+    tufte_style,
+)
 
 
 class TestPlottingUtilities:

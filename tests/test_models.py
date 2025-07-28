@@ -6,8 +6,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from decline_analysis.models import (ArpsParams, estimate_reserves, fit_arps,
-                                     predict_arps, q_exp, q_hyp)
+from decline_analysis.models import (
+    ArpsParams,
+    estimate_reserves,
+    fit_arps,
+    predict_arps,
+    q_exp,
+    q_hyp,
+)
 
 
 class TestDeclineCurves:

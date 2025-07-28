@@ -7,10 +7,14 @@ import pandas as pd
 import pytest
 
 from decline_analysis.forecast import Forecaster
-from decline_analysis.forecast_chronos import (check_chronos_availability,
-                                               forecast_chronos)
-from decline_analysis.forecast_timesfm import (check_timesfm_availability,
-                                               forecast_timesfm)
+from decline_analysis.forecast_chronos import (
+    check_chronos_availability,
+    forecast_chronos,
+)
+from decline_analysis.forecast_timesfm import (
+    check_timesfm_availability,
+    forecast_timesfm,
+)
 
 
 class TestForecaster:
