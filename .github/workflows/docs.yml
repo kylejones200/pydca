@@ -23,6 +23,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .
         pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints
+        # Install additional dependencies that might be needed for docs
+        pip install -r requirements.txt || echo "No requirements.txt found"
 
     - name: Build documentation
       run: |
