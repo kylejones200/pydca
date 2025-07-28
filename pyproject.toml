@@ -7,7 +7,7 @@ name = "decline-analysis"
 version = "0.1.0"
 description = "Decline curve analysis for oil well production using with Arps and LLM-based models"
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 authors = [{ name = "Kyle T. Jones" }]
 requires-python = ">=3.9"
 dependencies = [
@@ -21,8 +21,13 @@ dependencies = [
   "torch>=2.0",
   "accelerate>=0.29",
   "einops>=0.7",
-  "pmdarima>=2.0"
+  "pmdarima>=2.0",
+  "numpy-financial>=1.0"
 ]
 
 [project.scripts]
 decline = "decline_analysis.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["decline_analysis*"]
+exclude = ["ndic_raw*"]

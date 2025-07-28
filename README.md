@@ -1,26 +1,3 @@
-Metadata-Version: 2.4
-Name: decline-analysis
-Version: 0.1.0
-Summary: Decline curve analysis for oil well production using with Arps and LLM-based models
-Author: Kyle T. Jones
-License-Expression: Apache-2.0
-Requires-Python: >=3.9
-Description-Content-Type: text/markdown
-License-File: LICENSE
-Requires-Dist: numpy>=1.23
-Requires-Dist: pandas>=2.0
-Requires-Dist: scipy>=1.10
-Requires-Dist: matplotlib>=3.7
-Requires-Dist: statsmodels>=0.14
-Requires-Dist: tqdm>=4.66
-Requires-Dist: transformers>=4.41
-Requires-Dist: torch>=2.0
-Requires-Dist: accelerate>=0.29
-Requires-Dist: einops>=0.7
-Requires-Dist: pmdarima>=2.0
-Requires-Dist: numpy-financial>=1.0
-Dynamic: license-file
-
 # Decline Analysis
 
 A Python package for decline curve analysis of oil well production using Arps models and LLM-based forecasting methods.

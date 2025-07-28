@@ -2,10 +2,10 @@ import numpy as np
 from typing import Tuple, Dict
 from .models import ArpsParams, predict_arps, estimate_reserves
 
-def forecast_and_reserves(params: ArpsParams,
-                          t_max: float = 240,
-                          dt: float = 1.0,
-                          econ_limit: float = 10.0) -> Dict:
+
+def forecast_and_reserves(
+    params: ArpsParams, t_max: float = 240, dt: float = 1.0, econ_limit: float = 10.0
+) -> Dict:
     """
     Generate forecast and compute EUR.
 
@@ -23,10 +23,4 @@ def forecast_and_reserves(params: ArpsParams,
     valid = q > econ_limit
     t_valid, q_valid = t[valid], q[valid]
     eur = np.trapz(q_valid, t_valid)
-    return {
-        "t": t,
-        "q": q,
-        "t_valid": t_valid,
-        "q_valid": q_valid,
-        "eur": eur
-    }
+    return {"t": t, "q": q, "t_valid": t_valid, "q_valid": q_valid, "eur": eur}

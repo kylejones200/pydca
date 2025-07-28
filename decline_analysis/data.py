@@ -2,10 +2,13 @@ import pandas as pd
 from pathlib import Path
 from typing import List, Optional
 
-def load_production_csvs(paths: List[str],
-                         date_col: str = "date",
-                         well_id_col: str = "well_id",
-                         oil_col: str = "oil_bbl") -> pd.DataFrame:
+
+def load_production_csvs(
+    paths: List[str],
+    date_col: str = "date",
+    well_id_col: str = "well_id",
+    oil_col: str = "oil_bbl",
+) -> pd.DataFrame:
     """Load and stack well-level production CSV files.
 
     Args:
@@ -25,12 +28,15 @@ def load_production_csvs(paths: List[str],
         frames.append(df[[date_col, well_id_col, oil_col]])
     out = pd.concat(frames, ignore_index=True)
     out = out.sort_values([well_id_col, date_col])
-    out = out.rename(columns={date_col: "date", well_id_col: "well_id", oil_col: "oil_bbl"})
+    out = out.rename(
+        columns={date_col: "date", well_id_col: "well_id", oil_col: "oil_bbl"}
+    )
     return out.set_index("date")
 
-def to_monthly(df: pd.DataFrame,
-               well_id_col: str = "well_id",
-               oil_col: str = "oil_bbl") -> pd.DataFrame:
+
+def to_monthly(
+    df: pd.DataFrame, well_id_col: str = "well_id", oil_col: str = "oil_bbl"
+) -> pd.DataFrame:
     """Aggregate to monthly frequency.
 
     Args:
@@ -42,17 +48,15 @@ def to_monthly(df: pd.DataFrame,
         A monthly panel by well.
     """
     return (
-        df
-        .groupby(well_id_col)
-        .resample("M")
-        [oil_col]
+        df.groupby(well_id_col)
+        .resample("M")[oil_col]
         .sum()
         .reset_index()
         .set_index("date")
     )
 
-def make_panel(df: pd.DataFrame,
-               first_n_months: Optional[int] = None) -> pd.DataFrame:
+
+def make_panel(df: pd.DataFrame, first_n_months: Optional[int] = None) -> pd.DataFrame:
     """Create a relative-time panel for decline fitting.
 
     Args:
@@ -68,9 +72,10 @@ def make_panel(df: pd.DataFrame,
         df = df[df["t"] < first_n_months]
     return df
 
-def load_price_csv(path: str,
-                   date_col: str = "date",
-                   price_col: str = "price") -> pd.DataFrame:
+
+def load_price_csv(
+    path: str, date_col: str = "date", price_col: str = "price"
+) -> pd.DataFrame:
     """Load oil price CSV.
 
     Args:
@@ -86,6 +91,7 @@ def load_price_csv(path: str,
     df[date_col] = pd.to_datetime(df[date_col])
     df = df.rename(columns={date_col: "date", price_col: "price"}).set_index("date")
     return df.sort_index()
+
 
 def _assert_cols(df: pd.DataFrame, cols: List[str]) -> None:
     missing = [c for c in cols if c not in df.columns]

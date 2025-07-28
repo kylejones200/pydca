@@ -20,17 +20,21 @@ class Forecaster:
         self.series = series.dropna().copy()
         self.last_forecast = None
 
-    def forecast(self,
-                 model: Literal["arps", "timesfm", "chronos", "arima"],
-                 kind: Optional[Literal["exponential", "harmonic", "hyperbolic"]] = "hyperbolic",
-                 horizon: Optional[int] = 12) -> pd.Series:
+    def forecast(
+        self,
+        model: Literal["arps", "timesfm", "chronos", "arima"],
+        kind: Optional[Literal["exponential", "harmonic", "hyperbolic"]] = "hyperbolic",
+        horizon: Optional[int] = 12,
+    ) -> pd.Series:
         if model == "arps":
             t = np.arange(len(self.series))
             q = self.series.to_numpy()
             params = fit_arps(t, q, kind=kind)
             full_t = np.arange(len(self.series) + horizon)
             yhat = predict_arps(full_t, params)
-            idx = pd.date_range(self.series.index[0], periods=len(yhat), freq=self.series.index.freq)
+            idx = pd.date_range(
+                self.series.index[0], periods=len(yhat), freq=self.series.index.freq
+            )
             forecast = pd.Series(yhat, index=idx, name=f"arps_{kind}")
 
         elif model == "timesfm":
@@ -42,11 +46,15 @@ class Forecaster:
         elif model == "arima":
             forecast_part = forecast_arima(self.series, horizon=horizon)
             # Combine historical and forecast data
-            full_index = pd.date_range(self.series.index[0], 
-                                     periods=len(self.series) + horizon, 
-                                     freq=self.series.index.freq)
+            full_index = pd.date_range(
+                self.series.index[0],
+                periods=len(self.series) + horizon,
+                freq=self.series.index.freq,
+            )
             full_forecast = pd.concat([self.series, forecast_part])
-            forecast = pd.Series(full_forecast.values, index=full_index, name="arima_forecast")
+            forecast = pd.Series(
+                full_forecast.values, index=full_index, name="arima_forecast"
+            )
 
         else:
             raise ValueError(f"Unknown model: {model}")

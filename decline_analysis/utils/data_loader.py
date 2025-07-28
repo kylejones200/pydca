@@ -25,7 +25,9 @@ def scrape_ndic(months_list: List[str], output_dir: str = "ndic_raw") -> pd.Data
                 try:
                     cell_val = sheet.cell_value(i, 0)
                     year, month, *_ = xlrd.xldate_as_tuple(cell_val, book.datemode)
-                    sheet._cell_values[i][0] = datetime(year, month, 1).strftime("%Y-%m-%d")
+                    sheet._cell_values[i][0] = datetime(year, month, 1).strftime(
+                        "%Y-%m-%d"
+                    )
                 except Exception:
                     sheet._cell_values[i][0] = ""
 
@@ -45,4 +47,3 @@ def scrape_ndic(months_list: List[str], output_dir: str = "ndic_raw") -> pd.Data
         return pd.concat(all_data, ignore_index=True)
     else:
         return pd.DataFrame()
-    

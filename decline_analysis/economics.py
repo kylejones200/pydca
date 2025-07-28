@@ -2,11 +2,14 @@ import numpy as np
 from numpy_financial import npv
 from typing import Dict
 
-def economic_metrics(q: np.ndarray,
-                     price: float,
-                     opex: float,
-                     discount_rate: float = 0.10,
-                     time_step_months: float = 1.0) -> Dict:
+
+def economic_metrics(
+    q: np.ndarray,
+    price: float,
+    opex: float,
+    discount_rate: float = 0.10,
+    time_step_months: float = 1.0,
+) -> Dict:
     """
     Calculate economics from forecasted production.
 
@@ -26,8 +29,4 @@ def economic_metrics(q: np.ndarray,
     npv_val = npv(monthly_rate, cash_flow)
     cum_cf = np.cumsum(cash_flow)
     payback_month = int(np.argmax(cum_cf > 0)) if np.any(cum_cf > 0) else -1
-    return {
-        "npv": npv_val,
-        "cash_flow": cash_flow,
-        "payback_month": payback_month
-    }
+    return {"npv": npv_val, "cash_flow": cash_flow, "payback_month": payback_month}

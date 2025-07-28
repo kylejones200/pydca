@@ -4,6 +4,7 @@ from typing import List, Tuple
 from .models import ArpsParams, predict_arps
 from .economics import economic_metrics
 
+
 def run_sensitivity(
     param_grid: List[Tuple[float, float, float]],
     prices: List[float],
@@ -11,7 +12,7 @@ def run_sensitivity(
     discount_rate: float = 0.10,
     t_max: float = 240,
     econ_limit: float = 10.0,
-    dt: float = 1.0
+    dt: float = 1.0,
 ) -> pd.DataFrame:
     """
     Run sensitivity analysis across Arps parameters and prices.
@@ -45,14 +46,16 @@ def run_sensitivity(
 
             econ = economic_metrics(q_valid, price, opex, discount_rate)
 
-            results.append({
-                "qi": qi,
-                "di": di,
-                "b": b,
-                "price": price,
-                "EUR": eur,
-                "NPV": econ["npv"],
-                "Payback_month": econ["payback_month"]
-            })
+            results.append(
+                {
+                    "qi": qi,
+                    "di": di,
+                    "b": b,
+                    "price": price,
+                    "EUR": eur,
+                    "NPV": econ["npv"],
+                    "Payback_month": econ["payback_month"],
+                }
+            )
 
     return pd.DataFrame(results)

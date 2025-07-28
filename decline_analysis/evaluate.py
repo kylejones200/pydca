@@ -1,6 +1,7 @@
 """
 Evaluation metrics for decline curve analysis forecasts.
 """
+
 import numpy as np
 import pandas as pd
 
@@ -31,7 +32,7 @@ def r2_score(y_true: pd.Series, y_pred: pd.Series) -> float:
     """R-squared coefficient of determination."""
     ss_res = np.sum((y_true - y_pred) ** 2)
     ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
-    
+
     # Handle constant values case where ss_tot = 0
     if ss_tot == 0:
         # If actual values are constant and predictions match, R² = 1
@@ -40,7 +41,7 @@ def r2_score(y_true: pd.Series, y_pred: pd.Series) -> float:
         # If actual values are constant but predictions don't match, R² = 0
         else:
             return 0.0
-    
+
     return 1 - (ss_res / ss_tot)
 
 
