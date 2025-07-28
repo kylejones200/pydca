@@ -1,0 +1,338 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Models (models) &mdash; Decline Curve Analysis 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1e03605e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Decline Curve Analysis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../models.html">Models and Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/sensitivity.html">Sensitivity Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/economics.html">Economics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/reserves.html">Reserves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/data_loader.html">Data Loader</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Decline Curve Analysis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Models (models)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="models-models">
+<h1>Models (models)<a class="headerlink" href="#models-models" title="Link to this heading"></a></h1>
+<p>The models module provides Arps decline curve fitting and prediction functionality.</p>
+<dl class="py class" id="module-decline_analysis.models">
+<dt class="sig sig-object py" id="decline_analysis.models.ArpsParams">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">decline_analysis.models.</span></span><span class="sig-name descname"><span class="pre">ArpsParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">di</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/models.html#ArpsParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#decline_analysis.models.ArpsParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="decline_analysis.models.ArpsParams.qi">
+<span class="sig-name descname"><span class="pre">qi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></em><a class="headerlink" href="#decline_analysis.models.ArpsParams.qi" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="decline_analysis.models.ArpsParams.di">
+<span class="sig-name descname"><span class="pre">di</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></em><a class="headerlink" href="#decline_analysis.models.ArpsParams.di" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="decline_analysis.models.ArpsParams.b">
+<span class="sig-name descname"><span class="pre">b</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></em><a class="headerlink" href="#decline_analysis.models.ArpsParams.b" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="decline_analysis.models.ArpsParams.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">di</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#decline_analysis.models.ArpsParams.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="decline_analysis.models.q_exp">
+<span class="sig-prename descclassname"><span class="pre">decline_analysis.models.</span></span><span class="sig-name descname"><span class="pre">q_exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">di</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/models.html#q_exp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#decline_analysis.models.q_exp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="decline_analysis.models.q_hyp">
+<span class="sig-prename descclassname"><span class="pre">decline_analysis.models.</span></span><span class="sig-name descname"><span class="pre">q_hyp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">di</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/models.html#q_hyp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#decline_analysis.models.q_hyp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="decline_analysis.models.fit_arps">
+<span class="sig-prename descclassname"><span class="pre">decline_analysis.models.</span></span><span class="sig-name descname"><span class="pre">fit_arps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hyperbolic'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/models.html#fit_arps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#decline_analysis.models.fit_arps" title="Link to this definition"></a></dt>
+<dd><p>Fit an Arps model to one decline series.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span>) – Time index (months from first production).</p></li>
+<li><p><strong>q</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span>) – Production volumes.</p></li>
+<li><p><strong>kind</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.13)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'exponential'</span></code>, <code class="docutils literal notranslate"><span class="pre">'harmonic'</span></code>, <code class="docutils literal notranslate"><span class="pre">'hyperbolic'</span></code>]</span>) – exponential, harmonic, or hyperbolic.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#id0" title="decline_analysis.models.ArpsParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArpsParams</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ArpsParams with qi, di, and b (b=0 for exponential or 1 for harmonic).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="decline_analysis.models.predict_arps">
+<span class="sig-prename descclassname"><span class="pre">decline_analysis.models.</span></span><span class="sig-name descname"><span class="pre">predict_arps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/models.html#predict_arps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#decline_analysis.models.predict_arps" title="Link to this definition"></a></dt>
+<dd><p>Predict with fitted Arps parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span>) – Time points.</p></li>
+<li><p><strong>p</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#id0" title="decline_analysis.models.ArpsParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArpsParams</span></code></a></span>) – Arps parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Predicted rates.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="decline_analysis.models.estimate_reserves">
+<span class="sig-prename descclassname"><span class="pre">decline_analysis.models.</span></span><span class="sig-name descname"><span class="pre">estimate_reserves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/models.html#estimate_reserves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#decline_analysis.models.estimate_reserves" title="Link to this definition"></a></dt>
+<dd><p>Estimate ultimate recoverable reserves using Arps decline curves.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#id0" title="decline_analysis.models.ArpsParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArpsParams</span></code></a></span>) – Arps parameters (qi, di, b).</p></li>
+<li><p><strong>t_max</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – Maximum time for integration (years).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Estimated reserves.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<section id="arpsparams">
+<h3>ArpsParams<a class="headerlink" href="#arpsparams" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">decline_analysis.models.</span></span><span class="sig-name descname"><span class="pre">ArpsParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">di</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/models.html#ArpsParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">qi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></em><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">di</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></em><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">b</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></em><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">di</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<section id="fit-arps">
+<h3>fit_arps<a class="headerlink" href="#fit-arps" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-prename descclassname"><span class="pre">decline_analysis.models.</span></span><span class="sig-name descname"><span class="pre">fit_arps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hyperbolic'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/models.html#fit_arps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dd><p>Fit an Arps model to one decline series.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span>) – Time index (months from first production).</p></li>
+<li><p><strong>q</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span>) – Production volumes.</p></li>
+<li><p><strong>kind</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.13)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'exponential'</span></code>, <code class="docutils literal notranslate"><span class="pre">'harmonic'</span></code>, <code class="docutils literal notranslate"><span class="pre">'hyperbolic'</span></code>]</span>) – exponential, harmonic, or hyperbolic.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#id0" title="decline_analysis.models.ArpsParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArpsParams</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ArpsParams with qi, di, and b (b=0 for exponential or 1 for harmonic).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="predict-arps">
+<h3>predict_arps<a class="headerlink" href="#predict-arps" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="id6">
+<span class="sig-prename descclassname"><span class="pre">decline_analysis.models.</span></span><span class="sig-name descname"><span class="pre">predict_arps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/models.html#predict_arps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id6" title="Link to this definition"></a></dt>
+<dd><p>Predict with fitted Arps parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span>) – Time points.</p></li>
+<li><p><strong>p</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#id0" title="decline_analysis.models.ArpsParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArpsParams</span></code></a></span>) – Arps parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Predicted rates.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="q-exp">
+<h3>q_exp<a class="headerlink" href="#q-exp" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="id7">
+<span class="sig-prename descclassname"><span class="pre">decline_analysis.models.</span></span><span class="sig-name descname"><span class="pre">q_exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">di</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/models.html#q_exp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="q-hyp">
+<h3>q_hyp<a class="headerlink" href="#q-hyp" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="id8">
+<span class="sig-prename descclassname"><span class="pre">decline_analysis.models.</span></span><span class="sig-name descname"><span class="pre">q_hyp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">di</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/models.html#q_hyp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id8" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+<section id="mathematical-background">
+<h2>Mathematical Background<a class="headerlink" href="#mathematical-background" title="Link to this heading"></a></h2>
+<section id="arps-decline-curves">
+<h3>Arps Decline Curves<a class="headerlink" href="#arps-decline-curves" title="Link to this heading"></a></h3>
+<p>The Arps decline curves are fundamental models in petroleum engineering for forecasting production decline:</p>
+<p><strong>Exponential Decline</strong> (b = 0):</p>
+<div class="math notranslate nohighlight">
+\[q(t) = q_i e^{-d_i t}\]</div>
+<p><strong>Harmonic Decline</strong> (b = 1):</p>
+<div class="math notranslate nohighlight">
+\[q(t) = \frac{q_i}{1 + d_i t}\]</div>
+<p><strong>Hyperbolic Decline</strong> (0 &lt; b &lt; 1):</p>
+<div class="math notranslate nohighlight">
+\[q(t) = \frac{q_i}{(1 + b d_i t)^{1/b}}\]</div>
+<p>Where:
+- <span class="math notranslate nohighlight">\(q(t)\)</span> is the production rate at time t
+- <span class="math notranslate nohighlight">\(q_i\)</span> is the initial production rate
+- <span class="math notranslate nohighlight">\(d_i\)</span> is the initial decline rate
+- <span class="math notranslate nohighlight">\(b\)</span> is the hyperbolic exponent</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Kyle T. Jones.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

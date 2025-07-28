@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Loader &mdash; Decline Curve Analysis 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1e03605e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contributing" href="../contributing.html" />
+    <link rel="prev" title="Reserves" href="reserves.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Decline Curve Analysis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../models.html">Models and Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensitivity.html">Sensitivity Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="economics.html">Economics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reserves.html">Reserves</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Loader</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-decline_analysis.utils.data_loader">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#decline_analysis.utils.data_loader.scrape_ndic"><code class="docutils literal notranslate"><span class="pre">scrape_ndic()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-ndic-data-loading">Basic NDIC Data Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#advanced-data-processing">Advanced Data Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-quality-checks">Data Quality Checks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#data-sources">Data Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#north-dakota-industrial-commission-ndic">North Dakota Industrial Commission (NDIC)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#data-processing-pipeline">Data Processing Pipeline</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#error-handling">Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-management">Data Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-optimization">Performance Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-quality">Data Quality</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#legal-and-ethical-considerations">Legal and Ethical Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#web-scraping-guidelines">Web Scraping Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-usage-rights">Data Usage Rights</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-issues">Common Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-troubleshooting-code">Example Troubleshooting Code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Decline Curve Analysis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Data Loader</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/data_loader.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="data-loader">
+<h1>Data Loader<a class="headerlink" href="#data-loader" title="Link to this heading"></a></h1>
+<p>The data loader utility provides tools for accessing and processing production data from various sources, including the North Dakota Industrial Commission (NDIC) database.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Data loading capabilities include:</p>
+<ul class="simple">
+<li><p>Automated web scraping of regulatory databases</p></li>
+<li><p>Excel file processing and data extraction</p></li>
+<li><p>Data cleaning and standardization</p></li>
+<li><p>Batch processing of multiple time periods</p></li>
+</ul>
+</section>
+<section id="module-decline_analysis.utils.data_loader">
+<span id="functions"></span><h2>Functions<a class="headerlink" href="#module-decline_analysis.utils.data_loader" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="decline_analysis.utils.data_loader.scrape_ndic">
+<span class="sig-prename descclassname"><span class="pre">decline_analysis.utils.data_loader.</span></span><span class="sig-name descname"><span class="pre">scrape_ndic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">months_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ndic_raw'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/utils/data_loader.html#scrape_ndic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#decline_analysis.utils.data_loader.scrape_ndic" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
+<section id="basic-ndic-data-loading">
+<h3>Basic NDIC Data Loading<a class="headerlink" href="#basic-ndic-data-loading" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">decline_analysis</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dca</span>
+
+<span class="c1"># Define months to download</span>
+<span class="n">months</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;2023-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2023-02&#39;</span><span class="p">,</span> <span class="s1">&#39;2023-03&#39;</span><span class="p">,</span> <span class="s1">&#39;2023-04&#39;</span><span class="p">]</span>
+
+<span class="c1"># Load NDIC production data</span>
+<span class="n">production_data</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">load_ndic_data</span><span class="p">(</span>
+    <span class="n">months_list</span><span class="o">=</span><span class="n">months</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;ndic_data&#39;</span>  <span class="c1"># Directory to save raw files</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">production_data</span><span class="p">)</span><span class="si">}</span><span class="s2"> records&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">production_data</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-data-processing">
+<h3>Advanced Data Processing<a class="headerlink" href="#advanced-data-processing" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># Load multiple years of data</span>
+<span class="n">months</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2022</span><span class="p">,</span> <span class="mi">2023</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
+        <span class="n">months</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">month</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Load data with error handling</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">load_ndic_data</span><span class="p">(</span><span class="n">months</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2"> records&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading data: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Basic data cleaning</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+    <span class="c1"># Remove invalid dates</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span>
+
+    <span class="c1"># Filter for oil wells only</span>
+    <span class="n">oil_wells</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Product&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Oil&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Group by well and calculate totals</span>
+    <span class="n">well_summary</span> <span class="o">=</span> <span class="n">oil_wells</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Well_Name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span>
+        <span class="s1">&#39;Production&#39;</span><span class="p">:</span> <span class="s1">&#39;sum&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Date&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">]</span>
+    <span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">well_summary</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="data-quality-checks">
+<h3>Data Quality Checks<a class="headerlink" href="#data-quality-checks" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Perform data quality assessment</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">assess_data_quality</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assess quality of loaded production data.&quot;&quot;&quot;</span>
+    <span class="n">quality_report</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;total_records&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">),</span>
+        <span class="s1">&#39;missing_dates&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+        <span class="s1">&#39;missing_production&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Production&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+        <span class="s1">&#39;negative_production&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Production&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+        <span class="s1">&#39;date_range&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span>
+        <span class="s1">&#39;unique_wells&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Well_Name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;Well_Name&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">quality_report</span>
+
+<span class="c1"># Load and assess data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">load_ndic_data</span><span class="p">([</span><span class="s1">&#39;2023-06&#39;</span><span class="p">])</span>
+<span class="n">quality</span> <span class="o">=</span> <span class="n">assess_data_quality</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">quality</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="data-sources">
+<h2>Data Sources<a class="headerlink" href="#data-sources" title="Link to this heading"></a></h2>
+<section id="north-dakota-industrial-commission-ndic">
+<h3>North Dakota Industrial Commission (NDIC)<a class="headerlink" href="#north-dakota-industrial-commission-ndic" title="Link to this heading"></a></h3>
+<p>The NDIC provides monthly production reports for all oil and gas wells in North Dakota:</p>
+<ul class="simple">
+<li><p><strong>URL Pattern:</strong> <code class="docutils literal notranslate"><span class="pre">https://www.dmr.nd.gov/oilgas/mpr/{YYYY-MM}.xlsx</span></code></p></li>
+<li><p><strong>Format:</strong> Excel files with standardized columns</p></li>
+<li><p><strong>Update Frequency:</strong> Monthly (typically 2-3 months lag)</p></li>
+<li><p><strong>Coverage:</strong> All producing wells in North Dakota</p></li>
+</ul>
+<p><strong>Typical Data Fields:</strong></p>
+<ul class="simple">
+<li><p>Well identification and location</p></li>
+<li><p>Monthly oil production (bbls)</p></li>
+<li><p>Monthly gas production (Mcf)</p></li>
+<li><p>Monthly water production (bbls)</p></li>
+<li><p>Operator information</p></li>
+<li><p>Completion dates</p></li>
+</ul>
+</section>
+</section>
+<section id="data-processing-pipeline">
+<h2>Data Processing Pipeline<a class="headerlink" href="#data-processing-pipeline" title="Link to this heading"></a></h2>
+<p>The data loader follows this processing pipeline:</p>
+<ol class="arabic simple">
+<li><p><strong>Download:</strong> Fetch Excel files from NDIC servers</p></li>
+<li><p><strong>Parse:</strong> Extract data using xlrd library</p></li>
+<li><p><strong>Clean:</strong> Convert date formats and handle missing values</p></li>
+<li><p><strong>Standardize:</strong> Apply consistent column naming</p></li>
+<li><p><strong>Combine:</strong> Merge multiple months into single DataFrame</p></li>
+<li><p><strong>Save:</strong> Cache raw files locally for future use</p></li>
+</ol>
+<section id="error-handling">
+<h3>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading"></a></h3>
+<p>The loader includes robust error handling for:</p>
+<ul class="simple">
+<li><p><strong>Network timeouts</strong> during file downloads</p></li>
+<li><p><strong>Invalid Excel formats</strong> or corrupted files</p></li>
+<li><p><strong>Missing data fields</strong> in source files</p></li>
+<li><p><strong>Date parsing errors</strong> from inconsistent formats</p></li>
+<li><p><strong>Memory limitations</strong> with large datasets</p></li>
+</ul>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<section id="data-management">
+<h3>Data Management<a class="headerlink" href="#data-management" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Incremental loading:</strong> Only download new months</p></li>
+<li><p><strong>Local caching:</strong> Save raw files to avoid re-downloading</p></li>
+<li><p><strong>Data validation:</strong> Check for completeness and consistency</p></li>
+<li><p><strong>Version control:</strong> Track data source versions and updates</p></li>
+</ul>
+</section>
+<section id="performance-optimization">
+<h3>Performance Optimization<a class="headerlink" href="#performance-optimization" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Batch processing:</strong> Load multiple months in single call</p></li>
+<li><p><strong>Parallel downloads:</strong> Use threading for multiple files</p></li>
+<li><p><strong>Memory management:</strong> Process large datasets in chunks</p></li>
+<li><p><strong>Compression:</strong> Store cached data in compressed formats</p></li>
+</ul>
+</section>
+<section id="data-quality">
+<h3>Data Quality<a class="headerlink" href="#data-quality" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Outlier detection:</strong> Identify unrealistic production values</p></li>
+<li><p><strong>Completeness checks:</strong> Ensure all required fields present</p></li>
+<li><p><strong>Consistency validation:</strong> Check for logical relationships</p></li>
+<li><p><strong>Temporal continuity:</strong> Verify sequential monthly data</p></li>
+</ul>
+</section>
+</section>
+<section id="legal-and-ethical-considerations">
+<h2>Legal and Ethical Considerations<a class="headerlink" href="#legal-and-ethical-considerations" title="Link to this heading"></a></h2>
+<section id="web-scraping-guidelines">
+<h3>Web Scraping Guidelines<a class="headerlink" href="#web-scraping-guidelines" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Respect robots.txt:</strong> Follow website scraping policies</p></li>
+<li><p><strong>Rate limiting:</strong> Avoid overwhelming servers with requests</p></li>
+<li><p><strong>Terms of service:</strong> Comply with data provider terms</p></li>
+<li><p><strong>Attribution:</strong> Properly credit data sources</p></li>
+</ul>
+</section>
+<section id="data-usage-rights">
+<h3>Data Usage Rights<a class="headerlink" href="#data-usage-rights" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Public domain:</strong> NDIC data is generally public information</p></li>
+<li><p><strong>Commercial use:</strong> Verify licensing for commercial applications</p></li>
+<li><p><strong>Redistribution:</strong> Understand restrictions on data sharing</p></li>
+<li><p><strong>Privacy:</strong> Protect any personally identifiable information</p></li>
+</ul>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h3>
+<p><strong>Connection Errors:</strong>
+- Check internet connectivity
+- Verify NDIC website availability
+- Consider proxy or firewall restrictions</p>
+<p><strong>File Format Changes:</strong>
+- NDIC may update Excel file formats
+- Monitor for column name changes
+- Implement flexible parsing logic</p>
+<p><strong>Memory Errors:</strong>
+- Process data in smaller batches
+- Use efficient data types (e.g., categories)
+- Clear unused variables from memory</p>
+<p><strong>Date Parsing Issues:</strong>
+- Handle various date formats
+- Account for timezone differences
+- Validate date ranges for reasonableness</p>
+</section>
+<section id="example-troubleshooting-code">
+<h3>Example Troubleshooting Code<a class="headerlink" href="#example-troubleshooting-code" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="c1"># Set up logging for debugging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="c1"># Test connection and data availability</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_ndic_connection</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test NDIC data availability.&quot;&quot;&quot;</span>
+    <span class="n">test_months</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;2023-01&#39;</span><span class="p">]</span>  <span class="c1"># Recent month</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">load_ndic_data</span><span class="p">(</span><span class="n">test_months</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✓ NDIC connection successful&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✓ Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2"> records&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;⚠ No data returned&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✗ Connection failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+<span class="c1"># Run connection test</span>
+<span class="n">test_ndic_connection</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><span class="xref std std-doc">api</span> - Main API functions</p></li>
+<li><p><span class="xref std std-doc">examples</span> - Complete usage examples</p></li>
+<li><p><span class="xref std std-doc">contributing</span> - Guidelines for adding new data sources</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="reserves.html" class="btn btn-neutral float-left" title="Reserves" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Kyle T. Jones.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

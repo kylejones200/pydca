@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserves &mdash; Decline Curve Analysis 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1e03605e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data Loader" href="data_loader.html" />
+    <link rel="prev" title="Economics" href="economics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Decline Curve Analysis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../models.html">Models and Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensitivity.html">Sensitivity Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="economics.html">Economics</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Reserves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-decline_analysis.reserves">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#decline_analysis.reserves.forecast_and_reserves"><code class="docutils literal notranslate"><span class="pre">forecast_and_reserves()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-reserve-estimation">Basic Reserve Estimation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#advanced-reserve-analysis">Advanced Reserve Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sensitivity-to-parameters">Sensitivity to Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mathematical-background">Mathematical Background</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reserve-calculation">Reserve Calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#economic-limit-determination">Economic Limit Determination</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#reserve-categories">Reserve Categories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quality-control">Quality Control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-issues">Common Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-requirements">Data Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameter-selection">Parameter Selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#economic-assumptions">Economic Assumptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uncertainty-assessment">Uncertainty Assessment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_loader.html">Data Loader</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Decline Curve Analysis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Reserves</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/reserves.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="reserves">
+<h1>Reserves<a class="headerlink" href="#reserves" title="Link to this heading"></a></h1>
+<p>The reserves module provides tools for estimating ultimate recovery (EUR) from decline curve analysis and production forecasting with economic limits.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Reserve estimation is fundamental to:</p>
+<ul class="simple">
+<li><p>Asset valuation and portfolio management</p></li>
+<li><p>Development planning and optimization</p></li>
+<li><p>Regulatory reporting and compliance</p></li>
+<li><p>Investment decision making</p></li>
+</ul>
+</section>
+<section id="module-decline_analysis.reserves">
+<span id="functions"></span><h2>Functions<a class="headerlink" href="#module-decline_analysis.reserves" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="decline_analysis.reserves.forecast_and_reserves">
+<span class="sig-prename descclassname"><span class="pre">decline_analysis.reserves.</span></span><span class="sig-name descname"><span class="pre">forecast_and_reserves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">240</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">econ_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/reserves.html#forecast_and_reserves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#decline_analysis.reserves.forecast_and_reserves" title="Link to this definition"></a></dt>
+<dd><p>Generate forecast and compute EUR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="../api/models.html#id0" title="decline_analysis.models.ArpsParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArpsParams</span></code></a></span>) – ArpsParams for decline model.</p></li>
+<li><p><strong>t_max</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – Time horizon in months.</p></li>
+<li><p><strong>dt</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – Time step in months.</p></li>
+<li><p><strong>econ_limit</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – Minimum economic production rate.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict with forecast, time, and EUR.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
+<section id="basic-reserve-estimation">
+<h3>Basic Reserve Estimation<a class="headerlink" href="#basic-reserve-estimation" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">decline_analysis</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dca</span>
+
+<span class="c1"># Define Arps parameters</span>
+<span class="n">params</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">ArpsParams</span><span class="p">(</span><span class="n">qi</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">di</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Calculate reserves with economic limit</span>
+<span class="n">reserves_result</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">reserves</span><span class="p">(</span>
+    <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+    <span class="n">t_max</span><span class="o">=</span><span class="mi">240</span><span class="p">,</span>      <span class="c1"># 20 years</span>
+    <span class="n">dt</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>         <span class="c1"># monthly time steps</span>
+    <span class="n">econ_limit</span><span class="o">=</span><span class="mf">10.0</span> <span class="c1"># minimum economic rate</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EUR: </span><span class="si">{</span><span class="n">reserves_result</span><span class="p">[</span><span class="s1">&#39;eur&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2"> bbls&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Economic life: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">reserves_result</span><span class="p">[</span><span class="s1">&#39;t_valid&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> months&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-reserve-analysis">
+<h3>Advanced Reserve Analysis<a class="headerlink" href="#advanced-reserve-analysis" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="c1"># Compare different economic limits</span>
+<span class="n">econ_limits</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">]</span>  <span class="c1"># bbl/month</span>
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="n">econ_limits</span><span class="p">:</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">reserves</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">econ_limit</span><span class="o">=</span><span class="n">limit</span><span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s1">&#39;econ_limit&#39;</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span>
+        <span class="s1">&#39;eur&#39;</span><span class="p">:</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;eur&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;economic_life&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;t_valid&#39;</span><span class="p">])</span>
+    <span class="p">})</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="n">comparison</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">comparison</span><span class="p">)</span>
+
+<span class="c1"># Plot production profile with economic limit</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">reserves</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">econ_limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">],</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">],</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Production forecast&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Economic limit&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;t_valid&#39;</span><span class="p">],</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;q_valid&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+                 <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Economic reserves: </span><span class="si">{</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;eur&quot;</span><span class="p">]</span><span class="si">:</span><span class="s1">,.0f</span><span class="si">}</span><span class="s1"> bbls&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time (months)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Production Rate (bbl/month)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Production Forecast with Economic Limit&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="sensitivity-to-parameters">
+<h3>Sensitivity to Parameters<a class="headerlink" href="#sensitivity-to-parameters" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Analyze sensitivity to decline parameters</span>
+<span class="n">base_params</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">ArpsParams</span><span class="p">(</span><span class="n">qi</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">di</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Vary initial production</span>
+<span class="n">qi_values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">800</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">1100</span><span class="p">,</span> <span class="mi">1200</span><span class="p">]</span>
+<span class="n">qi_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">qi</span> <span class="ow">in</span> <span class="n">qi_values</span><span class="p">:</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">ArpsParams</span><span class="p">(</span><span class="n">qi</span><span class="o">=</span><span class="n">qi</span><span class="p">,</span> <span class="n">di</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">reserves</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">qi_results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;qi&#39;</span><span class="p">:</span> <span class="n">qi</span><span class="p">,</span> <span class="s1">&#39;eur&#39;</span><span class="p">:</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;eur&#39;</span><span class="p">]})</span>
+
+<span class="c1"># Vary decline rate</span>
+<span class="n">di_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">]</span>
+<span class="n">di_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">di</span> <span class="ow">in</span> <span class="n">di_values</span><span class="p">:</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">ArpsParams</span><span class="p">(</span><span class="n">qi</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">di</span><span class="o">=</span><span class="n">di</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">reserves</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">di_results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;di&#39;</span><span class="p">:</span> <span class="n">di</span><span class="p">,</span> <span class="s1">&#39;eur&#39;</span><span class="p">:</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;eur&#39;</span><span class="p">]})</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initial Rate Sensitivity:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">qi_results</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Decline Rate Sensitivity:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">di_results</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="mathematical-background">
+<h2>Mathematical Background<a class="headerlink" href="#mathematical-background" title="Link to this heading"></a></h2>
+<section id="reserve-calculation">
+<h3>Reserve Calculation<a class="headerlink" href="#reserve-calculation" title="Link to this heading"></a></h3>
+<p><strong>Estimated Ultimate Recovery (EUR):</strong></p>
+<p>For production above economic limit:</p>
+<div class="math notranslate nohighlight">
+\[EUR = \int_0^{t_{econ}} q(t) \, dt\]</div>
+<p>Where <span class="math notranslate nohighlight">\(t_{econ}\)</span> is when <span class="math notranslate nohighlight">\(q(t) = q_{limit}\)</span></p>
+<p><strong>Arps Decline Equations:</strong></p>
+<ul>
+<li><p><strong>Exponential</strong> (<span class="math notranslate nohighlight">\(b = 0\)</span>):</p>
+<div class="math notranslate nohighlight">
+\[q(t) = q_i e^{-D_i t}\]</div>
+<div class="math notranslate nohighlight">
+\[EUR = \frac{q_i}{D_i}\]</div>
+</li>
+<li><p><strong>Harmonic</strong> (<span class="math notranslate nohighlight">\(b = 1\)</span>):</p>
+<div class="math notranslate nohighlight">
+\[q(t) = \frac{q_i}{1 + D_i t}\]</div>
+<div class="math notranslate nohighlight">
+\[EUR = \frac{q_i}{D_i} \ln\left(\frac{q_i}{q_{limit}}\right)\]</div>
+</li>
+<li><p><strong>Hyperbolic</strong> (<span class="math notranslate nohighlight">\(0 &lt; b &lt; 1\)</span>):</p>
+<div class="math notranslate nohighlight">
+\[q(t) = \frac{q_i}{(1 + b D_i t)^{1/b}}\]</div>
+<div class="math notranslate nohighlight">
+\[EUR = \frac{q_i^b}{D_i(1-b)} \left[q_i^{1-b} - q_{limit}^{1-b}\right]\]</div>
+</li>
+</ul>
+</section>
+<section id="economic-limit-determination">
+<h3>Economic Limit Determination<a class="headerlink" href="#economic-limit-determination" title="Link to this heading"></a></h3>
+<p>The economic limit is typically set based on:</p>
+<ul class="simple">
+<li><p><strong>Operating costs</strong> vs. revenue</p></li>
+<li><p><strong>Facility constraints</strong> (minimum throughput)</p></li>
+<li><p><strong>Regulatory requirements</strong></p></li>
+<li><p><strong>Technical limitations</strong></p></li>
+</ul>
+<p>Common approaches:</p>
+<div class="math notranslate nohighlight">
+\[q_{limit} = \frac{OPEX}{P - VAR}\]</div>
+<p>Where:
+- <span class="math notranslate nohighlight">\(OPEX\)</span> = Fixed operating expenses
+- <span class="math notranslate nohighlight">\(P\)</span> = Product price
+- <span class="math notranslate nohighlight">\(VAR\)</span> = Variable costs per unit</p>
+</section>
+</section>
+<section id="reserve-categories">
+<h2>Reserve Categories<a class="headerlink" href="#reserve-categories" title="Link to this heading"></a></h2>
+<p><strong>Proved Reserves (1P):</strong>
+- High confidence (≥90% probability)
+- Conservative decline parameters
+- Current economic conditions</p>
+<p><strong>Probable Reserves (2P):</strong>
+- Best estimate (≥50% probability)
+- Most likely decline parameters
+- Reasonable price assumptions</p>
+<p><strong>Possible Reserves (3P):</strong>
+- Low estimate (≥10% probability)
+- Optimistic decline parameters
+- Favorable economic conditions</p>
+</section>
+<section id="quality-control">
+<h2>Quality Control<a class="headerlink" href="#quality-control" title="Link to this heading"></a></h2>
+<p>Reserve estimates should be validated by:</p>
+<ol class="arabic simple">
+<li><p><strong>Comparison with analogs</strong> in similar fields</p></li>
+<li><p><strong>Material balance</strong> calculations</p></li>
+<li><p><strong>Multiple decline curve</strong> methods</p></li>
+<li><p><strong>Economic sensitivity</strong> analysis</p></li>
+<li><p><strong>Independent review</strong> by qualified evaluator</p></li>
+</ol>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Insufficient data</strong> for reliable curve fitting</p></li>
+<li><p><strong>Changing operating conditions</strong> affecting decline</p></li>
+<li><p><strong>Price volatility</strong> impacting economic limits</p></li>
+<li><p><strong>Regulatory changes</strong> affecting development</p></li>
+<li><p><strong>Technology improvements</strong> extending well life</p></li>
+</ul>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<section id="data-requirements">
+<h3>Data Requirements<a class="headerlink" href="#data-requirements" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Minimum 6-12 months of production data</p></li>
+<li><p>Consistent measurement and reporting</p></li>
+<li><p>Account for downtime and curtailment</p></li>
+<li><p>Consider seasonal variations</p></li>
+</ul>
+</section>
+<section id="parameter-selection">
+<h3>Parameter Selection<a class="headerlink" href="#parameter-selection" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Use field-specific decline trends</p></li>
+<li><p>Consider completion and stimulation effects</p></li>
+<li><p>Account for depletion drive mechanisms</p></li>
+<li><p>Validate with offset well performance</p></li>
+</ul>
+</section>
+<section id="economic-assumptions">
+<h3>Economic Assumptions<a class="headerlink" href="#economic-assumptions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Use conservative price forecasts</p></li>
+<li><p>Include all operating costs</p></li>
+<li><p>Consider facility sharing and synergies</p></li>
+<li><p>Account for abandonment costs</p></li>
+</ul>
+</section>
+<section id="uncertainty-assessment">
+<h3>Uncertainty Assessment<a class="headerlink" href="#uncertainty-assessment" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Perform sensitivity analysis</p></li>
+<li><p>Use probabilistic methods (P10/P50/P90)</p></li>
+<li><p>Consider correlation between parameters</p></li>
+<li><p>Document assumptions and limitations</p></li>
+</ul>
+</section>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><span class="xref std std-doc">models</span> - Arps decline curve models</p></li>
+<li><p><a class="reference internal" href="economics.html"><span class="doc">Economics</span></a> - Economic evaluation</p></li>
+<li><p><a class="reference internal" href="sensitivity.html"><span class="doc">Sensitivity Analysis</span></a> - Parameter sensitivity analysis</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="economics.html" class="btn btn-neutral float-left" title="Economics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="data_loader.html" class="btn btn-neutral float-right" title="Data Loader" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Kyle T. Jones.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

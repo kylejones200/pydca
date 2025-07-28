@@ -1,0 +1,379 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Economics &mdash; Decline Curve Analysis 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1e03605e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reserves" href="reserves.html" />
+    <link rel="prev" title="Sensitivity Analysis" href="sensitivity.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Decline Curve Analysis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../models.html">Models and Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensitivity.html">Sensitivity Analysis</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Economics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-decline_analysis.economics">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#decline_analysis.economics.economic_metrics"><code class="docutils literal notranslate"><span class="pre">economic_metrics()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-economic-analysis">Basic Economic Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#advanced-economic-scenarios">Advanced Economic Scenarios</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cash-flow-analysis">Cash Flow Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mathematical-background">Mathematical Background</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#economic-calculations">Economic Calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#discount-rate-considerations">Discount Rate Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#economic-indicators">Economic Indicators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#npv-interpretation">NPV Interpretation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#payback-period-guidelines">Payback Period Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sensitivity-considerations">Sensitivity Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#price-assumptions">Price Assumptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cost-estimates">Cost Estimates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#risk-assessment">Risk Assessment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reserves.html">Reserves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_loader.html">Data Loader</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Decline Curve Analysis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Economics</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/economics.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="economics">
+<h1>Economics<a class="headerlink" href="#economics" title="Link to this heading"></a></h1>
+<p>The economics module provides financial evaluation tools for oil and gas wells, including NPV calculations, cash flow analysis, and payback period determination.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Economic evaluation is essential for:</p>
+<ul class="simple">
+<li><p>Investment decision making</p></li>
+<li><p>Project ranking and portfolio optimization</p></li>
+<li><p>Risk assessment and sensitivity analysis</p></li>
+<li><p>Performance monitoring and optimization</p></li>
+</ul>
+</section>
+<section id="module-decline_analysis.economics">
+<span id="functions"></span><h2>Functions<a class="headerlink" href="#module-decline_analysis.economics" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="decline_analysis.economics.economic_metrics">
+<span class="sig-prename descclassname"><span class="pre">decline_analysis.economics.</span></span><span class="sig-name descname"><span class="pre">economic_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step_months</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decline_analysis/economics.html#economic_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#decline_analysis.economics.economic_metrics" title="Link to this definition"></a></dt>
+<dd><p>Calculate economics from forecasted production.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span>) – Production forecast (monthly).</p></li>
+<li><p><strong>price</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – Unit price.</p></li>
+<li><p><strong>opex</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – Operating cost.</p></li>
+<li><p><strong>discount_rate</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – Annual discount rate.</p></li>
+<li><p><strong>time_step_months</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – Length of time step in months.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict with cash flow, NPV, payback.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
+<section id="basic-economic-analysis">
+<h3>Basic Economic Analysis<a class="headerlink" href="#basic-economic-analysis" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">decline_analysis</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dca</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># Create production forecast</span>
+<span class="n">dates</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;MS&#39;</span><span class="p">)</span>
+<span class="n">production</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">950</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">850</span><span class="p">,</span> <span class="mi">800</span><span class="p">]</span> <span class="o">+</span>
+                      <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">55</span><span class="p">)),</span>
+                      <span class="n">index</span><span class="o">=</span><span class="n">dates</span><span class="p">)</span>
+
+<span class="c1"># Calculate economics</span>
+<span class="n">econ_results</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">economics</span><span class="p">(</span>
+    <span class="n">production</span><span class="o">=</span><span class="n">production</span><span class="p">,</span>
+    <span class="n">price</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span>  <span class="c1"># $/bbl</span>
+    <span class="n">opex</span><span class="o">=</span><span class="mf">15.0</span><span class="p">,</span>   <span class="c1"># $/bbl operating cost</span>
+    <span class="n">discount_rate</span><span class="o">=</span><span class="mf">0.10</span>  <span class="c1"># 10% annual</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NPV: $</span><span class="si">{</span><span class="n">econ_results</span><span class="p">[</span><span class="s1">&#39;npv&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Payback: </span><span class="si">{</span><span class="n">econ_results</span><span class="p">[</span><span class="s1">&#39;payback_month&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> months&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-economic-scenarios">
+<h3>Advanced Economic Scenarios<a class="headerlink" href="#advanced-economic-scenarios" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compare different price scenarios</span>
+<span class="n">prices</span> <span class="o">=</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">80</span><span class="p">]</span>
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">price</span> <span class="ow">in</span> <span class="n">prices</span><span class="p">:</span>
+    <span class="n">econ</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">economics</span><span class="p">(</span><span class="n">production</span><span class="p">,</span> <span class="n">price</span><span class="o">=</span><span class="n">price</span><span class="p">,</span> <span class="n">opex</span><span class="o">=</span><span class="mf">15.0</span><span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s1">&#39;price&#39;</span><span class="p">:</span> <span class="n">price</span><span class="p">,</span>
+        <span class="s1">&#39;npv&#39;</span><span class="p">:</span> <span class="n">econ</span><span class="p">[</span><span class="s1">&#39;npv&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;payback&#39;</span><span class="p">:</span> <span class="n">econ</span><span class="p">[</span><span class="s1">&#39;payback_month&#39;</span><span class="p">]</span>
+    <span class="p">})</span>
+
+<span class="n">econ_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">econ_df</span><span class="p">)</span>
+
+<span class="c1"># Calculate break-even price</span>
+<span class="n">break_even_price</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">for</span> <span class="n">price</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">econ</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">economics</span><span class="p">(</span><span class="n">production</span><span class="p">,</span> <span class="n">price</span><span class="o">=</span><span class="n">price</span><span class="p">,</span> <span class="n">opex</span><span class="o">=</span><span class="mf">15.0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">econ</span><span class="p">[</span><span class="s1">&#39;npv&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">break_even_price</span> <span class="o">=</span> <span class="n">price</span>
+        <span class="k">break</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Break-even price: $</span><span class="si">{</span><span class="n">break_even_price</span><span class="si">}</span><span class="s2">/bbl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="cash-flow-analysis">
+<h3>Cash Flow Analysis<a class="headerlink" href="#cash-flow-analysis" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Detailed cash flow analysis</span>
+<span class="n">econ</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">economics</span><span class="p">(</span><span class="n">production</span><span class="p">,</span> <span class="n">price</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">opex</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">cash_flow</span> <span class="o">=</span> <span class="n">econ</span><span class="p">[</span><span class="s1">&#39;cash_flow&#39;</span><span class="p">]</span>
+
+<span class="c1"># Monthly cash flow</span>
+<span class="n">monthly_cf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">production</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+    <span class="s1">&#39;production&#39;</span><span class="p">:</span> <span class="n">production</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+    <span class="s1">&#39;revenue&#39;</span><span class="p">:</span> <span class="n">production</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span>
+    <span class="s1">&#39;opex&#39;</span><span class="p">:</span> <span class="n">production</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mi">15</span><span class="p">,</span>
+    <span class="s1">&#39;net_cf&#39;</span><span class="p">:</span> <span class="n">cash_flow</span>
+<span class="p">})</span>
+
+<span class="c1"># Cumulative cash flow</span>
+<span class="n">monthly_cf</span><span class="p">[</span><span class="s1">&#39;cum_cf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">monthly_cf</span><span class="p">[</span><span class="s1">&#39;net_cf&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">monthly_cf</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="mathematical-background">
+<h2>Mathematical Background<a class="headerlink" href="#mathematical-background" title="Link to this heading"></a></h2>
+<section id="economic-calculations">
+<h3>Economic Calculations<a class="headerlink" href="#economic-calculations" title="Link to this heading"></a></h3>
+<p><strong>Net Present Value (NPV):</strong></p>
+<div class="math notranslate nohighlight">
+\[NPV = \sum_{t=0}^{T} \frac{CF_t}{(1+r)^{t/12}}\]</div>
+<p>Where:
+- <span class="math notranslate nohighlight">\(CF_t\)</span> = Net cash flow in month t
+- <span class="math notranslate nohighlight">\(r\)</span> = Annual discount rate
+- <span class="math notranslate nohighlight">\(T\)</span> = Project life in months</p>
+<p><strong>Monthly Cash Flow:</strong></p>
+<div class="math notranslate nohighlight">
+\[CF_t = (P - OPEX) \times Q_t\]</div>
+<p>Where:
+- <span class="math notranslate nohighlight">\(P\)</span> = Oil/gas price ($/unit)
+- <span class="math notranslate nohighlight">\(OPEX\)</span> = Operating expense ($/unit)
+- <span class="math notranslate nohighlight">\(Q_t\)</span> = Production in month t</p>
+<p><strong>Payback Period:</strong></p>
+<p>The month when cumulative undiscounted cash flow becomes positive:</p>
+<div class="math notranslate nohighlight">
+\[\text{Payback} = \min(t) \text{ such that } \sum_{i=0}^{t} CF_i &gt; 0\]</div>
+</section>
+<section id="discount-rate-considerations">
+<h3>Discount Rate Considerations<a class="headerlink" href="#discount-rate-considerations" title="Link to this heading"></a></h3>
+<p>The discount rate should reflect:</p>
+<ul class="simple">
+<li><p><strong>Risk-free rate</strong> (government bonds)</p></li>
+<li><p><strong>Risk premium</strong> for oil/gas investments</p></li>
+<li><p><strong>Company cost of capital</strong></p></li>
+<li><p><strong>Project-specific risks</strong></p></li>
+</ul>
+<p>Typical ranges:
+- Low risk: 8-12%
+- Medium risk: 12-15%
+- High risk: 15-20%</p>
+</section>
+</section>
+<section id="economic-indicators">
+<h2>Economic Indicators<a class="headerlink" href="#economic-indicators" title="Link to this heading"></a></h2>
+<section id="npv-interpretation">
+<h3>NPV Interpretation<a class="headerlink" href="#npv-interpretation" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>NPV &gt; 0:</strong> Project creates value, should proceed</p></li>
+<li><p><strong>NPV = 0:</strong> Project breaks even at discount rate</p></li>
+<li><p><strong>NPV &lt; 0:</strong> Project destroys value, should reject</p></li>
+</ul>
+</section>
+<section id="payback-period-guidelines">
+<h3>Payback Period Guidelines<a class="headerlink" href="#payback-period-guidelines" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>&lt; 2 years:</strong> Excellent payback</p></li>
+<li><p><strong>2-4 years:</strong> Good payback</p></li>
+<li><p><strong>4-6 years:</strong> Acceptable payback</p></li>
+<li><p><strong>&gt; 6 years:</strong> Poor payback, high risk</p></li>
+</ul>
+</section>
+<section id="sensitivity-considerations">
+<h3>Sensitivity Considerations<a class="headerlink" href="#sensitivity-considerations" title="Link to this heading"></a></h3>
+<p>Key variables affecting economics:</p>
+<ol class="arabic simple">
+<li><p><strong>Oil/gas prices</strong> (highest impact)</p></li>
+<li><p><strong>Operating costs</strong> (medium impact)</p></li>
+<li><p><strong>Production decline</strong> (medium impact)</p></li>
+<li><p><strong>Discount rate</strong> (low-medium impact)</p></li>
+</ol>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<section id="price-assumptions">
+<h3>Price Assumptions<a class="headerlink" href="#price-assumptions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Use conservative price forecasts</p></li>
+<li><p>Consider price volatility and cycles</p></li>
+<li><p>Include multiple price scenarios</p></li>
+<li><p>Account for price differentials</p></li>
+</ul>
+</section>
+<section id="cost-estimates">
+<h3>Cost Estimates<a class="headerlink" href="#cost-estimates" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Include all operating costs (LOE, taxes, etc.)</p></li>
+<li><p>Account for cost inflation</p></li>
+<li><p>Consider economies of scale</p></li>
+<li><p>Include abandonment costs</p></li>
+</ul>
+</section>
+<section id="risk-assessment">
+<h3>Risk Assessment<a class="headerlink" href="#risk-assessment" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Perform sensitivity analysis on key variables</p></li>
+<li><p>Use Monte Carlo simulation for uncertainty</p></li>
+<li><p>Consider correlation between variables</p></li>
+<li><p>Evaluate downside scenarios</p></li>
+</ul>
+</section>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="sensitivity.html"><span class="doc">Sensitivity Analysis</span></a> - Sensitivity analysis tools</p></li>
+<li><p><a class="reference internal" href="reserves.html"><span class="doc">Reserves</span></a> - Reserve estimation</p></li>
+<li><p><span class="xref std std-doc">models</span> - Production forecasting</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sensitivity.html" class="btn btn-neutral float-left" title="Sensitivity Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reserves.html" class="btn btn-neutral float-right" title="Reserves" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Kyle T. Jones.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,484 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Models and Methods &mdash; Decline Curve Analysis 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=1e03605e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Decline Curve Analysis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Models and Methods</a><ul>
+<li><a class="reference internal" href="#arps-decline-curves">Arps Decline Curves</a><ul>
+<li><a class="reference internal" href="#mathematical-formulation">Mathematical Formulation</a></li>
+<li><a class="reference internal" href="#exponential-decline-b-0">Exponential Decline (b = 0)</a></li>
+<li><a class="reference internal" href="#harmonic-decline-b-1">Harmonic Decline (b = 1)</a></li>
+<li><a class="reference internal" href="#hyperbolic-decline-0-b-1">Hyperbolic Decline (0 &lt; b &lt; 1)</a></li>
+<li><a class="reference internal" href="#parameter-estimation">Parameter Estimation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#arima-models">ARIMA Models</a><ul>
+<li><a class="reference internal" href="#model-structure">Model Structure</a></li>
+<li><a class="reference internal" href="#automatic-parameter-selection">Automatic Parameter Selection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#foundation-models">Foundation Models</a><ul>
+<li><a class="reference internal" href="#timesfm-google">TimesFM (Google)</a></li>
+<li><a class="reference internal" href="#chronos-amazon">Chronos (Amazon)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#model-selection-guidelines">Model Selection Guidelines</a><ul>
+<li><a class="reference internal" href="#choosing-the-right-model">Choosing the Right Model</a></li>
+<li><a class="reference internal" href="#model-comparison-framework">Model Comparison Framework</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#validation-and-testing">Validation and Testing</a><ul>
+<li><a class="reference internal" href="#cross-validation">Cross-Validation</a></li>
+<li><a class="reference internal" href="#out-of-sample-testing">Out-of-Sample Testing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li><a class="reference internal" href="#data-preparation">Data Preparation</a></li>
+<li><a class="reference internal" href="#model-fitting">Model Fitting</a></li>
+<li><a class="reference internal" href="#forecast-interpretation">Forecast Interpretation</a></li>
+<li><a class="reference internal" href="#common-pitfalls">Common Pitfalls</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Decline Curve Analysis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Models and Methods</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="models-and-methods">
+<h1>Models and Methods<a class="headerlink" href="#models-and-methods" title="Link to this heading"></a></h1>
+<p>This section provides detailed information about the forecasting models and methods available in the Decline Curve Analysis library.</p>
+<section id="arps-decline-curves">
+<h2>Arps Decline Curves<a class="headerlink" href="#arps-decline-curves" title="Link to this heading"></a></h2>
+<p>The Arps decline curves are the foundation of petroleum production forecasting, developed by J.J. Arps in 1945. These empirical models describe the relationship between production rate and time.</p>
+<section id="mathematical-formulation">
+<h3>Mathematical Formulation<a class="headerlink" href="#mathematical-formulation" title="Link to this heading"></a></h3>
+<p>All Arps models follow the general form:</p>
+<div class="math notranslate nohighlight">
+\[q(t) = \frac{q_i}{(1 + b \cdot d_i \cdot t)^{1/b}}\]</div>
+<p>Where:
+- <span class="math notranslate nohighlight">\(q(t)\)</span> = production rate at time t
+- <span class="math notranslate nohighlight">\(q_i\)</span> = initial production rate
+- <span class="math notranslate nohighlight">\(d_i\)</span> = initial decline rate
+- <span class="math notranslate nohighlight">\(b\)</span> = hyperbolic exponent
+- <span class="math notranslate nohighlight">\(t\)</span> = time</p>
+</section>
+<section id="exponential-decline-b-0">
+<h3>Exponential Decline (b = 0)<a class="headerlink" href="#exponential-decline-b-0" title="Link to this heading"></a></h3>
+<div class="math notranslate nohighlight">
+\[q(t) = q_i \cdot e^{-d_i \cdot t}\]</div>
+<p><strong>Characteristics:</strong>
+- Constant percentage decline rate
+- Most conservative forecast
+- Suitable for mature wells with steady decline
+- Simple to fit and interpret</p>
+<p><strong>When to Use:</strong>
+- Wells with long production history showing steady decline
+- Conservative estimates required
+- Regulatory or financial planning scenarios</p>
+</section>
+<section id="harmonic-decline-b-1">
+<h3>Harmonic Decline (b = 1)<a class="headerlink" href="#harmonic-decline-b-1" title="Link to this heading"></a></h3>
+<div class="math notranslate nohighlight">
+\[q(t) = \frac{q_i}{1 + d_i \cdot t}\]</div>
+<p><strong>Characteristics:</strong>
+- Decreasing decline rate over time
+- More optimistic than exponential
+- Suitable for wells with improving reservoir conditions
+- Asymptotic approach to zero</p>
+<p><strong>When to Use:</strong>
+- Wells showing decreasing decline rates
+- Pressure maintenance or enhanced recovery operations
+- Long-term production planning</p>
+</section>
+<section id="hyperbolic-decline-0-b-1">
+<h3>Hyperbolic Decline (0 &lt; b &lt; 1)<a class="headerlink" href="#hyperbolic-decline-0-b-1" title="Link to this heading"></a></h3>
+<div class="math notranslate nohighlight">
+\[q(t) = \frac{q_i}{(1 + b \cdot d_i \cdot t)^{1/b}}\]</div>
+<p><strong>Characteristics:</strong>
+- Most flexible model
+- Transitions from high initial decline to lower long-term decline
+- Best fit for most unconventional wells
+- Requires careful parameter estimation</p>
+<p><strong>When to Use:</strong>
+- Unconventional wells (shale, tight gas)
+- Wells with complex decline behavior
+- When historical data shows hyperbolic characteristics</p>
+</section>
+<section id="parameter-estimation">
+<h3>Parameter Estimation<a class="headerlink" href="#parameter-estimation" title="Link to this heading"></a></h3>
+<p>The library uses non-linear least squares optimization to fit Arps parameters:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">decline_analysis.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_arps</span><span class="p">,</span> <span class="n">predict_arps</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># Prepare data</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span>  <span class="c1"># 24 months</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">production_data</span><span class="o">.</span><span class="n">values</span>
+
+<span class="c1"># Fit hyperbolic model</span>
+<span class="n">params</span> <span class="o">=</span> <span class="n">fit_arps</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;hyperbolic&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;qi (initial rate): </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">qi</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;di (decline rate): </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">di</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;b (hyperbolic exponent): </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">b</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Generate predictions</span>
+<span class="n">future_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span>  <span class="c1"># Extend to 36 months</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">predict_arps</span><span class="p">(</span><span class="n">future_t</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="arima-models">
+<h2>ARIMA Models<a class="headerlink" href="#arima-models" title="Link to this heading"></a></h2>
+<p>AutoRegressive Integrated Moving Average (ARIMA) models are powerful statistical tools for time series forecasting that can capture complex temporal patterns.</p>
+<section id="model-structure">
+<h3>Model Structure<a class="headerlink" href="#model-structure" title="Link to this heading"></a></h3>
+<p>ARIMA(p,d,q) models combine three components:</p>
+<ul class="simple">
+<li><p><strong>AR(p)</strong>: AutoRegressive terms - dependence on past values</p></li>
+<li><p><strong>I(d)</strong>: Integration - differencing to achieve stationarity</p></li>
+<li><p><strong>MA(q)</strong>: Moving Average terms - dependence on past forecast errors</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[(1 - \phi_1 L - \phi_2 L^2 - ... - \phi_p L^p)(1-L)^d X_t = (1 + \theta_1 L + \theta_2 L^2 + ... + \theta_q L^q)\epsilon_t\]</div>
+<p>Where:
+- <span class="math notranslate nohighlight">\(L\)</span> is the lag operator
+- <span class="math notranslate nohighlight">\(\phi_i\)</span> are autoregressive parameters
+- <span class="math notranslate nohighlight">\(\theta_i\)</span> are moving average parameters
+- <span class="math notranslate nohighlight">\(\epsilon_t\)</span> is white noise</p>
+</section>
+<section id="automatic-parameter-selection">
+<h3>Automatic Parameter Selection<a class="headerlink" href="#automatic-parameter-selection" title="Link to this heading"></a></h3>
+<p>The library uses the <cite>pmdarima</cite> package for automatic ARIMA parameter selection:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">decline_analysis.forecast_arima</span><span class="w"> </span><span class="kn">import</span> <span class="n">forecast_arima</span>
+
+<span class="c1"># Automatic parameter selection</span>
+<span class="n">forecast</span> <span class="o">=</span> <span class="n">forecast_arima</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+<span class="c1"># Manual parameter specification</span>
+<span class="n">forecast</span> <span class="o">=</span> <span class="n">forecast_arima</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># Seasonal ARIMA</span>
+<span class="n">forecast</span> <span class="o">=</span> <span class="n">forecast_arima</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">seasonal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seasonal_period</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Advantages:</strong>
+- Captures complex temporal patterns
+- Handles trend and seasonality
+- Statistical foundation with confidence intervals
+- Automatic parameter selection available</p>
+<p><strong>Limitations:</strong>
+- Requires stationary data (handled automatically)
+- May need substantial historical data
+- Can be sensitive to outliers</p>
+</section>
+</section>
+<section id="foundation-models">
+<h2>Foundation Models<a class="headerlink" href="#foundation-models" title="Link to this heading"></a></h2>
+<p>The library integrates with state-of-the-art foundation models for time series forecasting.</p>
+<section id="timesfm-google">
+<h3>TimesFM (Google)<a class="headerlink" href="#timesfm-google" title="Link to this heading"></a></h3>
+<p>TimesFM is Google’s foundation model for time series forecasting, pre-trained on diverse time series data.</p>
+<p><strong>Features:</strong>
+- Zero-shot forecasting capability
+- Handles various time series patterns
+- Robust to missing data and irregularities
+- No parameter tuning required</p>
+<p><strong>Implementation:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># TimesFM forecasting (with automatic fallback)</span>
+<span class="n">forecast</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;timesfm&quot;</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Note:</strong> The library includes intelligent fallbacks when TimesFM is not available, using exponential smoothing methods.</p>
+</section>
+<section id="chronos-amazon">
+<h3>Chronos (Amazon)<a class="headerlink" href="#chronos-amazon" title="Link to this heading"></a></h3>
+<p>Chronos is Amazon’s probabilistic foundation model for time series forecasting.</p>
+<p><strong>Features:</strong>
+- Probabilistic forecasts with uncertainty quantification
+- Pre-trained on large-scale time series data
+- Handles multiple forecast horizons
+- Robust performance across domains</p>
+<p><strong>Implementation:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Chronos forecasting</span>
+<span class="n">forecast</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;chronos&quot;</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+<span class="c1"># Probabilistic forecasting</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">decline_analysis.forecast_chronos</span><span class="w"> </span><span class="kn">import</span> <span class="n">forecast_chronos_probabilistic</span>
+<span class="n">quantiles</span> <span class="o">=</span> <span class="n">forecast_chronos_probabilistic</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+                                         <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="model-selection-guidelines">
+<h2>Model Selection Guidelines<a class="headerlink" href="#model-selection-guidelines" title="Link to this heading"></a></h2>
+<section id="choosing-the-right-model">
+<h3>Choosing the Right Model<a class="headerlink" href="#choosing-the-right-model" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Start with Arps Hyperbolic</strong>
+- Best for most oil and gas wells
+- Industry standard with physical interpretation
+- Good baseline for comparison</p></li>
+<li><p><strong>Use ARIMA for Complex Patterns</strong>
+- When Arps models show poor fit
+- Seasonal or cyclical patterns present
+- Need statistical confidence intervals</p></li>
+<li><p><strong>Try Foundation Models for Difficult Cases</strong>
+- Limited historical data
+- Irregular production patterns
+- When traditional methods fail</p></li>
+</ol>
+</section>
+<section id="model-comparison-framework">
+<h3>Model Comparison Framework<a class="headerlink" href="#model-comparison-framework" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">compare_models</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare all available models.&quot;&quot;&quot;</span>
+
+    <span class="n">models</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;Exponential&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;arps&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;kind&#39;</span><span class="p">:</span> <span class="s1">&#39;exponential&#39;</span><span class="p">}),</span>
+        <span class="s1">&#39;Harmonic&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;arps&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;kind&#39;</span><span class="p">:</span> <span class="s1">&#39;harmonic&#39;</span><span class="p">}),</span>
+        <span class="s1">&#39;Hyperbolic&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;arps&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;kind&#39;</span><span class="p">:</span> <span class="s1">&#39;hyperbolic&#39;</span><span class="p">}),</span>
+        <span class="s1">&#39;ARIMA&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;arima&#39;</span><span class="p">,</span> <span class="p">{}),</span>
+        <span class="s1">&#39;TimesFM&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;timesfm&#39;</span><span class="p">,</span> <span class="p">{}),</span>
+        <span class="s1">&#39;Chronos&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;chronos&#39;</span><span class="p">,</span> <span class="p">{}),</span>
+    <span class="p">}</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="ow">in</span> <span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">forecast</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="n">horizon</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">forecast</span><span class="p">)</span>
+            <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;forecast&#39;</span><span class="p">:</span> <span class="n">forecast</span><span class="p">,</span>
+                <span class="s1">&#39;rmse&#39;</span><span class="p">:</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;rmse&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;mae&#39;</span><span class="p">:</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;mae&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;smape&#39;</span><span class="p">:</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;smape&#39;</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Rank by RMSE</span>
+    <span class="n">ranked</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;rmse&#39;</span><span class="p">])</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model Performance Ranking (by RMSE):&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ranked</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: RMSE=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;rmse&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;MAE=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;mae&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, SMAPE=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;smse&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="validation-and-testing">
+<h2>Validation and Testing<a class="headerlink" href="#validation-and-testing" title="Link to this heading"></a></h2>
+<section id="cross-validation">
+<h3>Cross-Validation<a class="headerlink" href="#cross-validation" title="Link to this heading"></a></h3>
+<p>Proper model validation is crucial for reliable forecasts:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">time_series_cv</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Time series cross-validation.&quot;&quot;&quot;</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">total_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
+    <span class="n">test_size</span> <span class="o">=</span> <span class="n">total_length</span> <span class="o">//</span> <span class="p">(</span><span class="n">n_splits</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_splits</span><span class="p">):</span>
+        <span class="c1"># Split data</span>
+        <span class="n">split_point</span> <span class="o">=</span> <span class="n">test_size</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">train</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">split_point</span><span class="o">-</span><span class="n">horizon</span><span class="p">]</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">split_point</span><span class="o">-</span><span class="n">horizon</span><span class="p">:</span><span class="n">split_point</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Generate forecast</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;arps&#39;</span><span class="p">:</span>
+            <span class="n">forecast</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;hyperbolic&#39;</span><span class="p">,</span>
+                                  <span class="n">horizon</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">forecast</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">))</span>
+
+        <span class="c1"># Evaluate</span>
+        <span class="n">forecast_part</span> <span class="o">=</span> <span class="n">forecast</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">):</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">)]</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">forecast_part</span><span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+
+    <span class="c1"># Average results</span>
+    <span class="n">avg_metrics</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;rmse&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;rmse&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]),</span>
+        <span class="s1">&#39;mae&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;mae&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]),</span>
+        <span class="s1">&#39;smape&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;smape&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">])</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">avg_metrics</span>
+</pre></div>
+</div>
+</section>
+<section id="out-of-sample-testing">
+<h3>Out-of-Sample Testing<a class="headerlink" href="#out-of-sample-testing" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">out_of_sample_test</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">test_months</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hold out last N months for testing.&quot;&quot;&quot;</span>
+
+    <span class="n">train</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="n">test_months</span><span class="p">]</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="n">test_months</span><span class="p">:]</span>
+
+    <span class="c1"># Generate forecast</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;arps&#39;</span><span class="p">:</span>
+        <span class="n">forecast</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;hyperbolic&#39;</span><span class="p">,</span>
+                              <span class="n">horizon</span><span class="o">=</span><span class="n">test_months</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">forecast</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="n">test_months</span><span class="p">)</span>
+
+    <span class="c1"># Extract forecast portion</span>
+    <span class="n">forecast_part</span> <span class="o">=</span> <span class="n">forecast</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">):]</span>
+
+    <span class="c1"># Evaluate</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">forecast_part</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Out-of-sample performance (</span><span class="si">{</span><span class="n">test_months</span><span class="si">}</span><span class="s2"> months):&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RMSE: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;rmse&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MAE: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;mae&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SMAPE: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;smape&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">metrics</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<section id="data-preparation">
+<h3>Data Preparation<a class="headerlink" href="#data-preparation" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Ensure Regular Intervals</strong>: Monthly data is typically best</p></li>
+<li><p><strong>Handle Missing Values</strong>: Remove or interpolate gaps carefully</p></li>
+<li><p><strong>Check for Outliers</strong>: Extreme values can skew model fits</p></li>
+<li><p><strong>Sufficient History</strong>: Minimum 12-24 data points recommended</p></li>
+</ol>
+</section>
+<section id="model-fitting">
+<h3>Model Fitting<a class="headerlink" href="#model-fitting" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Start Simple</strong>: Begin with exponential Arps, then increase complexity</p></li>
+<li><p><strong>Check Residuals</strong>: Look for patterns in forecast errors</p></li>
+<li><p><strong>Validate Parameters</strong>: Ensure physically reasonable values</p></li>
+<li><p><strong>Consider Uncertainty</strong>: Use multiple models or confidence intervals</p></li>
+</ol>
+</section>
+<section id="forecast-interpretation">
+<h3>Forecast Interpretation<a class="headerlink" href="#forecast-interpretation" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Understand Limitations</strong>: All models are approximations</p></li>
+<li><p><strong>Consider Business Context</strong>: Some errors are more costly than others</p></li>
+<li><p><strong>Update Regularly</strong>: Incorporate new data as it becomes available</p></li>
+<li><p><strong>Communicate Uncertainty</strong>: Provide ranges, not just point estimates</p></li>
+</ol>
+</section>
+<section id="common-pitfalls">
+<h3>Common Pitfalls<a class="headerlink" href="#common-pitfalls" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Overfitting</strong>: Complex models may not generalize well</p></li>
+<li><p><strong>Extrapolation</strong>: Be cautious with long-term forecasts</p></li>
+<li><p><strong>Parameter Instability</strong>: Check sensitivity to data changes</p></li>
+<li><p><strong>Ignoring Physics</strong>: Ensure forecasts make physical sense</p></li>
+</ol>
+<p>For practical examples, see the <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> section. For detailed API information, refer to the <a class="reference internal" href="api/models.html"><span class="doc">Models (models)</span></a> documentation.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Kyle T. Jones.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

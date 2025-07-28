@@ -1,0 +1,2 @@
+[console_scripts]
+decline = decline_analysis.__main__:main

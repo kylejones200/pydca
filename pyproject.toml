@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "decline-analysis"
+version = "0.1.0"
+description = "Decline curve analysis for oil well production using with Arps and LLM-based models"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Kyle T. Jones" }]
+requires-python = ">=3.9"
+dependencies = [
+  "numpy>=1.23",
+  "pandas>=2.0",
+  "scipy>=1.10",
+  "matplotlib>=3.7",
+  "statsmodels>=0.14",
+  "tqdm>=4.66",
+  "transformers>=4.41",
+  "torch>=2.0",
+  "accelerate>=0.29",
+  "einops>=0.7",
+  "pmdarima>=2.0"
+]
+
+[project.scripts]
+decline = "decline_analysis.__main__:main"
