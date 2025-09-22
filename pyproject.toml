@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "decline-analysis"
-version = "0.1.0"
+version = "0.1.1"
 description = "Decline curve analysis for oil well production using with Arps and LLM-based models"
 readme = "README.md"
 license = "Apache-2.0"
