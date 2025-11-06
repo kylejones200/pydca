@@ -4,14 +4,6 @@ import numpy as np
 import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 
-try:
-    from pmdarima import auto_arima
-
-    PMDARIMA_AVAILABLE = True
-except ImportError:
-    PMDARIMA_AVAILABLE = False
-    auto_arima = None
-
 
 def forecast_arima(
     series: pd.Series,
@@ -110,22 +102,9 @@ def forecast_arima(
             return pd.Series(forecast_values, index=future_idx, name="arima_forecast")
 
         if order is None:
-            if not PMDARIMA_AVAILABLE:
-                # Fallback to simple ARIMA(1,1,1) when pmdarima is not available
-                order = (1, 1, 1)
-            else:
-                model = auto_arima(
-                    y,
-                    seasonal=seasonal,
-                    m=seasonal_period if seasonal else 1,
-                    suppress_warnings=True,
-                    error_action="ignore",
-                    stepwise=True,
-                    max_p=min(2, len(y) // 4),
-                    max_q=min(2, len(y) // 4),
-                    max_d=min(1, len(y) // 6),
-                )
-                order = model.order
+            # Use simple default ARIMA(1,1,1) order
+            # Users can specify custom order if needed
+            order = (1, 1, 1)
 
         # Validate order parameters for reduced dataset
         p, d, q = order

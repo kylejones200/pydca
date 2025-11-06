@@ -50,6 +50,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="api/multiphase.html">Multi-Phase Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/data_processing.html">Data Processing Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">Models and Methods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="source/sensitivity.html">Sensitivity Analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="source/economics.html">Economics</a></li>
@@ -96,8 +98,10 @@
 <section id="features">
 <h2>Features<a class="headerlink" href="#features" title="Link to this heading"></a></h2>
 <ul class="simple">
+<li><p><strong>Multi-Phase Forecasting</strong>: Simultaneous oil, gas, and water forecasting ⭐ NEW</p></li>
 <li><p><strong>Arps Decline Curves</strong>: Exponential, harmonic, and hyperbolic models</p></li>
-<li><p><strong>Time Series Forecasting</strong>: ARIMA, TimesFM, and Chronos models</p></li>
+<li><p><strong>Time Series Forecasting</strong>: ARIMA, Prophet, TimesFM, and Chronos models</p></li>
+<li><p><strong>Data Processing Utilities</strong>: Production-ready data cleaning and preparation ⭐ NEW</p></li>
 <li><p><strong>Economic Analysis</strong>: NPV, cash flow, and payback calculations</p></li>
 <li><p><strong>Sensitivity Analysis</strong>: Parameter and price sensitivity studies</p></li>
 <li><p><strong>Reserve Estimation</strong>: EUR calculations with economic limits</p></li>
@@ -167,6 +171,38 @@
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="api/multiphase.html">Multi-Phase Forecasting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/multiphase.html#decline_analysis.multiphase.MultiPhaseData"><code class="docutils literal notranslate"><span class="pre">MultiPhaseData</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/multiphase.html#decline_analysis.multiphase.MultiPhaseForecaster"><code class="docutils literal notranslate"><span class="pre">MultiPhaseForecaster</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/multiphase.html#decline_analysis.multiphase.create_multiphase_data_from_dataframe"><code class="docutils literal notranslate"><span class="pre">create_multiphase_data_from_dataframe()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/multiphase.html#multiphasedata">MultiPhaseData</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/multiphase.html#multiphaseforecaster">MultiPhaseForecaster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/multiphase.html#helper-functions">Helper Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/multiphase.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/multiphase.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/data_processing.html">Data Processing Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#decline_analysis.utils.data_processing.remove_nan_and_zeroes"><code class="docutils literal notranslate"><span class="pre">remove_nan_and_zeroes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#decline_analysis.utils.data_processing.calculate_days_online"><code class="docutils literal notranslate"><span class="pre">calculate_days_online()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#decline_analysis.utils.data_processing.get_grouped_min_max"><code class="docutils literal notranslate"><span class="pre">get_grouped_min_max()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#decline_analysis.utils.data_processing.get_max_initial_production"><code class="docutils literal notranslate"><span class="pre">get_max_initial_production()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#decline_analysis.utils.data_processing.calculate_cumulative_production"><code class="docutils literal notranslate"><span class="pre">calculate_cumulative_production()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#decline_analysis.utils.data_processing.normalize_production_to_daily"><code class="docutils literal notranslate"><span class="pre">normalize_production_to_daily()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#decline_analysis.utils.data_processing.filter_wells_by_date_range"><code class="docutils literal notranslate"><span class="pre">filter_wells_by_date_range()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#decline_analysis.utils.data_processing.calculate_water_cut"><code class="docutils literal notranslate"><span class="pre">calculate_water_cut()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#decline_analysis.utils.data_processing.calculate_gor"><code class="docutils literal notranslate"><span class="pre">calculate_gor()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#decline_analysis.utils.data_processing.prepare_well_data_for_dca"><code class="docutils literal notranslate"><span class="pre">prepare_well_data_for_dca()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#decline_analysis.utils.data_processing.detect_production_anomalies"><code class="docutils literal notranslate"><span class="pre">detect_production_anomalies()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#data-cleaning">Data Cleaning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#time-calculations">Time Calculations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#production-metrics">Production Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#quality-control">Quality Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#convenience-functions">Convenience Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/data_processing.html#see-also">See Also</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">Models and Methods</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="models.html#arps-decline-curves">Arps Decline Curves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="models.html#arima-models">ARIMA Models</a></li>

@@ -1,0 +1,502 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>decline_analysis.multiphase &mdash; Decline Curve Analysis 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1e03605e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Decline Curve Analysis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/multiphase.html">Multi-Phase Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/data_processing.html">Data Processing Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models.html">Models and Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/sensitivity.html">Sensitivity Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/economics.html">Economics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/reserves.html">Reserves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/data_loader.html">Data Loader</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Decline Curve Analysis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">decline_analysis.multiphase</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for decline_analysis.multiphase</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Multi-phase production forecasting module.</span>
+
+<span class="sd">This module enables simultaneous forecasting of oil, gas, and water production,</span>
+<span class="sd">addressing a key limitation of traditional decline curve analysis which typically</span>
+<span class="sd">handles only one phase at a time.</span>
+
+<span class="sd">Based on research showing that coupled multi-target prediction yields more accurate</span>
+<span class="sd">and consistent forecasts than independent single-phase models.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+
+<div class="viewcode-block" id="MultiPhaseData">
+<a class="viewcode-back" href="../../api/multiphase.html#decline_analysis.multiphase.MultiPhaseData">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MultiPhaseData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Container for multi-phase production data.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        oil: Oil production time series (bbl/month)</span>
+<span class="sd">        gas: Gas production time series (mcf/month)</span>
+<span class="sd">        water: Water production time series (bbl/month)</span>
+<span class="sd">        dates: Common date index</span>
+<span class="sd">        well_id: Optional well identifier</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">oil</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span>
+    <span class="n">gas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">water</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">well_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    
+<div class="viewcode-block" id="MultiPhaseData.__post_init__">
+<a class="viewcode-back" href="../../api/multiphase.html#decline_analysis.multiphase.MultiPhaseData.__post_init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate and align data.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">index</span>
+        
+        <span class="c1"># Ensure all series have same index</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dates</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Gas series index must match oil series index&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">water</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">water</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dates</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Water series index must match oil series index&quot;</span><span class="p">)</span></div>
+
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">phases</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of available phases.&quot;&quot;&quot;</span>
+        <span class="n">available</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;oil&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">available</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;gas&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">water</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">available</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;water&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">available</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return number of time steps.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="MultiPhaseData.to_dataframe">
+<a class="viewcode-back" href="../../api/multiphase.html#decline_analysis.multiphase.MultiPhaseData.to_dataframe">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to DataFrame with all phases.&quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;oil&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dates</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;gas&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">water</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;water&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">water</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+    
+<div class="viewcode-block" id="MultiPhaseData.calculate_ratios">
+<a class="viewcode-back" href="../../api/multiphase.html#decline_analysis.multiphase.MultiPhaseData.calculate_ratios">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_ratios</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate common production ratios.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary with GOR, water_cut, and liquid_rate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ratios</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="c1"># Gas-Oil Ratio (GOR)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ratios</span><span class="p">[</span><span class="s1">&#39;gor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gas</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        
+        <span class="c1"># Water Cut</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">water</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">total_liquid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">water</span>
+            <span class="n">ratios</span><span class="p">[</span><span class="s1">&#39;water_cut&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">water</span> <span class="o">/</span> <span class="n">total_liquid</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># Total Liquid Rate</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">water</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ratios</span><span class="p">[</span><span class="s1">&#39;liquid_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">water</span>
+        
+        <span class="k">return</span> <span class="n">ratios</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MultiPhaseForecaster">
+<a class="viewcode-back" href="../../api/multiphase.html#decline_analysis.multiphase.MultiPhaseForecaster">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MultiPhaseForecaster</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Multi-phase production forecasting using coupled models.</span>
+<span class="sd">    </span>
+<span class="sd">    This class addresses the limitation of traditional DCA which forecasts</span>
+<span class="sd">    only one phase at a time. By coupling oil, gas, and water forecasts,</span>
+<span class="sd">    we can:</span>
+<span class="sd">    1. Maintain physical relationships between phases</span>
+<span class="sd">    2. Improve accuracy through shared information</span>
+<span class="sd">    3. Ensure consistency across forecasts</span>
+<span class="sd">    </span>
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; forecaster = MultiPhaseForecaster()</span>
+<span class="sd">        &gt;&gt;&gt; data = MultiPhaseData(oil=oil_series, gas=gas_series, water=water_series)</span>
+<span class="sd">        &gt;&gt;&gt; forecasts = forecaster.forecast(data, horizon=24, model=&#39;arps&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(forecasts[&#39;oil&#39;].tail())</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="MultiPhaseForecaster.__init__">
+<a class="viewcode-back" href="../../api/multiphase.html#decline_analysis.multiphase.MultiPhaseForecaster.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize multi-phase forecaster.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitted_models</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+    
+<div class="viewcode-block" id="MultiPhaseForecaster.forecast">
+<a class="viewcode-back" href="../../api/multiphase.html#decline_analysis.multiphase.MultiPhaseForecaster.forecast">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">forecast</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">MultiPhaseData</span><span class="p">,</span>
+        <span class="n">horizon</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;arps&#39;</span><span class="p">,</span>
+        <span class="n">kind</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;hyperbolic&#39;</span><span class="p">,</span>
+        <span class="n">enforce_ratios</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate multi-phase production forecast.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            data: Multi-phase production data</span>
+<span class="sd">            horizon: Number of periods to forecast</span>
+<span class="sd">            model: Forecasting model (&#39;arps&#39;, &#39;arima&#39;, &#39;prophet&#39;)</span>
+<span class="sd">            kind: Arps model type if applicable</span>
+<span class="sd">            enforce_ratios: Maintain physical relationships between phases</span>
+<span class="sd">            **kwargs: Additional model parameters</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary with forecasts for each phase</span>
+<span class="sd">            </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; data = MultiPhaseData(oil=oil_series, gas=gas_series)</span>
+<span class="sd">            &gt;&gt;&gt; forecasts = forecaster.forecast(data, horizon=24)</span>
+<span class="sd">            &gt;&gt;&gt; oil_forecast = forecasts[&#39;oil&#39;]</span>
+<span class="sd">            &gt;&gt;&gt; gas_forecast = forecasts[&#39;gas&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">dca</span>  <span class="c1"># Import here to avoid circular dependency</span>
+        
+        <span class="n">forecasts</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="c1"># Forecast oil (primary phase)</span>
+        <span class="n">oil_forecast</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">oil</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
+            <span class="n">horizon</span><span class="o">=</span><span class="n">horizon</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+        <span class="n">forecasts</span><span class="p">[</span><span class="s1">&#39;oil&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">oil_forecast</span>
+        
+        <span class="c1"># Forecast gas</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">gas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">enforce_ratios</span><span class="p">:</span>
+                <span class="c1"># Use GOR to derive gas from oil forecast</span>
+                <span class="n">gor</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">gas</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">oil</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="n">avg_gor</span> <span class="o">=</span> <span class="n">gor</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># Use recent average GOR</span>
+                
+                <span class="c1"># Apply GOR to oil forecast</span>
+                <span class="n">gas_forecast</span> <span class="o">=</span> <span class="n">oil_forecast</span> <span class="o">*</span> <span class="n">avg_gor</span>
+                <span class="n">gas_forecast</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;gas&#39;</span>
+                <span class="n">forecasts</span><span class="p">[</span><span class="s1">&#39;gas&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gas_forecast</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Independent gas forecast</span>
+                <span class="n">gas_forecast</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">gas</span><span class="p">,</span>
+                    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                    <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
+                    <span class="n">horizon</span><span class="o">=</span><span class="n">horizon</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span>
+                <span class="p">)</span>
+                <span class="n">forecasts</span><span class="p">[</span><span class="s1">&#39;gas&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gas_forecast</span>
+        
+        <span class="c1"># Forecast water</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">water</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">enforce_ratios</span><span class="p">:</span>
+                <span class="c1"># Use water cut trend to derive water from oil forecast</span>
+                <span class="n">total_liquid</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">oil</span> <span class="o">+</span> <span class="n">data</span><span class="o">.</span><span class="n">water</span>
+                <span class="n">water_cut</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">water</span> <span class="o">/</span> <span class="n">total_liquid</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                
+                <span class="c1"># Fit trend to water cut (typically increasing)</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">linregress</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">water_cut</span><span class="p">))</span>
+                <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">linregress</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">water_cut</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                
+                <span class="c1"># Project water cut</span>
+                <span class="n">future_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">oil</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">oil</span><span class="p">)</span> <span class="o">+</span> <span class="n">horizon</span><span class="p">)</span>
+                <span class="n">future_water_cut</span> <span class="o">=</span> <span class="n">slope</span> <span class="o">*</span> <span class="n">future_x</span> <span class="o">+</span> <span class="n">intercept</span>
+                <span class="n">future_water_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">future_water_cut</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+                
+                <span class="c1"># Calculate water from oil forecast and projected water cut</span>
+                <span class="n">oil_forecast_only</span> <span class="o">=</span> <span class="n">oil_forecast</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">oil</span><span class="p">):]</span>
+                <span class="n">water_forecast_values</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">oil_forecast_only</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">future_water_cut</span> <span class="o">/</span> <span class="p">(</span><span class="mi">100</span> <span class="o">-</span> <span class="n">future_water_cut</span><span class="p">)</span>
+                <span class="p">)</span>
+                
+                <span class="n">water_forecast</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">water</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">water_forecast_values</span><span class="p">]),</span>
+                    <span class="n">index</span><span class="o">=</span><span class="n">oil_forecast</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;water&#39;</span>
+                <span class="p">)</span>
+                <span class="n">forecasts</span><span class="p">[</span><span class="s1">&#39;water&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">water_forecast</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Independent water forecast</span>
+                <span class="n">water_forecast</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">water</span><span class="p">,</span>
+                    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                    <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
+                    <span class="n">horizon</span><span class="o">=</span><span class="n">horizon</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span>
+                <span class="p">)</span>
+                <span class="n">forecasts</span><span class="p">[</span><span class="s1">&#39;water&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">water_forecast</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">return</span> <span class="n">forecasts</span></div>
+
+    
+<div class="viewcode-block" id="MultiPhaseForecaster.evaluate">
+<a class="viewcode-back" href="../../api/multiphase.html#decline_analysis.multiphase.MultiPhaseForecaster.evaluate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">MultiPhaseData</span><span class="p">,</span>
+        <span class="n">forecasts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate multi-phase forecast accuracy.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            data: Actual multi-phase production data</span>
+<span class="sd">            forecasts: Forecasted values for each phase</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary of metrics for each phase</span>
+<span class="sd">            </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; metrics = forecaster.evaluate(data, forecasts)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;Oil RMSE: {metrics[&#39;oil&#39;][&#39;rmse&#39;]:.2f}&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;Gas RMSE: {metrics[&#39;gas&#39;][&#39;rmse&#39;]:.2f}&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">dca</span>
+        
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">phases</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">phase</span> <span class="ow">in</span> <span class="n">forecasts</span><span class="p">:</span>
+                <span class="n">actual</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span>
+                <span class="n">forecast</span> <span class="o">=</span> <span class="n">forecasts</span><span class="p">[</span><span class="n">phase</span><span class="p">]</span>
+                <span class="n">metrics</span><span class="p">[</span><span class="n">phase</span><span class="p">]</span> <span class="o">=</span> <span class="n">dca</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">forecast</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">metrics</span></div>
+
+    
+<div class="viewcode-block" id="MultiPhaseForecaster.calculate_consistency_metrics">
+<a class="viewcode-back" href="../../api/multiphase.html#decline_analysis.multiphase.MultiPhaseForecaster.calculate_consistency_metrics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_consistency_metrics</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">forecasts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate consistency metrics between phases.</span>
+<span class="sd">        </span>
+<span class="sd">        Checks if forecasted ratios (GOR, water cut) are physically reasonable.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            forecasts: Forecasted values for each phase</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary with consistency metrics</span>
+<span class="sd">            </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; consistency = forecaster.calculate_consistency_metrics(forecasts)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;GOR stability: {consistency[&#39;gor_stability&#39;]:.2f}&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="c1"># GOR stability</span>
+        <span class="k">if</span> <span class="s1">&#39;oil&#39;</span> <span class="ow">in</span> <span class="n">forecasts</span> <span class="ow">and</span> <span class="s1">&#39;gas&#39;</span> <span class="ow">in</span> <span class="n">forecasts</span><span class="p">:</span>
+            <span class="n">gor</span> <span class="o">=</span> <span class="n">forecasts</span><span class="p">[</span><span class="s1">&#39;gas&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">forecasts</span><span class="p">[</span><span class="s1">&#39;oil&#39;</span><span class="p">]</span>
+            <span class="n">gor_std</span> <span class="o">=</span> <span class="n">gor</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+            <span class="n">gor_mean</span> <span class="o">=</span> <span class="n">gor</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;gor_stability&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">gor_std</span> <span class="o">/</span> <span class="n">gor_mean</span><span class="p">)</span>  <span class="c1"># Higher is more stable</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;avg_gor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gor_mean</span>
+        
+        <span class="c1"># Water cut trend</span>
+        <span class="k">if</span> <span class="s1">&#39;oil&#39;</span> <span class="ow">in</span> <span class="n">forecasts</span> <span class="ow">and</span> <span class="s1">&#39;water&#39;</span> <span class="ow">in</span> <span class="n">forecasts</span><span class="p">:</span>
+            <span class="n">total_liquid</span> <span class="o">=</span> <span class="n">forecasts</span><span class="p">[</span><span class="s1">&#39;oil&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">forecasts</span><span class="p">[</span><span class="s1">&#39;water&#39;</span><span class="p">]</span>
+            <span class="n">water_cut</span> <span class="o">=</span> <span class="p">(</span><span class="n">forecasts</span><span class="p">[</span><span class="s1">&#39;water&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_liquid</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+            
+            <span class="c1"># Check if water cut is monotonically increasing (expected behavior)</span>
+            <span class="n">is_increasing</span> <span class="o">=</span> <span class="p">(</span><span class="n">water_cut</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;water_cut_monotonic&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">is_increasing</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;final_water_cut&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">water_cut</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="k">return</span> <span class="n">metrics</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="create_multiphase_data_from_dataframe">
+<a class="viewcode-back" href="../../api/multiphase.html#decline_analysis.multiphase.create_multiphase_data_from_dataframe">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_multiphase_data_from_dataframe</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">oil_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Oil&#39;</span><span class="p">,</span>
+    <span class="n">gas_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Gas&#39;</span><span class="p">,</span>
+    <span class="n">water_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Wtr&#39;</span><span class="p">,</span>
+    <span class="n">date_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;date&#39;</span><span class="p">,</span>
+    <span class="n">well_id_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultiPhaseData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create MultiPhaseData from a DataFrame.</span>
+<span class="sd">    </span>
+<span class="sd">    Convenience function to convert standard production DataFrames</span>
+<span class="sd">    to MultiPhaseData objects.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        df: DataFrame with production data</span>
+<span class="sd">        oil_column: Name of oil production column</span>
+<span class="sd">        gas_column: Name of gas production column (optional)</span>
+<span class="sd">        water_column: Name of water production column (optional)</span>
+<span class="sd">        date_column: Name of date column</span>
+<span class="sd">        well_id_column: Name of well identifier column (optional)</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        MultiPhaseData object</span>
+<span class="sd">        </span>
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; df = pd.read_csv(&#39;production.csv&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; data = create_multiphase_data_from_dataframe(df)</span>
+<span class="sd">        &gt;&gt;&gt; forecaster = MultiPhaseForecaster()</span>
+<span class="sd">        &gt;&gt;&gt; forecasts = forecaster.forecast(data, horizon=12)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Ensure date column is datetime</span>
+    <span class="k">if</span> <span class="n">date_column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">date_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">date_column</span><span class="p">])</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">date_column</span><span class="p">)</span>
+    
+    <span class="c1"># Extract series</span>
+    <span class="n">oil</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">oil_column</span><span class="p">]</span>
+    <span class="n">gas</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">gas_column</span><span class="p">]</span> <span class="k">if</span> <span class="n">gas_column</span> <span class="ow">and</span> <span class="n">gas_column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">water</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">water_column</span><span class="p">]</span> <span class="k">if</span> <span class="n">water_column</span> <span class="ow">and</span> <span class="n">water_column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="kc">None</span>
+    
+    <span class="c1"># Get well ID if available</span>
+    <span class="n">well_id</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">well_id_column</span> <span class="ow">and</span> <span class="n">well_id_column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">well_id</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">well_id_column</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">MultiPhaseData</span><span class="p">(</span>
+        <span class="n">oil</span><span class="o">=</span><span class="n">oil</span><span class="p">,</span>
+        <span class="n">gas</span><span class="o">=</span><span class="n">gas</span><span class="p">,</span>
+        <span class="n">water</span><span class="o">=</span><span class="n">water</span><span class="p">,</span>
+        <span class="n">dates</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+        <span class="n">well_id</span><span class="o">=</span><span class="n">well_id</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Kyle T. Jones.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -66,3 +66,9 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Concept documentation (not for repo)
+about_dca.md
+Deep-AR for Production Forecasting.md
+*_concepts.md
+*_notes.md
