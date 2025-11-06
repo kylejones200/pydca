@@ -10,7 +10,7 @@ def economic_metrics(
     opex: float,
     discount_rate: float = 0.10,
     time_step_months: float = 1.0,
-) -> Dict:
+) -> dict:
     """
     Calculate economics from forecasted production.
 

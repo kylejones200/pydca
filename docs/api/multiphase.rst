@@ -15,7 +15,7 @@ MultiPhaseData
    :members:
    :undoc-members:
    :show-inheritance:
-   
+
    .. automethod:: __init__
    .. automethod:: calculate_ratios
    .. automethod:: to_dataframe
@@ -27,7 +27,7 @@ MultiPhaseForecaster
    :members:
    :undoc-members:
    :show-inheritance:
-   
+
    .. automethod:: __init__
    .. automethod:: forecast
    .. automethod:: evaluate
@@ -52,11 +52,11 @@ Basic Usage
         MultiPhaseForecaster,
         create_multiphase_data_from_dataframe
     )
-    
+
     # Load production data
     df = pd.read_csv('production.csv')
     df['date'] = pd.to_datetime(df['date'])
-    
+
     # Create multi-phase data
     data = create_multiphase_data_from_dataframe(
         df,
@@ -65,10 +65,10 @@ Basic Usage
         water_column='Wtr',
         date_column='date'
     )
-    
+
     # Initialize forecaster
     forecaster = MultiPhaseForecaster()
-    
+
     # Generate coupled forecast
     forecasts = forecaster.forecast(
         data,
@@ -77,7 +77,7 @@ Basic Usage
         kind='hyperbolic',
         enforce_ratios=True
     )
-    
+
     # Evaluate accuracy
     metrics = forecaster.evaluate(data, forecasts)
     print(f"Oil RMSE: {metrics['oil']['rmse']:.0f}")
@@ -91,7 +91,7 @@ Calculating Production Ratios
 
     # Calculate GOR and water cut
     ratios = data.calculate_ratios()
-    
+
     print(f"Average GOR: {ratios['gor'].mean():.1f} mcf/bbl")
     print(f"Average Water Cut: {ratios['water_cut'].mean():.1f}%")
     print(f"Final Water Cut: {ratios['water_cut'].iloc[-1]:.1f}%")
@@ -105,16 +105,16 @@ Comparing Coupled vs Independent Forecasting
     coupled = forecaster.forecast(
         data, horizon=24, enforce_ratios=True
     )
-    
+
     # Independent forecasting (traditional approach)
     independent = forecaster.forecast(
         data, horizon=24, enforce_ratios=False
     )
-    
+
     # Check consistency
     coupled_consistency = forecaster.calculate_consistency_metrics(coupled)
     independent_consistency = forecaster.calculate_consistency_metrics(independent)
-    
+
     print(f"Coupled GOR stability: {coupled_consistency['gor_stability']:.3f}")
     print(f"Independent GOR stability: {independent_consistency['gor_stability']:.3f}")
 

@@ -51,8 +51,8 @@ def _compute_sensitivity_case(
 
 
 def run_sensitivity(
-    param_grid: List[Tuple[float, float, float]],
-    prices: List[float],
+    param_grid: list[tuple[float, float, float]],
+    prices: list[float],
     opex: float,
     discount_rate: float = 0.10,
     t_max: float = 240,

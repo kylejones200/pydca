@@ -5,7 +5,7 @@ import pandas as pd
 
 
 def load_production_csvs(
-    paths: List[str],
+    paths: list[str],
     date_col: str = "date",
     well_id_col: str = "well_id",
     oil_col: str = "oil_bbl",
@@ -94,7 +94,7 @@ def load_price_csv(
     return df.sort_index()
 
 
-def _assert_cols(df: pd.DataFrame, cols: List[str]) -> None:
+def _assert_cols(df: pd.DataFrame, cols: list[str]) -> None:
     missing = [c for c in cols if c not in df.columns]
     if missing:
         raise ValueError(f"Missing columns: {missing}")

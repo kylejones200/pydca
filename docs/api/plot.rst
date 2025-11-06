@@ -52,15 +52,15 @@ Basic Forecast Plot
 
    import decline_analysis as dca
    import pandas as pd
-   
+
    # Create sample data
    dates = pd.date_range('2020-01-01', periods=24, freq='MS')
    production = [1000 - i*30 for i in range(24)]
    series = pd.Series(production, index=dates)
-   
+
    # Generate forecast
    forecast = dca.forecast(series, model="arps", horizon=12)
-   
+
    # Create plot
    dca.plot(series, forecast, title="Well Production Forecast")
 
@@ -72,12 +72,12 @@ Decline Curve Analysis Plot
    from decline_analysis.models import fit_arps
    from decline_analysis.plot import plot_decline_curve
    import numpy as np
-   
+
    # Fit Arps model
    t = np.arange(len(series))
    q = series.values
    params = fit_arps(t, q, kind="hyperbolic")
-   
+
    # Plot decline curve
    plot_decline_curve(t, q, params, title="Hyperbolic Decline Analysis")
 
@@ -88,7 +88,7 @@ Benchmark Results Visualization
 
    # Run benchmark analysis
    results = dca.benchmark(well_data, model="arps", top_n=10)
-   
+
    # Plot results
    from decline_analysis.plot import plot_benchmark_results
    plot_benchmark_results(results, metric='rmse', title="Model Performance")

@@ -16,9 +16,9 @@ Fixes #(issue number)
 
 ## Changes Made
 Detailed list of changes:
-- 
-- 
-- 
+-
+-
+-
 
 ## Testing
 Describe the tests you ran to verify your changes:

@@ -148,8 +148,8 @@ def benchmark(
 
 
 def sensitivity_analysis(
-    param_grid: List[Tuple[float, float, float]],
-    prices: List[float],
+    param_grid: list[tuple[float, float, float]],
+    prices: list[float],
     opex: float,
     discount_rate: float = 0.10,
     t_max: float = 240,
@@ -178,7 +178,7 @@ def sensitivity_analysis(
 
 def economics(
     production: pd.Series, price: float, opex: float, discount_rate: float = 0.10
-) -> Dict:
+) -> dict:
     """
     Calculate economic metrics from production forecast.
 
@@ -196,7 +196,7 @@ def economics(
 
 def reserves(
     params: ArpsParams, t_max: float = 240, dt: float = 1.0, econ_limit: float = 10.0
-) -> Dict:
+) -> dict:
     """
     Generate production forecast and compute EUR (Estimated Ultimate Recovery).
 
@@ -213,7 +213,7 @@ def reserves(
 
 
 def load_ndic_data(
-    months_list: List[str], output_dir: str = "ndic_raw"
+    months_list: list[str], output_dir: str = "ndic_raw"
 ) -> pd.DataFrame:
     """
     Load North Dakota Industrial Commission (NDIC) production data.

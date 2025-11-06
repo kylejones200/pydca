@@ -367,8 +367,8 @@ for well_id, params in well_parameters.items():
     }
 
 # Rank wells by P50 NPV
-ranked_wells = sorted(well_results.items(), 
-                     key=lambda x: x[1]['p50_npv'], 
+ranked_wells = sorted(well_results.items(),
+                     key=lambda x: x[1]['p50_npv'],
                      reverse=True)
 ```
 
@@ -407,7 +407,7 @@ print(f"Uncertainty reduction: {reduction:.1%}")
 
 **Cause**: Distribution parameters too wide or incorrect type
 
-**Solution**: 
+**Solution**:
 - Review parameter ranges
 - Use lognormal for positive-only parameters
 - Check correlation matrix is valid

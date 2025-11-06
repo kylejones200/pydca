@@ -86,18 +86,18 @@ def forecast(
     horizon: int = 12
 ) -> pd.Series:
     """Generate production forecast using specified model.
-    
+
     Args:
         series: Historical production time series
         model: Forecasting model ('arps', 'arima', 'timesfm', 'chronos')
         horizon: Number of periods to forecast
-        
+
     Returns:
         Forecasted production series
-        
+
     Raises:
         ValueError: If series is empty or model is invalid
-        
+
     Example:
         >>> series = pd.Series([100, 90, 80], index=pd.date_range('2020-01', periods=3, freq='MS'))
         >>> forecast = dca.forecast(series, model='arps', horizon=6)
@@ -116,7 +116,7 @@ def test_forecast_with_valid_data():
     """Test forecast generates correct output with valid input."""
     series = pd.Series([100, 90, 80], index=pd.date_range('2020-01', periods=3, freq='MS'))
     result = dca.forecast(series, model='arps', horizon=6)
-    
+
     assert len(result) == 9  # 3 historical + 6 forecast
     assert all(result > 0)  # All values positive
     assert result.index.freq == 'MS'  # Correct frequency

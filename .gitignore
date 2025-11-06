@@ -43,6 +43,10 @@ ENV/
 .coverage
 htmlcov/
 
+# Documentation builds
+docs/_build/
+docs/.doctrees/
+
 # mypy
 .mypy_cache/
 .dmypy.json

@@ -47,7 +47,7 @@ class MultiPhaseData:
             raise ValueError("Water series index must match oil series index")
 
     @property
-    def phases(self) -> List[str]:
+    def phases(self) -> list[str]:
         """Return list of available phases."""
         available = ["oil"]
         if self.gas is not None:
@@ -70,7 +70,7 @@ class MultiPhaseData:
             df["water"] = self.water
         return df
 
-    def calculate_ratios(self) -> Dict[str, pd.Series]:
+    def calculate_ratios(self) -> dict[str, pd.Series]:
         """
         Calculate common production ratios.
 
@@ -126,7 +126,7 @@ class MultiPhaseForecaster:
         kind: Optional[str] = "hyperbolic",
         enforce_ratios: bool = True,
         **kwargs,
-    ) -> Dict[str, pd.Series]:
+    ) -> dict[str, pd.Series]:
         """
         Generate multi-phase production forecast.
 
@@ -218,8 +218,8 @@ class MultiPhaseForecaster:
         return forecasts
 
     def evaluate(
-        self, data: MultiPhaseData, forecasts: Dict[str, pd.Series]
-    ) -> Dict[str, Dict[str, float]]:
+        self, data: MultiPhaseData, forecasts: dict[str, pd.Series]
+    ) -> dict[str, dict[str, float]]:
         """
         Evaluate multi-phase forecast accuracy.
 
@@ -248,8 +248,8 @@ class MultiPhaseForecaster:
         return metrics
 
     def calculate_consistency_metrics(
-        self, forecasts: Dict[str, pd.Series]
-    ) -> Dict[str, float]:
+        self, forecasts: dict[str, pd.Series]
+    ) -> dict[str, float]:
         """
         Calculate consistency metrics between phases.
 

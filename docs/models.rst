@@ -87,18 +87,18 @@ The library uses non-linear least squares optimization to fit Arps parameters:
 
    from decline_analysis.models import fit_arps, predict_arps
    import numpy as np
-   
+
    # Prepare data
    t = np.arange(24)  # 24 months
    q = production_data.values
-   
+
    # Fit hyperbolic model
    params = fit_arps(t, q, kind="hyperbolic")
-   
+
    print(f"qi (initial rate): {params.qi:.2f}")
    print(f"di (decline rate): {params.di:.4f}")
    print(f"b (hyperbolic exponent): {params.b:.3f}")
-   
+
    # Generate predictions
    future_t = np.arange(36)  # Extend to 36 months
    predictions = predict_arps(future_t, params)
@@ -114,7 +114,7 @@ Model Structure
 ARIMA(p,d,q) models combine three components:
 
 - **AR(p)**: AutoRegressive terms - dependence on past values
-- **I(d)**: Integration - differencing to achieve stationarity  
+- **I(d)**: Integration - differencing to achieve stationarity
 - **MA(q)**: Moving Average terms - dependence on past forecast errors
 
 .. math::
@@ -135,13 +135,13 @@ The library uses the `pmdarima` package for automatic ARIMA parameter selection:
 .. code-block:: python
 
    from decline_analysis.forecast_arima import forecast_arima
-   
+
    # Automatic parameter selection
    forecast = forecast_arima(series, horizon=12)
-   
+
    # Manual parameter specification
    forecast = forecast_arima(series, horizon=12, order=(2, 1, 1))
-   
+
    # Seasonal ARIMA
    forecast = forecast_arima(series, horizon=12, seasonal=True, seasonal_period=12)
 
@@ -198,10 +198,10 @@ Chronos is Amazon's probabilistic foundation model for time series forecasting.
 
    # Chronos forecasting
    forecast = dca.forecast(series, model="chronos", horizon=12)
-   
+
    # Probabilistic forecasting
    from decline_analysis.forecast_chronos import forecast_chronos_probabilistic
-   quantiles = forecast_chronos_probabilistic(series, horizon=12, 
+   quantiles = forecast_chronos_probabilistic(series, horizon=12,
                                             quantiles=[0.1, 0.5, 0.9])
 
 Model Selection Guidelines
@@ -232,7 +232,7 @@ Model Comparison Framework
 
    def compare_models(series, horizon=12):
        """Compare all available models."""
-       
+
        models = {
            'Exponential': ('arps', {'kind': 'exponential'}),
            'Harmonic': ('arps', {'kind': 'harmonic'}),
@@ -241,9 +241,9 @@ Model Comparison Framework
            'TimesFM': ('timesfm', {}),
            'Chronos': ('chronos', {}),
        }
-       
+
        results = {}
-       
+
        for name, (model, kwargs) in models.items():
            try:
                forecast = dca.forecast(series, model=model, horizon=horizon, **kwargs)
@@ -256,15 +256,15 @@ Model Comparison Framework
                }
            except Exception as e:
                print(f"{name} failed: {e}")
-       
+
        # Rank by RMSE
        ranked = sorted(results.items(), key=lambda x: x[1]['rmse'])
-       
+
        print("Model Performance Ranking (by RMSE):")
        for i, (name, result) in enumerate(ranked, 1):
            print(f"{i}. {name}: RMSE={result['rmse']:.2f}, "
                  f"MAE={result['mae']:.2f}, SMAPE={result['smse']:.2f}%")
-       
+
        return results
 
 Validation and Testing
@@ -279,39 +279,39 @@ Proper model validation is crucial for reliable forecasts:
 
    def time_series_cv(series, model, n_splits=5, horizon=6):
        """Time series cross-validation."""
-       
+
        results = []
        total_length = len(series)
        test_size = total_length // (n_splits + 1)
-       
+
        for i in range(n_splits):
            # Split data
            split_point = test_size * (i + 2)
            train = series.iloc[:split_point-horizon]
            test = series.iloc[split_point-horizon:split_point]
-           
+
            if len(train) < 12 or len(test) == 0:
                continue
-           
+
            # Generate forecast
            if model == 'arps':
-               forecast = dca.forecast(train, model=model, kind='hyperbolic', 
+               forecast = dca.forecast(train, model=model, kind='hyperbolic',
                                      horizon=len(test))
            else:
                forecast = dca.forecast(train, model=model, horizon=len(test))
-           
+
            # Evaluate
            forecast_part = forecast.iloc[len(train):len(train)+len(test)]
            metrics = dca.evaluate(test, forecast_part)
            results.append(metrics)
-       
+
        # Average results
        avg_metrics = {
            'rmse': np.mean([r['rmse'] for r in results]),
            'mae': np.mean([r['mae'] for r in results]),
            'smape': np.mean([r['smape'] for r in results])
        }
-       
+
        return avg_metrics
 
 Out-of-Sample Testing
@@ -321,28 +321,28 @@ Out-of-Sample Testing
 
    def out_of_sample_test(series, model, test_months=6):
        """Hold out last N months for testing."""
-       
+
        train = series.iloc[:-test_months]
        test = series.iloc[-test_months:]
-       
+
        # Generate forecast
        if model == 'arps':
-           forecast = dca.forecast(train, model=model, kind='hyperbolic', 
+           forecast = dca.forecast(train, model=model, kind='hyperbolic',
                                  horizon=test_months)
        else:
            forecast = dca.forecast(train, model=model, horizon=test_months)
-       
+
        # Extract forecast portion
        forecast_part = forecast.iloc[len(train):]
-       
+
        # Evaluate
        metrics = dca.evaluate(test, forecast_part)
-       
+
        print(f"Out-of-sample performance ({test_months} months):")
        print(f"RMSE: {metrics['rmse']:.2f}")
        print(f"MAE: {metrics['mae']:.2f}")
        print(f"SMAPE: {metrics['smape']:.2f}%")
-       
+
        return metrics
 
 Best Practices

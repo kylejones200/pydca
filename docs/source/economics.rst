@@ -32,13 +32,13 @@ Basic Economic Analysis
    import decline_analysis as dca
    import pandas as pd
    import numpy as np
-   
+
    # Create production forecast
    dates = pd.date_range('2024-01-01', periods=60, freq='MS')
-   production = pd.Series([1000, 950, 900, 850, 800] + 
-                         list(np.linspace(800, 200, 55)), 
+   production = pd.Series([1000, 950, 900, 850, 800] +
+                         list(np.linspace(800, 200, 55)),
                          index=dates)
-   
+
    # Calculate economics
    econ_results = dca.economics(
        production=production,
@@ -46,7 +46,7 @@ Basic Economic Analysis
        opex=15.0,   # $/bbl operating cost
        discount_rate=0.10  # 10% annual
    )
-   
+
    print(f"NPV: ${econ_results['npv']:,.2f}")
    print(f"Payback: {econ_results['payback_month']} months")
 
@@ -58,7 +58,7 @@ Advanced Economic Scenarios
    # Compare different price scenarios
    prices = [40, 50, 60, 70, 80]
    results = []
-   
+
    for price in prices:
        econ = dca.economics(production, price=price, opex=15.0)
        results.append({
@@ -66,10 +66,10 @@ Advanced Economic Scenarios
            'npv': econ['npv'],
            'payback': econ['payback_month']
        })
-   
+
    econ_df = pd.DataFrame(results)
    print(econ_df)
-   
+
    # Calculate break-even price
    break_even_price = None
    for price in np.arange(10, 100, 1):
@@ -77,7 +77,7 @@ Advanced Economic Scenarios
        if econ['npv'] > 0:
            break_even_price = price
            break
-   
+
    print(f"Break-even price: ${break_even_price}/bbl")
 
 Cash Flow Analysis
@@ -88,7 +88,7 @@ Cash Flow Analysis
    # Detailed cash flow analysis
    econ = dca.economics(production, price=60, opex=15)
    cash_flow = econ['cash_flow']
-   
+
    # Monthly cash flow
    monthly_cf = pd.DataFrame({
        'date': production.index,
@@ -97,10 +97,10 @@ Cash Flow Analysis
        'opex': production.values * 15,
        'net_cf': cash_flow
    })
-   
+
    # Cumulative cash flow
    monthly_cf['cum_cf'] = monthly_cf['net_cf'].cumsum()
-   
+
    print(monthly_cf.head(10))
 
 Mathematical Background

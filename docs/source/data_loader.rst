@@ -30,16 +30,16 @@ Basic NDIC Data Loading
 .. code-block:: python
 
    import decline_analysis as dca
-   
+
    # Define months to download
    months = ['2023-01', '2023-02', '2023-03', '2023-04']
-   
+
    # Load NDIC production data
    production_data = dca.load_ndic_data(
        months_list=months,
        output_dir='ndic_data'  # Directory to save raw files
    )
-   
+
    print(f"Loaded {len(production_data)} records")
    print(production_data.head())
 
@@ -49,34 +49,34 @@ Advanced Data Processing
 .. code-block:: python
 
    import pandas as pd
-   
+
    # Load multiple years of data
    months = []
    for year in [2022, 2023]:
        for month in range(1, 13):
            months.append(f"{year}-{month:02d}")
-   
+
    # Load data with error handling
    try:
        data = dca.load_ndic_data(months)
        print(f"Successfully loaded {len(data)} records")
    except Exception as e:
        print(f"Error loading data: {e}")
-   
+
    # Basic data cleaning
    if not data.empty:
        # Remove invalid dates
        data = data[data['Date'].notna()]
-       
+
        # Filter for oil wells only
        oil_wells = data[data['Product'] == 'Oil']
-       
+
        # Group by well and calculate totals
        well_summary = oil_wells.groupby('Well_Name').agg({
            'Production': 'sum',
            'Date': ['min', 'max']
        }).round(2)
-       
+
        print(well_summary.head())
 
 Data Quality Checks
@@ -96,11 +96,11 @@ Data Quality Checks
            'unique_wells': df['Well_Name'].nunique() if 'Well_Name' in df.columns else 0
        }
        return quality_report
-   
+
    # Load and assess data
    data = dca.load_ndic_data(['2023-06'])
    quality = assess_data_quality(data)
-   
+
    for key, value in quality.items():
        print(f"{key}: {value}")
 
@@ -227,15 +227,15 @@ Example Troubleshooting Code
 .. code-block:: python
 
    import logging
-   
+
    # Set up logging for debugging
    logging.basicConfig(level=logging.INFO)
-   
+
    # Test connection and data availability
    def test_ndic_connection():
        """Test NDIC data availability."""
        test_months = ['2023-01']  # Recent month
-       
+
        try:
            data = dca.load_ndic_data(test_months)
            if len(data) > 0:
@@ -248,7 +248,7 @@ Example Troubleshooting Code
        except Exception as e:
            print(f"✗ Connection failed: {e}")
            return False
-   
+
    # Run connection test
    test_ndic_connection()
 

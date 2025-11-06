@@ -386,5 +386,5 @@ The roadmap is flexible and will be updated based on:
 
 ---
 
-**Last Updated**: November 5, 2025  
+**Last Updated**: November 5, 2025
 **Next Review**: January 2026

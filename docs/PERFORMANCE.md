@@ -393,7 +393,7 @@ def process_well(well_id):
 
 # Parallel execution
 results = Parallel(n_jobs=-1)(
-    delayed(process_well)(wid) 
+    delayed(process_well)(wid)
     for wid in well_ids
 )
 ```

@@ -30,7 +30,7 @@ Basic Sensitivity Analysis
 .. code-block:: python
 
    import decline_analysis as dca
-   
+
    # Define parameter grid to test
    param_grid = [
        (1000, 0.05, 0.3),  # (qi, di, b)
@@ -39,10 +39,10 @@ Basic Sensitivity Analysis
        (800, 0.05, 0.3),
        (800, 0.10, 0.5),
    ]
-   
+
    # Define price scenarios
    prices = [40, 50, 60, 70, 80]  # $/bbl
-   
+
    # Run sensitivity analysis
    results = dca.sensitivity_analysis(
        param_grid=param_grid,
@@ -52,7 +52,7 @@ Basic Sensitivity Analysis
        t_max=240,  # 20 years
        econ_limit=10.0  # bbl/month
    )
-   
+
    print(results.head())
    print(f"Total scenarios: {len(results)}")
 
@@ -63,19 +63,19 @@ Advanced Analysis
 
    # Filter results for economic viability
    viable_wells = results[results['NPV'] > 0]
-   
+
    # Find best case scenario
    best_case = results.loc[results['NPV'].idxmax()]
    print(f"Best NPV: ${best_case['NPV']:,.2f}")
    print(f"Best EUR: {best_case['EUR']:,.0f} bbls")
-   
+
    # Analyze price sensitivity
    price_sensitivity = results.groupby('price').agg({
        'NPV': ['mean', 'std', 'min', 'max'],
        'EUR': 'mean',
        'Payback_month': 'mean'
    })
-   
+
    print(price_sensitivity)
 
 Mathematical Background
@@ -86,7 +86,7 @@ The sensitivity analysis evaluates combinations of:
 **Arps Decline Parameters:**
 
 * :math:`q_i` - Initial production rate
-* :math:`D_i` - Initial decline rate  
+* :math:`D_i` - Initial decline rate
 * :math:`b` - Decline exponent
 
 **Economic Parameters:**
@@ -99,12 +99,12 @@ The sensitivity analysis evaluates combinations of:
 **Calculated Metrics:**
 
 * **EUR (Estimated Ultimate Recovery):**
-  
+
   .. math::
      EUR = \int_0^{t_{econ}} q(t) \, dt
 
 * **NPV (Net Present Value):**
-  
+
   .. math::
      NPV = \sum_{t=0}^{T} \frac{CF_t}{(1+r)^{t/12}}
 

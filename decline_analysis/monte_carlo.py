@@ -157,7 +157,7 @@ def _run_single_simulation(
     t: np.ndarray,
     econ_limit: float,
     discount_rate: float,
-) -> Tuple[np.ndarray, float, float]:
+) -> tuple[np.ndarray, float, float]:
     """
     Run a single Monte Carlo simulation iteration.
 
@@ -563,7 +563,7 @@ def plot_monte_carlo_results(
 
 def risk_analysis(
     results: MonteCarloResults, threshold: Optional[float] = None
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Compute risk metrics from Monte Carlo results.
 
@@ -609,10 +609,10 @@ def sensitivity_to_monte_carlo(
     base_qi: float,
     base_di: float,
     base_b: float,
-    qi_range: Tuple[float, float],
-    di_range: Tuple[float, float],
-    b_range: Tuple[float, float],
-    price_range: Tuple[float, float],
+    qi_range: tuple[float, float],
+    di_range: tuple[float, float],
+    b_range: tuple[float, float],
+    price_range: tuple[float, float],
     n_simulations: int = 1000,
 ) -> MonteCarloParams:
     """

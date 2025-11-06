@@ -7,7 +7,7 @@ from .models import ArpsParams, estimate_reserves, predict_arps
 
 def forecast_and_reserves(
     params: ArpsParams, t_max: float = 240, dt: float = 1.0, econ_limit: float = 10.0
-) -> Dict:
+) -> dict:
     """
     Generate forecast and compute EUR.
 

@@ -7,7 +7,7 @@ import requests
 import xlrd
 
 
-def scrape_ndic(months_list: List[str], output_dir: str = "ndic_raw") -> pd.DataFrame:
+def scrape_ndic(months_list: list[str], output_dir: str = "ndic_raw") -> pd.DataFrame:
     base_url = "https://www.dmr.nd.gov/oilgas/mpr/"
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)

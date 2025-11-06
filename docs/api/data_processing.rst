@@ -55,13 +55,13 @@ Data Cleaning
 
     import pandas as pd
     from decline_analysis.utils import data_processing as dp
-    
+
     # Load raw production data
     df = pd.read_csv('production.csv')
-    
+
     # Remove invalid data
     df_clean = dp.remove_nan_and_zeroes(df, 'oil')
-    
+
     print(f"Records before: {len(df)}")
     print(f"Records after: {len(df_clean)}")
 
@@ -72,13 +72,13 @@ Calculating Production Metrics
 
     # Calculate water cut
     df['water_cut'] = dp.calculate_water_cut(df, 'Oil', 'Wtr')
-    
+
     # Calculate GOR
     df['gor'] = dp.calculate_gor(df, 'Gas', 'Oil')
-    
+
     # Calculate cumulative production
     df['cum_oil'] = dp.calculate_cumulative_production(df, 'Oil', 'well_id')
-    
+
     print(f"Average water cut: {df['water_cut'].mean():.1f}%")
     print(f"Average GOR: {df['gor'].mean():.1f} mcf/bbl")
 
@@ -96,7 +96,7 @@ Quick Data Preparation
         production_column='Oil',
         remove_zeros=True
     )
-    
+
     # Ready for forecasting
     from decline_analysis import dca
     forecast = dca.forecast(series, model='arps', horizon=12)
@@ -111,7 +111,7 @@ Anomaly Detection
         oil_series,
         threshold_std=3.0
     )
-    
+
     print(f"Anomalies detected: {anomalies.sum()}")
     print(f"Anomaly dates: {oil_series[anomalies].index.tolist()}")
 
@@ -128,7 +128,7 @@ Calculating Initial Production Rate
         production_column='Oil',
         date_column='ReportDate'
     )
-    
+
     print(f"Initial production rate (qi): {qi:.0f} bbl/month")
 
 Days Online Calculation
@@ -140,11 +140,11 @@ Days Online Calculation
     df['Online_Date'] = dp.get_grouped_min_max(
         df, 'well_id', 'ReportDate', 'min'
     )
-    
+
     df['Days_Online'] = dp.calculate_days_online(
         df, 'ReportDate', 'Online_Date'
     )
-    
+
     print(f"Well has been online for {df['Days_Online'].max()} days")
 
 See Also

@@ -113,7 +113,7 @@ def forecast_prophet(
 
 def forecast_prophet_with_uncertainty(
     series: pd.Series, horizon: int = 12, **kwargs
-) -> Tuple[pd.Series, pd.Series, pd.Series]:
+) -> tuple[pd.Series, pd.Series, pd.Series]:
     """
     Generate Prophet forecast with uncertainty intervals.
 

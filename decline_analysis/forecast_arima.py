@@ -8,7 +8,7 @@ from statsmodels.tsa.arima.model import ARIMA
 def forecast_arima(
     series: pd.Series,
     horizon: int = 12,
-    order: Optional[Tuple[int, int, int]] = None,
+    order: Optional[tuple[int, int, int]] = None,
     seasonal: bool = False,
     seasonal_period: int = 12,
 ) -> pd.Series:
