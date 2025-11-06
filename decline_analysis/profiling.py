@@ -7,12 +7,12 @@ decline curve analysis code using line_profiler.
 Usage:
     # Decorate functions you want to profile
     from decline_analysis.profiling import profile
-    
+
     @profile
     def my_function():
         # Your code here
         pass
-    
+
     # Or use context manager
     with profile_context("My operation"):
         # Your code here
