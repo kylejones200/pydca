@@ -11,12 +11,14 @@ A modern, open-source Python package for **decline curve analysis** and **produc
 
 - **📉 Arps Decline Models**: Exponential, harmonic, and hyperbolic decline curve analysis
 - **🤖 ML Forecasting**: ARIMA, Chronos (Amazon), and TimesFM (Google) foundation models
+- **🎲 Monte Carlo Simulation**: Probabilistic forecasting with P10/P50/P90 and uncertainty quantification
 - **💰 Economic Analysis**: NPV, cash flow, and payback period calculations
 - **📊 Sensitivity Analysis**: Parameter sensitivity with tornado plots and 3D visualizations
 - **🔍 Reserves Estimation**: EUR (Estimated Ultimate Recovery) calculations
 - **📈 Professional Plotting**: Publication-ready Tufte-style visualizations
 - **⚡ Batch Processing**: Multi-well benchmarking and analysis
 - **🌐 Data Integration**: Built-in NDIC (North Dakota) production data scraper
+- **🚀 Performance**: Numba JIT (10-100x) + Joblib parallelization (4-8x speedup)
 
 ## 🚀 Quick Start
 
@@ -156,6 +158,97 @@ forecast_chronos = dca.forecast(series, model='chronos', horizon=24)
 # Compare with traditional ARIMA
 forecast_arima = dca.forecast(series, model='arima', horizon=24)
 ```
+
+### Monte Carlo Simulation
+
+Probabilistic forecasting with uncertainty quantification:
+
+```python
+from decline_analysis.monte_carlo import (
+    monte_carlo_forecast,
+    MonteCarloParams,
+    DistributionParams,
+    plot_monte_carlo_results
+)
+
+# Define parameter distributions
+mc_params = MonteCarloParams(
+    qi_dist=DistributionParams('lognormal', mean=1200, std=0.3),
+    di_dist=DistributionParams('uniform', min=0.10, max=0.30),
+    b_dist=DistributionParams('triangular', min=0.3, mode=0.5, max=0.8),
+    price_dist=DistributionParams('normal', mean=70, std=15),
+    n_simulations=1000
+)
+
+# Run Monte Carlo simulation
+results = monte_carlo_forecast(mc_params, verbose=True)
+
+# Get probabilistic forecasts
+print(f"EUR P90 (conservative): {results.p90_eur:,.0f} bbl")
+print(f"EUR P50 (median):       {results.p50_eur:,.0f} bbl")
+print(f"EUR P10 (optimistic):   {results.p10_eur:,.0f} bbl")
+
+print(f"NPV P50: ${results.p50_npv:,.0f}")
+
+# Visualize uncertainty
+plot_monte_carlo_results(results, title="Probabilistic Forecast")
+
+# Risk analysis
+from decline_analysis.monte_carlo import risk_analysis
+risk_metrics = risk_analysis(results, threshold=0)
+print(f"Probability of positive NPV: {risk_metrics['prob_positive_npv']:.1%}")
+```
+
+**Key capabilities:**
+- P10/P50/P90 forecasts for reserves booking
+- Multiple distribution types (normal, lognormal, uniform, triangular)
+- Correlated parameters
+- Risk metrics and probability calculations
+- Fast parallel execution
+
+See `examples/monte_carlo_example.py` and `docs/MONTE_CARLO.md` for complete guide.
+
+### Performance Optimization
+
+The package includes built-in optimizations for fast execution:
+
+```python
+from decline_analysis import dca
+
+# Parallel processing (uses all CPU cores by default)
+results = dca.benchmark(
+    df,
+    model='arps',
+    top_n=100,
+    n_jobs=-1  # 4-8x faster on typical CPUs
+)
+
+# Sensitivity analysis with parallelization
+sensitivity = dca.sensitivity_analysis(
+    param_grid=params,
+    prices=prices,
+    opex=20.0,
+    n_jobs=-1  # Near-linear scaling
+)
+
+# Profile your code to find bottlenecks
+from decline_analysis.profiling import profile, print_stats
+
+@profile
+def my_analysis():
+    # Your code here
+    pass
+
+my_analysis()
+print_stats()  # Shows line-by-line timing
+```
+
+**Performance gains:**
+- Numba JIT compilation: 10-100x faster numerical operations
+- Joblib parallelization: 4-8x faster on multi-core CPUs
+- Combined: 5-20x overall speedup
+
+See `examples/performance_benchmark.py` for detailed benchmarks and `docs/PERFORMANCE.md` for optimization guide.
 
 ## 🛠️ Development
 

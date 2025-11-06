@@ -12,6 +12,12 @@ This directory contains practical examples demonstrating the use of the Decline 
 6. **[06_multi_well_benchmarking.ipynb](06_multi_well_benchmarking.ipynb)** - Comparing models across multiple wells (coming soon)
 7. **[07_ml_forecasting.ipynb](07_ml_forecasting.ipynb)** - Using ARIMA and foundation models for forecasting (coming soon)
 
+## 🚀 Python Scripts
+
+- **[performance_benchmark.py](performance_benchmark.py)** - ⭐⭐ NEW! Comprehensive performance benchmarking
+- **[profiling_example.py](profiling_example.py)** - ⭐⭐ NEW! How to profile and optimize your code
+- **[monte_carlo_example.py](monte_carlo_example.py)** - ⭐⭐⭐ NEW! Probabilistic forecasting and uncertainty quantification
+
 ## 📊 Sample Data
 
 - **[sample_well_data.csv](data/sample_well_data.csv)** - Synthetic single well production history
@@ -89,13 +95,60 @@ Analyze multiple wells:
 - Aggregate statistics
 - Batch processing workflows
 
-### 05 - ML Forecasting (Coming Soon)
+### 07 - ML Forecasting (Coming Soon)
 Advanced forecasting techniques:
 - ARIMA time series modeling
 - Foundation model integration (TimesFM, Chronos)
 - Model comparison
 - Uncertainty quantification
 - Ensemble forecasting
+
+### Performance Benchmark Script ⭐⭐ NEW!
+Measure and compare performance improvements:
+- Numba JIT compilation speedup (10-100x)
+- Joblib parallelization (4-8x on typical CPUs)
+- Sequential vs parallel benchmarking
+- Multi-well processing performance
+- Sensitivity analysis performance
+- Generate performance reports
+
+**Run it:**
+```bash
+cd examples
+python performance_benchmark.py
+```
+
+### Profiling Example Script ⭐⭐ NEW!
+Learn how to profile and optimize your code:
+- Using @profile decorator for line-by-line profiling
+- Using profile_context() for timing blocks
+- Using @time_function for quick timing
+- Interpreting profiling results
+- Finding bottlenecks in your analysis
+- Saving profiling reports
+
+**Run it:**
+```bash
+cd examples
+python profiling_example.py
+```
+
+### Monte Carlo Example Script ⭐⭐⭐ NEW!
+Probabilistic forecasting and uncertainty quantification:
+- Setting up parameter distributions (normal, lognormal, uniform, triangular)
+- Running Monte Carlo simulations
+- Generating P10/P50/P90 forecasts
+- Computing risk metrics and probabilities
+- Visualizing uncertainty with fan charts
+- Correlated parameters
+- Converting sensitivity ranges to Monte Carlo
+- Comparing deterministic vs probabilistic approaches
+
+**Run it:**
+```bash
+cd examples
+python monte_carlo_example.py
+```
 
 ## 💡 Tips
 

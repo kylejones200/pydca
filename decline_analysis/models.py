@@ -5,6 +5,22 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 
+try:
+    import numba
+
+    NUMBA_AVAILABLE = True
+except ImportError:
+    NUMBA_AVAILABLE = False
+
+    # Create a no-op decorator if Numba is not available
+    class numba:
+        @staticmethod
+        def jit(*args, **kwargs):
+            def decorator(func):
+                return func
+
+            return decorator
+
 
 @dataclass
 class ArpsParams:
@@ -13,10 +29,12 @@ class ArpsParams:
     b: float
 
 
+@numba.jit(nopython=True, cache=True) if NUMBA_AVAILABLE else lambda f: f
 def q_exp(t, qi, di):
     return qi * np.exp(-di * t)
 
 
+@numba.jit(nopython=True, cache=True) if NUMBA_AVAILABLE else lambda f: f
 def q_hyp(t, qi, di, b):
     return qi / np.power(1 + b * di * t, 1 / b)
 
@@ -134,9 +152,16 @@ def predict_arps(t: np.ndarray, p: ArpsParams) -> np.ndarray:
     else:
         qi, di, b = p.qi, p.di, p.b
 
+    # Call optimized version
+    return _predict_arps_numba(t, qi, di, b)
+
+
+@numba.jit(nopython=True, cache=True) if NUMBA_AVAILABLE else lambda f: f
+def _predict_arps_numba(t, qi, di, b):
+    """Numba-optimized prediction function."""
     if b == 0.0:
         return q_exp(t, qi, di)
-    if np.isclose(b, 1.0):
+    if abs(b - 1.0) < 1e-9:
         return qi / (1 + di * t)
     return q_hyp(t, qi, di, b)
 

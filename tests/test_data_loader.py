@@ -163,7 +163,7 @@ class TestDataLoader:
 class TestDataLoaderIntegration:
     """Test integration with main DCA API."""
 
-    @patch("decline_analysis.utils.data_loader.scrape_ndic")
+    @patch("decline_analysis.dca.scrape_ndic")
     def test_load_ndic_data_api(self, mock_scrape):
         """Test NDIC data loading through main API."""
         from decline_analysis.dca import load_ndic_data

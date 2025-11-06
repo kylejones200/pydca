@@ -3,6 +3,13 @@ from typing import Dict, List, Literal, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+try:
+    from joblib import Parallel, delayed
+
+    JOBLIB_AVAILABLE = True
+except ImportError:
+    JOBLIB_AVAILABLE = False
+
 from .economics import economic_metrics
 from .evaluate import mae, rmse, smape
 from .forecast import Forecaster
@@ -48,6 +55,27 @@ def plot(
     plot_forecast(y, yhat, title, filename)
 
 
+def _benchmark_single_well(
+    wid, df, well_col, date_col, value_col, model, kind, horizon
+):
+    """Process a single well for benchmarking (used for parallel execution)."""
+    try:
+        wdf = df[df[well_col] == wid].copy()
+        wdf = wdf[[date_col, value_col]].dropna()
+        wdf[date_col] = pd.to_datetime(wdf[date_col])
+        wdf = wdf.set_index(date_col).asfreq("MS")
+        if len(wdf) < 24:
+            return None
+
+        y = wdf[value_col]
+        yhat = forecast(y, model=model, kind=kind, horizon=horizon)
+        metrics = evaluate(y, yhat)
+        metrics[well_col] = wid
+        return metrics
+    except Exception as e:
+        return {"error": str(e), well_col: wid}
+
+
 def benchmark(
     df: pd.DataFrame,
     model: Literal["arps", "timesfm", "chronos", "arima"] = "arps",
@@ -58,28 +86,64 @@ def benchmark(
     value_col: str = "oil_bbl",
     top_n: int = 10,
     verbose: bool = False,
+    n_jobs: int = -1,  # -1 uses all available cores
 ) -> pd.DataFrame:
-    out = []
+    """
+    Benchmark forecasting models across multiple wells.
+
+    Args:
+        df: DataFrame with production data
+        model: Forecasting model to use
+        kind: Arps model type (if applicable)
+        horizon: Forecast horizon in months
+        well_col: Column name for well identifier
+        date_col: Column name for dates
+        value_col: Column name for production values
+        top_n: Number of wells to process
+        verbose: Print progress messages
+        n_jobs: Number of parallel jobs (-1 for all cores, 1 for sequential)
+
+    Returns:
+        DataFrame with metrics for each well
+    """
     wells = df[well_col].unique()[:top_n]
-    for wid in wells:
-        wdf = df[df[well_col] == wid].copy()
-        wdf = wdf[[date_col, value_col]].dropna()
-        wdf[date_col] = pd.to_datetime(wdf[date_col])
-        wdf = wdf.set_index(date_col).asfreq("MS")
-        if len(wdf) < 24:
-            continue
-        try:
-            y = wdf[value_col]
-            yhat = forecast(y, model=model, kind=kind, horizon=horizon)
-            metrics = evaluate(y, yhat)
-            metrics[well_col] = wid
-            out.append(metrics)
-            if verbose:
-                print(f"{wid}: {metrics}")
-        except Exception as e:
-            if verbose:
-                print(f"{wid} failed: {e}")
-            continue
+
+    if JOBLIB_AVAILABLE and n_jobs != 1:
+        # Parallel execution
+        if verbose:
+            print(f"Processing {len(wells)} wells in parallel (n_jobs={n_jobs})...")
+
+        results = Parallel(n_jobs=n_jobs, verbose=10 if verbose else 0)(
+            delayed(_benchmark_single_well)(
+                wid, df, well_col, date_col, value_col, model, kind, horizon
+            )
+            for wid in wells
+        )
+
+        # Filter out None results and errors
+        out = [r for r in results if r is not None and "error" not in r]
+
+        if verbose:
+            errors = [r for r in results if r is not None and "error" in r]
+            print(f"Completed: {len(out)} successful, {len(errors)} failed")
+    else:
+        # Sequential execution (fallback)
+        if verbose and not JOBLIB_AVAILABLE:
+            print("joblib not available, running sequentially...")
+
+        out = []
+        for wid in wells:
+            result = _benchmark_single_well(
+                wid, df, well_col, date_col, value_col, model, kind, horizon
+            )
+            if result is not None:
+                if "error" not in result:
+                    out.append(result)
+                    if verbose:
+                        print(f"{wid}: {result}")
+                elif verbose:
+                    print(f"{wid} failed: {result['error']}")
+
     return pd.DataFrame(out)
 
 
