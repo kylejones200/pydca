@@ -1,5 +1,4 @@
-"""
-Multi-phase production forecasting module.
+"""Multi-phase production forecasting module.
 
 This module enables simultaneous forecasting of oil, gas, and water production,
 addressing a key limitation of traditional decline curve analysis which typically
@@ -10,7 +9,7 @@ and consistent forecasts than independent single-phase models.
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional
 
 import numpy as np
 import pandas as pd
