@@ -96,11 +96,12 @@ class TestForecaster:
     def test_forecaster_evaluate(self, sample_production_data):
         """Test forecast evaluation."""
         forecaster = Forecaster(sample_production_data)
-        forecast = forecaster.forecast(model="arps", kind="exponential", horizon=12)
+        forecaster.forecast(model="arps", kind="exponential", horizon=12)
 
         # Create some "actual" data for evaluation
         actual = sample_production_data.iloc[:12]  # Use first 12 points as "actual"
 
+        assert forecaster.last_forecast is not None
         metrics = forecaster.evaluate(actual)
 
         assert isinstance(metrics, dict)
@@ -119,7 +120,7 @@ class TestForecaster:
     def test_forecaster_evaluate_no_overlap(self, sample_production_data):
         """Test evaluation with no overlapping dates."""
         forecaster = Forecaster(sample_production_data)
-        forecast = forecaster.forecast(model="arps", horizon=12)
+        forecaster.forecast(model="arps", horizon=12)
 
         # Create actual data with non-overlapping dates
         future_dates = pd.date_range(start="2025-01-01", periods=12, freq="MS")

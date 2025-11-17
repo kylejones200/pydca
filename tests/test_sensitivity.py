@@ -1,8 +1,8 @@
+"""Tests for sensitivity analysis module."""
+
 import numpy as np
 import pandas as pd
-import pytest
 
-from decline_analysis.models import ArpsParams
 from decline_analysis.sensitivity import run_sensitivity
 
 
@@ -143,7 +143,7 @@ class TestSensitivityIntegration:
     """Test integration with other modules."""
 
     def test_sensitivity_with_arps_params_consistency(self):
-        """Test that sensitivity results are consistent with direct Arps calculations."""
+        """Test sensitivity results consistency with direct Arps calculations."""
         from decline_analysis.economics import economic_metrics
         from decline_analysis.models import ArpsParams, predict_arps
 

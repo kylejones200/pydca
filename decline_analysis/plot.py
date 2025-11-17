@@ -2,12 +2,15 @@
 Plotting utilities for decline curve analysis with Tufte-style aesthetics.
 """
 
-from typing import Optional
+from typing import TYPE_CHECKING, Mapping, Optional, Union
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+if TYPE_CHECKING:
+    from .models import ArpsParams
 
 
 def tufte_style():
@@ -160,8 +163,14 @@ def plot_forecast(
     plt.show()
 
 
+ArpsParamsLike = Union["ArpsParams", Mapping[str, float]]
+
+
 def plot_decline_curve(
-    t: np.ndarray, q: np.ndarray, params: dict, title: str = "Decline Curve Analysis"
+    t: np.ndarray,
+    q: np.ndarray,
+    params: ArpsParamsLike,
+    title: str = "Decline Curve Analysis",
 ):
     """
     Plot decline curve with fitted parameters.
@@ -199,13 +208,26 @@ def plot_decline_curve(
     ax2.grid(True, alpha=0.3)
 
     # Add parameter text
-    param_text = f"Model: {params['kind'].title()}\n"
-    param_text += f"qi: {params['qi']:.1f}\n"
-    param_text += f"di: {params['di']:.4f}\n"
-    if "b" in params:
-        param_text += f"b: {params['b']:.3f}\n"
-    if "r2" in params:
-        param_text += f"R²: {params['r2']:.3f}"
+    if isinstance(params, Mapping):
+        param_kind = params.get("kind", "unknown")
+        param_qi = params.get("qi", float("nan"))
+        param_di = params.get("di", float("nan"))
+        param_b = params.get("b")
+        param_r2 = params.get("r2")
+    else:
+        param_kind = getattr(params, "kind", "unknown")
+        param_qi = params.qi
+        param_di = params.di
+        param_b = getattr(params, "b", None)
+        param_r2 = getattr(params, "r2", None)
+
+    param_text = f"Model: {str(param_kind).title()}\n"
+    param_text += f"qi: {param_qi:.1f}\n"
+    param_text += f"di: {param_di:.4f}\n"
+    if param_b is not None:
+        param_text += f"b: {param_b:.3f}\n"
+    if param_r2 is not None:
+        param_text += f"R²: {param_r2:.3f}"
 
     ax1.text(
         0.02,

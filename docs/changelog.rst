@@ -36,7 +36,6 @@ Version 0.1.0 (2025-07-25)
 - scipy>=1.10
 - matplotlib>=3.7
 - statsmodels>=0.14
-- pmdarima>=2.0
 - transformers>=4.41 (optional)
 - torch>=2.0 (optional)
 

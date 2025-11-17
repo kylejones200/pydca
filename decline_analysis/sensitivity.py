@@ -1,4 +1,6 @@
-from typing import List, Tuple
+"""Sensitivity analysis for decline curve parameters."""
+
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -24,7 +26,7 @@ def _compute_sensitivity_case(
     t_max: float,
     econ_limit: float,
     dt: float,
-) -> dict:
+) -> Optional[dict[str, float]]:
     """Compute a single sensitivity case (used for parallel execution)."""
     p = ArpsParams(qi=qi, di=di, b=b)
     t = np.arange(0, t_max + dt, dt)

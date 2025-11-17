@@ -2,8 +2,6 @@
 Test configuration and fixtures for decline curve analysis tests.
 """
 
-from datetime import datetime, timedelta
-
 import numpy as np
 import pandas as pd
 import pytest

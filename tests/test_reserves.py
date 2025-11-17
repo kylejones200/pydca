@@ -1,6 +1,6 @@
+"""Tests for reserves estimation module."""
+
 import numpy as np
-import pandas as pd
-import pytest
 
 from decline_analysis.models import ArpsParams
 from decline_analysis.reserves import forecast_and_reserves
@@ -253,7 +253,8 @@ class TestReservesErrorHandling:
 
     def test_invalid_parameters(self):
         """Test handling of invalid parameters."""
-        # Test that ArpsParams handles validation or reserves function handles gracefully
+        # Test that ArpsParams handles validation or reserves function
+        # handles gracefully
         try:
             # Negative qi - may be handled by ArpsParams or reserves function
             params = ArpsParams(qi=-100, di=0.10, b=0.5)

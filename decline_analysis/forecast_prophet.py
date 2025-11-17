@@ -1,11 +1,8 @@
-"""
-Prophet-based forecasting for decline curve analysis.
+"""Prophet-based forecasting for decline curve analysis.
 
 Facebook Prophet is a time series forecasting library that works well with
 data that has strong seasonal patterns and handles missing data gracefully.
 """
-
-from typing import Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -126,8 +123,11 @@ def forecast_prophet_with_uncertainty(
         Tuple of (forecast, lower_bound, upper_bound) series
 
     Example:
-        >>> forecast, lower, upper = forecast_prophet_with_uncertainty(oil_series, horizon=12)
-        >>> print(f"Forecast: {forecast.iloc[-1]:.0f} ± {(upper.iloc[-1] - lower.iloc[-1])/2:.0f}")
+        >>> forecast, lower, upper = forecast_prophet_with_uncertainty(
+        ...     oil_series, horizon=12
+        ... )
+        >>> uncertainty = (upper.iloc[-1] - lower.iloc[-1]) / 2
+        >>> print(f"Forecast: {forecast.iloc[-1]:.0f} ± {uncertainty:.0f}")
     """
     if not PROPHET_AVAILABLE:
         raise ImportError(

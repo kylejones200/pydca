@@ -1,4 +1,6 @@
-from typing import Optional, Tuple
+"""ARIMA time series forecasting for production data."""
+
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -18,7 +20,7 @@ def forecast_arima(
     Args:
         series: Univariate time series with a DateTimeIndex.
         horizon: Forecast horizon.
-        order: Optional ARIMA (p,d,q) order. If None, uses auto_arima.
+        order: Optional ARIMA (p,d,q) order. If None, uses default (1,1,1).
         seasonal: Whether to include seasonal ARIMA terms.
         seasonal_period: The seasonal period if seasonal is True.
 
@@ -175,7 +177,7 @@ def forecast_arima(
 
         return pd.Series(forecast, index=future_idx, name="arima_forecast")
 
-    except Exception as e:
+    except Exception:
         # Fallback to simple trend-based forecast
         if len(y) >= 2:
             trend = (y.iloc[-1] - y.iloc[0]) / (len(y) - 1)
@@ -211,18 +213,3 @@ def forecast_arima(
                 ]
 
         return pd.Series(forecast_values, index=future_idx, name="arima_forecast")
-
-    # Final safety check - ensure no NaN values in the result
-    if np.isnan(forecast).any():
-        # Ultimate fallback: use last valid value
-        last_valid = y.iloc[-1]
-        forecast = np.full(horizon, last_valid)
-
-    # Ensure the returned series has valid values
-    result = pd.Series(forecast, index=future_idx, name="arima_forecast")
-
-    # Replace any remaining NaN values with the last valid observation
-    if result.isna().any():
-        result = result.fillna(y.iloc[-1])
-
-    return result

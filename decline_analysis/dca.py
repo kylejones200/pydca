@@ -1,6 +1,7 @@
-from typing import Dict, List, Literal, Optional, Tuple
+"""Main API for decline curve analysis and forecasting."""
 
-import numpy as np
+from typing import Literal, Optional
+
 import pandas as pd
 
 try:
@@ -27,6 +28,18 @@ def forecast(
     horizon: int = 12,
     verbose: bool = False,
 ) -> pd.Series:
+    """Generate production forecast using specified model.
+
+    Args:
+        series: Historical production time series.
+        model: Forecasting model to use ('arps', 'timesfm', 'chronos', 'arima').
+        kind: Arps decline type ('exponential', 'harmonic', 'hyperbolic').
+        horizon: Number of periods to forecast.
+        verbose: Print forecast details.
+
+    Returns:
+        Forecasted production series.
+    """
     fc = Forecaster(series)
     result = fc.forecast(model=model, kind=kind, horizon=horizon)
     if verbose:
@@ -36,6 +49,15 @@ def forecast(
 
 
 def evaluate(y_true: pd.Series, y_pred: pd.Series) -> dict:
+    """Evaluate forecast accuracy metrics.
+
+    Args:
+        y_true: Actual production values.
+        y_pred: Predicted production values.
+
+    Returns:
+        Dictionary with RMSE, MAE, and SMAPE metrics.
+    """
     common = y_true.index.intersection(y_pred.index)
     yt = y_true.loc[common]
     yp = y_pred.loc[common]
@@ -52,6 +74,14 @@ def plot(
     title: str = "Forecast",
     filename: Optional[str] = None,
 ):
+    """Plot forecast visualization.
+
+    Args:
+        y: Historical production series.
+        yhat: Forecasted production series.
+        title: Plot title.
+        filename: Optional filename to save plot.
+    """
     plot_forecast(y, yhat, title, filename)
 
 

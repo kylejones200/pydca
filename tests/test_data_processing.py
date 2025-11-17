@@ -2,8 +2,6 @@
 Unit tests for data processing utilities.
 """
 
-from datetime import datetime, timedelta
-
 import numpy as np
 import pandas as pd
 import pytest

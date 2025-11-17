@@ -1,9 +1,10 @@
-"""
-Chronos (Amazon's time series foundation model) integration for decline curve forecasting.
+"""Chronos (Amazon's time series foundation model) integration.
+
+This module provides forecasting using Amazon's Chronos time series
+foundation model for decline curve analysis.
 """
 
 import warnings
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -22,13 +23,14 @@ def forecast_chronos(series: pd.Series, horizon: int = 12) -> pd.Series:
     """
     try:
         # Try to import Chronos dependencies
-        import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer
+        import torch  # noqa: F401
+        from transformers import AutoModelForCausalLM  # noqa: F401
 
         # Check if CUDA is available
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # Load Chronos model (placeholder - actual implementation would use Amazon's Chronos)
+        # Load Chronos model (placeholder - actual implementation would use
+        # Amazon's Chronos)
         model_name = "amazon/chronos-t5-small"  # Placeholder model name
 
         try:
@@ -197,18 +199,20 @@ def forecast_chronos_probabilistic(
 
     # Generate multiple forecast scenarios
     n_scenarios = 100
-    forecasts = []
+    forecast_scenarios: list[np.ndarray] = []
 
     for _ in range(n_scenarios):
         scenario_forecast = _generate_chronos_forecast(values, horizon, None)
-        forecasts.append(scenario_forecast)
+        forecast_scenarios.append(scenario_forecast)
 
-    forecasts = np.array(forecasts)
+    forecast_array = np.array(forecast_scenarios)
 
     # Calculate quantiles
     forecast_quantiles = {}
     for q in quantiles:
-        forecast_quantiles[f"q{int(q*100)}"] = np.percentile(forecasts, q * 100, axis=0)
+        forecast_quantiles[f"q{int(q*100)}"] = np.percentile(
+            forecast_array, q * 100, axis=0
+        )
 
     # Create forecast index
     last_date = series.index[-1]
@@ -221,8 +225,8 @@ def forecast_chronos_probabilistic(
 def check_chronos_availability() -> bool:
     """Check if Chronos dependencies are available."""
     try:
-        import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer
+        import torch  # noqa: F401
+        from transformers import AutoModelForCausalLM, AutoTokenizer  # noqa: F401
 
         return True
     except ImportError:

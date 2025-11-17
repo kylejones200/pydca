@@ -1,6 +1,7 @@
+"""Data loading utilities for NDIC production data."""
+
 from datetime import datetime
 from pathlib import Path
-from typing import List
 
 import pandas as pd
 import requests
@@ -8,6 +9,15 @@ import xlrd
 
 
 def scrape_ndic(months_list: list[str], output_dir: str = "ndic_raw") -> pd.DataFrame:
+    """Scrape NDIC production data from web.
+
+    Args:
+        months_list: List of month strings in format 'YYYY-MM'.
+        output_dir: Directory to save downloaded files.
+
+    Returns:
+        DataFrame with production data.
+    """
     base_url = "https://www.dmr.nd.gov/oilgas/mpr/"
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)

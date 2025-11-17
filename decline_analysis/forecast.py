@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Literal, Optional, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,7 +15,13 @@ try:
 except ImportError:
     ARIMA_AVAILABLE = False
 
-    def forecast_arima(*args, **kwargs):
+    def forecast_arima(
+        series: pd.Series,
+        horizon: int = 12,
+        order: Optional[tuple[int, int, int]] = None,
+        seasonal: bool = False,
+        seasonal_period: int = 12,
+    ) -> pd.Series:
         raise ImportError("ARIMA forecasting is not available due to dependency issues")
 
 
@@ -36,12 +42,17 @@ class Forecaster:
         self,
         model: Literal["arps", "timesfm", "chronos", "arima"],
         kind: Optional[Literal["exponential", "harmonic", "hyperbolic"]] = "hyperbolic",
-        horizon: Optional[int] = 12,
+        horizon: int = 12,
     ) -> pd.Series:
         if model == "arps":
             t = np.arange(len(self.series))
             q = self.series.to_numpy()
-            params = fit_arps(t, q, kind=kind)
+            arps_kind: Literal["exponential", "harmonic", "hyperbolic"] = (
+                "hyperbolic"
+                if kind is None
+                else cast(Literal["exponential", "harmonic", "hyperbolic"], kind)
+            )
+            params = fit_arps(t, q, kind=arps_kind)
             full_t = np.arange(len(self.series) + horizon)
             yhat = predict_arps(full_t, params)
             idx = pd.date_range(

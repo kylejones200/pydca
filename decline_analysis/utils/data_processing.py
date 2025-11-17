@@ -102,7 +102,8 @@ def get_max_initial_production(
     """
     df_sorted = df.sort_values(by=date_column)
     df_initial = df_sorted.head(n_months)
-    return df_initial[production_column].max()
+    max_value = df_initial[production_column].max()
+    return float(max_value) if pd.notna(max_value) else float("nan")
 
 
 def calculate_cumulative_production(
@@ -176,7 +177,9 @@ def filter_wells_by_date_range(
         Filtered DataFrame
 
     Example:
-        >>> df_2016 = filter_wells_by_date_range(df, 'Online_Date', '2016-01-01', '2016-12-31')
+        >>> df_2016 = filter_wells_by_date_range(
+        ...     df, 'Online_Date', '2016-01-01', '2016-12-31'
+        ... )
     """
     df_filtered = df[
         (df[date_column] >= pd.to_datetime(start_date))
@@ -258,7 +261,9 @@ def prepare_well_data_for_dca(
         Time series indexed by date with production values
 
     Example:
-        >>> series = prepare_well_data_for_dca(df, '33023013930000', production_column='Oil')
+        >>> series = prepare_well_data_for_dca(
+        ...     df, '33023013930000', production_column='Oil'
+        ... )
         >>> forecast = dca.forecast(series, model='arps', horizon=12)
     """
     # Filter to specific well

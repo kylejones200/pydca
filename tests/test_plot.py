@@ -3,14 +3,13 @@ Unit tests for plotting functionality.
 """
 
 import matplotlib
-import numpy as np
-import pandas as pd
-import pytest
 
 matplotlib.use("Agg")  # Use non-interactive backend for testing
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
 
-from decline_analysis.plot import (
+from decline_analysis.plot import (  # noqa: E402
     _range_markers,
     plot_benchmark_results,
     plot_decline_curve,
@@ -28,9 +27,9 @@ class TestPlottingUtilities:
         tufte_style()
 
         # Check that some key style parameters are set
-        assert plt.rcParams["axes.spines.top"] == False
-        assert plt.rcParams["axes.spines.right"] == False
-        assert plt.rcParams["axes.grid"] == True
+        assert plt.rcParams["axes.spines.top"] is False
+        assert plt.rcParams["axes.spines.right"] is False
+        assert plt.rcParams["axes.grid"] is True
 
     def test_range_markers(self):
         """Test range markers function."""
@@ -95,7 +94,7 @@ class TestPlotForecast:
         try:
             plot_forecast(sample_production_data, forecast_data, show_metrics=True)
             plt.close("all")
-        except Exception as e:
+        except Exception:
             # Environment-related plotting errors are acceptable
             pass
 
@@ -282,9 +281,9 @@ class TestPlottingConfiguration:
 
         # Check key Tufte-style parameters
         assert plt.rcParams["axes.linewidth"] == 0.5
-        assert plt.rcParams["axes.spines.top"] == False
-        assert plt.rcParams["axes.spines.right"] == False
-        assert plt.rcParams["axes.grid"] == True
+        assert plt.rcParams["axes.spines.top"] is False
+        assert plt.rcParams["axes.spines.right"] is False
+        assert plt.rcParams["axes.grid"] is True
         assert plt.rcParams["grid.alpha"] == 0.7
 
     def teardown_method(self):

@@ -140,7 +140,7 @@ class TestDCAAPI:
 
             dca.plot(sample_production_data, forecast_data, title="Test Plot")
 
-        except Exception as e:
+        except Exception:
             # If plotting fails due to environment, that's okay for testing
             # The important thing is that the function signature works
             pass
@@ -221,7 +221,7 @@ class TestAPIParameterValidation:
         )
 
         try:
-            result = dca.benchmark(invalid_df)
+            dca.benchmark(invalid_df)
             # Should either work with default column names or handle gracefully
         except Exception as e:
             # Should raise a meaningful error about missing columns
@@ -230,7 +230,7 @@ class TestAPIParameterValidation:
     def test_forecast_negative_horizon(self, sample_production_data):
         """Test forecast with negative horizon."""
         try:
-            result = dca.forecast(sample_production_data, horizon=-5)
+            dca.forecast(sample_production_data, horizon=-5)
             # Should either handle gracefully or raise error
         except Exception as e:
             assert isinstance(e, (ValueError, RuntimeError))

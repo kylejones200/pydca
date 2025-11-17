@@ -1,5 +1,4 @@
-"""
-Monte Carlo simulation for probabilistic decline curve analysis.
+"""Monte Carlo simulation for probabilistic decline curve analysis.
 
 This module enables uncertainty quantification and risk assessment by:
 - Sampling from parameter distributions (qi, di, b, prices)
@@ -12,7 +11,8 @@ Performance: Uses Numba JIT and joblib parallelization for fast execution.
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Literal, Optional, Tuple, Union
+from types import SimpleNamespace
+from typing import Any, Literal, Optional, cast
 
 import numpy as np
 import pandas as pd
@@ -31,13 +31,13 @@ try:
 except ImportError:
     NUMBA_AVAILABLE = False
 
-    class numba:
-        @staticmethod
-        def jit(*args, **kwargs):
-            def decorator(func):
-                return func
+    def _jit_noop(*args: Any, **kwargs: Any):
+        def decorator(func):
+            return func
 
-            return decorator
+        return decorator
+
+    numba = cast(Any, SimpleNamespace(jit=_jit_noop))
 
 
 from .economics import economic_metrics
@@ -71,12 +71,20 @@ class DistributionParams:
             np.random.seed(seed)
 
         if self.dist_type == "normal":
+            if self.mean is None or self.std is None:
+                raise ValueError("Normal distribution requires mean and std")
             return np.random.normal(self.mean, self.std, n)
         elif self.dist_type == "lognormal":
+            if self.mean is None or self.std is None:
+                raise ValueError("Lognormal distribution requires mean and std")
             return np.random.lognormal(np.log(self.mean), self.std, n)
         elif self.dist_type == "uniform":
+            if self.min is None or self.max is None:
+                raise ValueError("Uniform distribution requires min and max")
             return np.random.uniform(self.min, self.max, n)
         elif self.dist_type == "triangular":
+            if self.min is None or self.max is None or self.mode is None:
+                raise ValueError("Triangular distribution requires min, mode, and max")
             return np.random.triangular(self.min, self.mode, self.max, n)
         else:
             raise ValueError(f"Unknown distribution type: {self.dist_type}")
@@ -185,7 +193,7 @@ def _run_single_simulation(
     try:
         econ = economic_metrics(q_valid, price, opex, discount_rate)
         npv = econ["npv"]
-    except:
+    except Exception:
         npv = 0.0
 
     return forecast, eur, npv
@@ -239,12 +247,12 @@ def monte_carlo_forecast(
     """
     if verbose:
         print(
-            f"Running Monte Carlo simulation with {mc_params.n_simulations} iterations..."
+            f"Running Monte Carlo simulation with "
+            f"{mc_params.n_simulations} iterations..."
         )
 
     # Generate time array
     t = np.arange(0, t_max + dt, dt)
-    n_timesteps = len(t)
 
     # Sample parameters
     if verbose:
@@ -359,7 +367,8 @@ def monte_carlo_forecast(
             f"  EUR - P90: {p90_eur:,.0f} | P50: {p50_eur:,.0f} | P10: {p10_eur:,.0f}"
         )
         print(
-            f"  NPV - P90: ${p90_npv:,.0f} | P50: ${p50_npv:,.0f} | P10: ${p10_npv:,.0f}"
+            f"  NPV - P90: ${p90_npv:,.0f} | P50: ${p50_npv:,.0f} | "
+            f"P10: ${p10_npv:,.0f}"
         )
 
     return MonteCarloResults(
@@ -576,7 +585,8 @@ def risk_analysis(
 
     Example:
         >>> risk_metrics = risk_analysis(results, threshold=0)
-        >>> print(f"Probability of positive NPV: {risk_metrics['prob_positive_npv']:.1%}")
+        >>> prob = risk_metrics['prob_positive_npv']
+        >>> print(f"Probability of positive NPV: {prob:.1%}")
     """
     metrics = {
         "eur_mean": results.mean_eur,

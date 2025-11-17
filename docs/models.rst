@@ -127,16 +127,16 @@ Where:
 - :math:`\theta_i` are moving average parameters
 - :math:`\epsilon_t` is white noise
 
-Automatic Parameter Selection
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Parameter Selection
+~~~~~~~~~~~~~~~~~~~
 
-The library uses the `pmdarima` package for automatic ARIMA parameter selection:
+The library uses statsmodels for ARIMA forecasting. You can specify the order manually or use default parameters:
 
 .. code-block:: python
 
    from decline_analysis.forecast_arima import forecast_arima
 
-   # Automatic parameter selection
+   # Use default ARIMA(1,1,1) order
    forecast = forecast_arima(series, horizon=12)
 
    # Manual parameter specification

@@ -3,7 +3,6 @@ Unit tests for Arps decline curve models.
 """
 
 import numpy as np
-import pandas as pd
 import pytest
 
 from decline_analysis.models import (
@@ -125,9 +124,10 @@ class TestArpsFitting:
     def test_predict_invalid_kind(self):
         """Test prediction with invalid parameters."""
         t = np.array([0, 1, 2])
-        params = {"kind": "invalid", "qi": 1000, "di": 0.1, "b": 0.5}
+        params_dict = {"kind": "invalid", "qi": 1000, "di": 0.1, "b": 0.5}
 
         # This should not raise an error since predict_arps doesn't validate 'kind'
+        _ = predict_arps(t, params_dict)  # Test that it doesn't crash
         # Instead test with missing required parameter
         params_missing = {"qi": 1000, "di": 0.1}  # Missing 'b'
 

@@ -1,8 +1,8 @@
-from typing import Dict, Tuple
+"""Reserves estimation and production forecasting."""
 
 import numpy as np
 
-from .models import ArpsParams, estimate_reserves, predict_arps
+from .models import ArpsParams, predict_arps
 
 
 def forecast_and_reserves(

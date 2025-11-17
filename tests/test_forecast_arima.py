@@ -54,7 +54,7 @@ class TestARIMAForecasting:
 
     def test_forecast_arima_auto_order(self, sample_production_data):
         """Test ARIMA with automatic order selection."""
-        # This should use auto_arima to find the best order
+        # This should use default ARIMA parameters
         result = forecast_arima(sample_production_data, horizon=6, order=None)
 
         assert isinstance(result, pd.Series)
@@ -198,7 +198,7 @@ class TestARIMAEdgeCases:
     def test_arima_negative_horizon(self, sample_production_data):
         """Test ARIMA with negative horizon."""
         try:
-            result = forecast_arima(sample_production_data, horizon=-5)
+            _ = forecast_arima(sample_production_data, horizon=-5)
             # Should either handle gracefully or raise error
         except Exception as e:
             assert isinstance(e, (ValueError, RuntimeError))
@@ -212,7 +212,7 @@ class TestARIMAEdgeCases:
         """Test ARIMA with invalid order specification."""
         try:
             # Invalid order with negative values
-            result = forecast_arima(sample_production_data, order=(-1, 1, 1))
+            _ = forecast_arima(sample_production_data, order=(-1, 1, 1))
         except Exception as e:
             # Should raise appropriate error for invalid order
             assert isinstance(e, (ValueError, RuntimeError))

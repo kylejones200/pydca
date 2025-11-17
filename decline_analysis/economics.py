@@ -1,4 +1,4 @@
-from typing import Dict
+"""Economic analysis and financial metrics for production forecasts."""
 
 import numpy as np
 from numpy_financial import npv

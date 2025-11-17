@@ -1,8 +1,4 @@
-"""
-Unit tests for multi-phase forecasting module.
-"""
-
-from datetime import datetime, timedelta
+"""Unit tests for multi-phase forecasting module."""
 
 import numpy as np
 import pandas as pd

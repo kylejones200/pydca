@@ -8,24 +8,24 @@ import pandas as pd
 
 def rmse(y_true: pd.Series, y_pred: pd.Series) -> float:
     """Root Mean Square Error."""
-    return np.sqrt(np.mean((y_true - y_pred) ** 2))
+    return float(np.sqrt(np.mean((y_true - y_pred) ** 2)))
 
 
 def mae(y_true: pd.Series, y_pred: pd.Series) -> float:
     """Mean Absolute Error."""
-    return np.mean(np.abs(y_true - y_pred))
+    return float(np.mean(np.abs(y_true - y_pred)))
 
 
 def smape(y_true: pd.Series, y_pred: pd.Series) -> float:
     """Symmetric Mean Absolute Percentage Error."""
     numerator = np.abs(y_pred - y_true)
     denominator = (np.abs(y_true) + np.abs(y_pred)) / 2
-    return np.mean(numerator / denominator) * 100
+    return float(np.mean(numerator / denominator) * 100)
 
 
 def mape(y_true: pd.Series, y_pred: pd.Series) -> float:
     """Mean Absolute Percentage Error."""
-    return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+    return float(np.mean(np.abs((y_true - y_pred) / y_true)) * 100)
 
 
 def r2_score(y_true: pd.Series, y_pred: pd.Series) -> float:
@@ -42,7 +42,7 @@ def r2_score(y_true: pd.Series, y_pred: pd.Series) -> float:
         else:
             return 0.0
 
-    return 1 - (ss_res / ss_tot)
+    return float(1 - (ss_res / ss_tot))
 
 
 def evaluate_forecast(y_true: pd.Series, y_pred: pd.Series) -> dict:

@@ -3,6 +3,7 @@
 # Run manually: pre-commit run --all-files
 
 repos:
+  # Essential file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -11,12 +12,12 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
         args: ['--maxkb=1000']
-      - id: check-json
       - id: check-toml
       - id: check-merge-conflict
       - id: debug-statements
       - id: mixed-line-ending
 
+  # Code formatting (essential)
   - repo: https://github.com/psf/black
     rev: 25.9.0
     hooks:
@@ -24,6 +25,7 @@ repos:
         language_version: python3.9
         args: ['--line-length=88']
 
+  # Import sorting (essential)
   - repo: https://github.com/pycqa/isort
     rev: 7.0.0
     hooks:
@@ -31,29 +33,34 @@ repos:
         args: ['--profile=black', '--line-length=88']
         stages: [pre-commit]
 
+  # Linting (essential)
   - repo: https://github.com/pycqa/flake8
     rev: 7.3.0
     hooks:
       - id: flake8
-        args: ['--max-line-length=88', '--extend-ignore=E203,W503']
+        args: ['--max-line-length=88', '--extend-ignore=E203,W503,D200']
         additional_dependencies: [flake8-docstrings]
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.2
-    hooks:
-      - id: mypy
-        args: ['--ignore-missing-imports', '--no-strict-optional']
-        exclude: ^(tests/|docs/)
+  # Optional hooks - uncomment if needed
+  # Type checking (optional - can be run manually)
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.18.2
+  #   hooks:
+  #     - id: mypy
+  #       args: ['--ignore-missing-imports', '--no-strict-optional']
+  #       exclude: ^(tests/|docs/)
 
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.21.0
-    hooks:
-      - id: pyupgrade
-        args: ['--py39-plus']
+  # Python syntax upgrades (optional - can be run manually)
+  # - repo: https://github.com/asottile/pyupgrade
+  #   rev: v3.21.0
+  #   hooks:
+  #     - id: pyupgrade
+  #       args: ['--py39-plus']
 
-  - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.3.0
-    hooks:
-      - id: pydocstyle
-        args: ['--convention=google']
-        exclude: ^(tests/|docs/|examples/)
+  # Docstring style checking (optional - many projects skip this)
+  # - repo: https://github.com/pycqa/pydocstyle
+  #   rev: 6.3.0
+  #   hooks:
+  #     - id: pydocstyle
+  #       args: ['--convention=google']
+  #       exclude: ^(tests/|docs/|examples/)

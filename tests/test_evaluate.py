@@ -4,7 +4,6 @@ Unit tests for evaluation metrics.
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from decline_analysis.evaluate import (
     evaluate_forecast,

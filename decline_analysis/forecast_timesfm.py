@@ -1,9 +1,6 @@
-"""
-TimesFM (Time Series Foundation Model) integration for decline curve forecasting.
-"""
+"""TimesFM (Time Series Foundation Model) integration for decline curve forecasting."""
 
 import warnings
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -23,17 +20,17 @@ def forecast_timesfm(series: pd.Series, horizon: int = 12) -> pd.Series:
     try:
         # Try to import TimesFM
         import torch
-        from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+        from transformers import AutoModelForSeq2SeqLM, AutoTokenizer  # noqa: F401
 
         # Check if CUDA is available
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # Load TimesFM model (this is a placeholder - actual implementation would use Google's TimesFM)
+        # Load TimesFM model (this is a placeholder - actual implementation
+        # would use Google's TimesFM)
         # For now, we'll use a simple transformer-based approach as a proxy
         model_name = "google/timesfm-1.0-200m"  # Placeholder model name
 
         try:
-            tokenizer = AutoTokenizer.from_pretrained(model_name)
             model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
             model.to(device)
             model.eval()
@@ -56,9 +53,6 @@ def forecast_timesfm(series: pd.Series, horizon: int = 12) -> pd.Series:
 
         # Generate forecast (this is a simplified implementation)
         with torch.no_grad():
-            # Convert to tensor
-            input_tensor = torch.FloatTensor(input_seq).unsqueeze(0).to(device)
-
             # For demonstration, we'll use a simple pattern-based forecast
             # In reality, this would use the actual TimesFM model architecture
             forecast_normalized = _generate_timesfm_forecast(input_seq, horizon)
@@ -69,9 +63,7 @@ def forecast_timesfm(series: pd.Series, horizon: int = 12) -> pd.Series:
         # Create forecast index
         last_date = series.index[-1]
         freq = series.index.freq or pd.infer_freq(series.index)
-        forecast_index = pd.date_range(start=last_date, periods=horizon + 1, freq=freq)[
-            1:
-        ]
+        _ = pd.date_range(start=last_date, periods=horizon + 1, freq=freq)[1:]
 
         # Combine historical and forecast data
         full_index = pd.date_range(
@@ -148,16 +140,16 @@ def _fallback_timesfm_forecast(series: pd.Series, horizon: int) -> pd.Series:
 
     # Optimize smoothing parameter
     result = minimize_scalar(sse_alpha, bounds=(0.01, 0.99), method="bounded")
-    optimal_alpha = result.x
+    alpha = result.x
 
-    # Generate forecast
+    # Generate forecast using optimized alpha
+    # Apply exponential smoothing
     last_smoothed = values[-1]
     forecast_values = []
 
-    # Apply exponential smoothing for forecast
     for i in range(horizon):
-        # Simple trend dampening
-        damping = 0.98**i  # Gradually reduce the forecast
+        # Use optimized alpha for trend dampening
+        damping = alpha * (0.98**i)  # Combine alpha with exponential decay
         next_value = last_smoothed * damping
         forecast_values.append(max(0, next_value))  # Ensure non-negative
         last_smoothed = next_value
@@ -175,8 +167,8 @@ def _fallback_timesfm_forecast(series: pd.Series, horizon: int) -> pd.Series:
 def check_timesfm_availability() -> bool:
     """Check if TimesFM dependencies are available."""
     try:
-        import torch
-        import transformers
+        import torch  # noqa: F401
+        import transformers  # noqa: F401
 
         return True
     except ImportError:

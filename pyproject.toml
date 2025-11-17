@@ -72,6 +72,7 @@ dev = [
   "isort>=5.12",
   "flake8>=6.0",
   "mypy>=1.0",
+  "types-requests>=2.32",
   "pre-commit>=3.0",
   "line_profiler>=4.0"
 ]
@@ -142,6 +143,7 @@ disallow_untyped_defs = false
 ignore_missing_imports = true
 show_error_codes = true
 pretty = true
+disable_error_code = ["import-untyped"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
@@ -191,4 +193,29 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
   "@abstractmethod",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    ".eggs",
+    "*.egg",
+    "build",
+    "dist",
+    "examples",
+    "benchmarks",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = [
+    "E402",  # Module level import not at top (if intentional)
+    "E501",  # Line too long (handled by formatter)
+    "N806",  # Variable should be lowercase (if using stats conventions)
+    "N803",  # Argument should be lowercase (if using stats conventions)
 ]

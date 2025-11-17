@@ -9,7 +9,7 @@ and consistent forecasts than independent single-phase models.
 """
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Literal, Optional
 
 import numpy as np
 import pandas as pd
@@ -121,8 +121,8 @@ class MultiPhaseForecaster:
         self,
         data: MultiPhaseData,
         horizon: int = 12,
-        model: str = "arps",
-        kind: Optional[str] = "hyperbolic",
+        model: Literal["arps", "timesfm", "chronos", "arima"] = "arps",
+        kind: Optional[Literal["exponential", "harmonic", "hyperbolic"]] = "hyperbolic",
         enforce_ratios: bool = True,
         **kwargs,
     ) -> dict[str, pd.Series]:
