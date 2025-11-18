@@ -195,10 +195,10 @@ def predict_arps(t: np.ndarray, p: ArpsParamsLike) -> np.ndarray:
 def _predict_arps_numba(t: np.ndarray, qi: float, di: float, b: float) -> np.ndarray:
     """Numba-optimized prediction function."""
     if b == 0.0:
-        return cast(np.ndarray, q_exp(t, qi, di))
+        return q_exp(t, qi, di)
     if abs(b - 1.0) < 1e-9:
-        return cast(np.ndarray, qi / (1 + di * t))
-    return cast(np.ndarray, q_hyp(t, qi, di, b))
+        return qi / (1 + di * t)
+    return q_hyp(t, qi, di, b)
 
 
 def estimate_reserves(params: ArpsParamsLike, t_max: float = 50.0) -> float:
