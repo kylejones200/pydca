@@ -5,10 +5,7 @@ real-world production data from thousands of North Dakota wells.
 """
 
 import os
-import tempfile
-from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -78,8 +75,7 @@ class TestDeepLearningWithRealData:
             assert len(static_df) > 0
             assert "well_id" in static_df.columns
 
-            print(f"\n✓ Loaded {production_df['well_id'].nunique()} wells")
-            print(f"✓ Total production records: {len(production_df)}")
+            # Test passes if no exceptions raised
 
         except FileNotFoundError:
             pytest.skip("Real production data not available")
@@ -131,8 +127,7 @@ class TestDeepLearningWithRealData:
             assert len(forecast["oil"]) == 6
             assert all(forecast["oil"] >= 0)  # Non-negative production
 
-            print(f"\n✓ Trained on {production_df['well_id'].nunique()} real wells")
-            print(f"✓ Forecast RMSE (normalized): {history['loss'][-1]:.4f}")
+            # Test passes if no exceptions raised
 
         except ImportError:
             pytest.skip("PyTorch not available")
@@ -159,7 +154,7 @@ class TestDeepLearningWithRealData:
             )
 
             # Train
-            history = forecaster.fit(
+            forecaster.fit(
                 production_data=production_df,
                 epochs=2,
                 batch_size=4,
@@ -184,8 +179,7 @@ class TestDeepLearningWithRealData:
             assert all(forecast["gas"] >= 0)
             assert all(forecast["water"] >= 0)
 
-            print(f"\n✓ Multi-phase LSTM trained successfully")
-            print(f"✓ Forecasting oil, gas, and water simultaneously")
+            # Test passes if no exceptions raised
 
         except ImportError:
             pytest.skip("PyTorch not available")
@@ -236,8 +230,7 @@ class TestDeepLearningWithRealData:
             assert "oil" in forecast
             assert len(forecast["oil"]) == 6
 
-            print(f"\n✓ Model saved and loaded successfully")
-            print(f"✓ Predictions match after loading")
+            # Test passes if no exceptions raised
 
         except ImportError:
             pytest.skip("PyTorch not available")
@@ -294,8 +287,7 @@ class TestDeepLearningWithRealData:
             )
 
             assert "oil" in forecast
-            print(f"\n✓ Fine-tuning completed successfully")
-            print(f"✓ Transfer learning validated on real data")
+            # Test passes if no exceptions raised
 
         except ImportError:
             pytest.skip("PyTorch not available")

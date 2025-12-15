@@ -62,9 +62,12 @@ def load_north_dakota_production(
 
     logger = get_logger(__name__)
 
-    # Load raw data
+    # Load raw data (CSV or Parquet)
     logger.info(f"Loading production data from {data_path}")
-    df = pd.read_csv(data_path)
+    if data_path.suffix == ".parquet":
+        df = pd.read_parquet(data_path)
+    else:
+        df = pd.read_csv(data_path)
 
     # Standardize column names
     column_mapping = {

@@ -337,37 +337,3 @@ Complete workflow for production forecasting:
 
    # Use the workflow
    forecast, metrics = analyze_well_production(series, "Example Well")
-
-Best Practices
---------------
-
-Data Quality
-~~~~~~~~~~~~
-
-1. **Ensure regular time intervals**: Monthly data works best
-2. **Handle missing values**: Remove or interpolate gaps
-3. **Check for outliers**: Extreme values can skew results
-4. **Sufficient history**: At least 12-24 data points recommended
-
-Model Selection
-~~~~~~~~~~~~~~~
-
-1. **Start with Arps hyperbolic**: Often best for oil/gas wells
-2. **Try ARIMA for complex patterns**: Good for irregular decline
-3. **Use foundation models for difficult cases**: When traditional methods fail
-4. **Cross-validate results**: Split data for out-of-sample testing
-
-Evaluation
-~~~~~~~~~~
-
-1. **Use multiple metrics**: RMSE, MAE, SMAPE provide different insights
-2. **Consider business context**: Some errors are more costly than others
-3. **Validate on holdout data**: Don't evaluate on training data
-4. **Monitor forecast uncertainty**: Consider confidence intervals
-
-Next Steps
-----------
-
-* Explore the :doc:`examples` for real-world applications
-* Check the :doc:`api/dca` for detailed API documentation
-* Review the :doc:`models` section for theoretical background

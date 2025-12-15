@@ -8,6 +8,12 @@ import pandas as pd
 
 from .evaluate import mae, rmse, smape
 from .forecast_chronos import forecast_chronos
+from .forecast_statistical import (
+    holt_winters_forecast,
+    linear_trend_forecast,
+    moving_average_forecast,
+    simple_exponential_smoothing,
+)
 from .forecast_timesfm import forecast_timesfm
 from .models import fit_arps, predict_arps
 from .plot import _range_markers, tufte_style
@@ -26,6 +32,7 @@ except ImportError:
         seasonal: bool = False,
         seasonal_period: int = 12,
     ) -> pd.Series:
+        """Raise error when ARIMA module is not available."""
         raise ImportError("ARIMA forecasting is not available due to dependency issues")
 
 
@@ -67,7 +74,18 @@ class Forecaster:
 
     def forecast(
         self,
-        model: Literal["arps", "timesfm", "chronos", "arima", "deepar", "ensemble"],
+        model: Literal[
+            "arps",
+            "timesfm",
+            "chronos",
+            "arima",
+            "deepar",
+            "ensemble",
+            "exponential_smoothing",
+            "moving_average",
+            "linear_trend",
+            "holt_winters",
+        ],
         kind: Optional[Literal["exponential", "harmonic", "hyperbolic"]] = "hyperbolic",
         horizon: int = 12,
         **kwargs,
@@ -117,6 +135,30 @@ class Forecaster:
             forecast = pd.Series(
                 full_forecast.values, index=full_index, name="arima_forecast"
             )
+
+        elif model == "exponential_smoothing":
+            alpha = kwargs.get("alpha", 0.3)
+            forecast = simple_exponential_smoothing(
+                self.series, alpha=alpha, horizon=horizon
+            )
+
+        elif model == "moving_average":
+            window = kwargs.get("window", 6)
+            forecast = moving_average_forecast(
+                self.series, window=window, horizon=horizon
+            )
+
+        elif model == "linear_trend":
+            forecast = linear_trend_forecast(self.series, horizon=horizon)
+
+        elif model == "holt_winters":
+            seasonal_periods = kwargs.get("seasonal_periods", None)
+            forecast_result = holt_winters_forecast(
+                self.series, horizon=horizon, seasonal_periods=seasonal_periods
+            )
+            if forecast_result is None:
+                raise ValueError("Holt-Winters forecast failed")
+            forecast = forecast_result
 
         else:
             raise ValueError(f"Unknown model: {model}")

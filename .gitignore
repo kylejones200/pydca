@@ -74,6 +74,7 @@ Thumbs.db
 *.json
 !requirements.txt
 !docs/requirements.txt
+!data/fingerprint.json
 
 # Logs
 *.log
@@ -87,3 +88,7 @@ Deep-AR for Production Forecasting.md
 
 # Untracked experimental code
 _untracked/
+wip/
+
+# Data files
+data/*.parquet

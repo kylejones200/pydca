@@ -1,0 +1,71 @@
+# Example benchmark configuration file
+# This demonstrates parameter sweeps with MLflow tracking
+
+experiment_name: "dca_parameter_sweep_v1"
+
+well_configs:
+  - well_type: "hyperbolic"
+    parameters:
+      qi: 1000  # Will be overridden by sweep
+      di: 0.1
+      b: 0.5
+    noise_level: 0.05
+    n_months: 36
+
+  - well_type: "exponential"
+    parameters:
+      qi: 800
+      di: 0.15
+    noise_level: 0.05
+    n_months: 36
+
+parameter_sweeps:
+  - name: "qi_di_grid"
+    type: "grid"
+    parameters:
+      qi: [800, 1000, 1200, 1500]
+      di: [0.05, 0.10, 0.15, 0.20]
+      b: [0.3, 0.5, 0.7]
+
+  - name: "qi_di_random"
+    type: "random"
+    n_samples: 50
+    seed: 42
+    parameters:
+      qi:
+        type: "uniform"
+        min: 500
+        max: 2000
+      di:
+        type: "uniform"
+        min: 0.05
+        max: 0.30
+      b:
+        type: "uniform"
+        min: 0.2
+        max: 0.8
+
+  - name: "noise_sensitivity"
+    type: "grid"
+    parameters:
+      noise_level: [0.01, 0.05, 0.10, 0.15, 0.20]
+
+models:
+  - "arps"
+  - "arima"
+  - "exponential_smoothing"
+  - "moving_average"
+  - "linear_trend"
+  - "holt_winters"
+
+horizons:
+  - 6
+  - 12
+  - 24
+
+n_wells_per_config: 5
+seed: 42
+
+mlflow_tracking: true
+mlflow_uri: null  # Use default local tracking
+output_dir: "benchmark_results"

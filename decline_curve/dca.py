@@ -26,7 +26,17 @@ except ImportError:
 def forecast(
     series: pd.Series,
     model: Literal[
-        "arps", "timesfm", "chronos", "arima", "deepar", "tft", "ensemble"
+        "arps",
+        "timesfm",
+        "chronos",
+        "arima",
+        "deepar",
+        "tft",
+        "ensemble",
+        "exponential_smoothing",
+        "moving_average",
+        "linear_trend",
+        "holt_winters",
     ] = "arps",
     kind: Optional[Literal["exponential", "harmonic", "hyperbolic"]] = "hyperbolic",
     horizon: int = 12,
@@ -215,7 +225,7 @@ def forecast(
                 "Install with: pip install torch"
             )
 
-    # Standard models (Arps, ARIMA, TimesFM, Chronos)
+    # Standard models (Arps, ARIMA, TimesFM, Chronos, statistical methods)
     else:
         fc = Forecaster(series)
         result = fc.forecast(model=model, kind=kind, horizon=horizon)
@@ -262,7 +272,7 @@ def plot(
 
 
 def _benchmark_single_well(
-    wid, df, well_col, date_col, value_col, model, kind, horizon
+    wid, df, well_col, date_col, value_col, model, kind, horizon, kwargs=None
 ):
     """Process a single well for benchmarking (used for parallel execution)."""
     try:
@@ -274,7 +284,8 @@ def _benchmark_single_well(
             return None
 
         y = wdf[value_col]
-        yhat = forecast(y, model=model, kind=kind, horizon=horizon)
+        forecast_kwargs = kwargs or {}
+        yhat = forecast(y, model=model, kind=kind, horizon=horizon, **forecast_kwargs)
         metrics = evaluate(y, yhat)
         metrics[well_col] = wid
         return metrics
@@ -284,7 +295,16 @@ def _benchmark_single_well(
 
 def benchmark(
     df: pd.DataFrame,
-    model: Literal["arps", "timesfm", "chronos", "arima"] = "arps",
+    model: Literal[
+        "arps",
+        "timesfm",
+        "chronos",
+        "arima",
+        "exponential_smoothing",
+        "moving_average",
+        "linear_trend",
+        "holt_winters",
+    ] = "arps",
     kind: Optional[str] = "hyperbolic",
     horizon: int = 12,
     well_col: str = "well_id",
@@ -293,6 +313,7 @@ def benchmark(
     top_n: int = 10,
     verbose: bool = False,
     n_jobs: int = -1,  # -1 uses all available cores
+    **kwargs,
 ) -> pd.DataFrame:
     """
     Benchmark forecasting models across multiple wells.

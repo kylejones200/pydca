@@ -1,0 +1,76 @@
+# Example panel data analysis configuration with parameter sweeps
+# This demonstrates different regression specifications and parameter combinations
+
+experiment_name: "panel_analysis_sweep_v1"
+
+data_path: "data/north_dakota_production.parquet"
+
+# Column names
+well_id_col: "API_WELLNO"
+date_col: "ReportDate"
+value_col: "Oil"
+company_col: "Company"
+county_col: "County"
+lat_col: "Lat"
+long_col: "Long"
+
+# Data sampling
+max_wells: 1000  # Limit to 1000 wells for testing
+min_months: 12
+random_seed: 42
+
+# EUR calculation
+model_type: "hyperbolic"
+t_max: 360.0
+econ_limit: 10.0
+
+# Regression specifications (base)
+include_company: true
+include_county: true
+additional_controls: []
+
+# Spatial analysis
+include_spatial: true
+basin_center_lat: 47.5
+basin_center_long: -103.0
+
+# MLflow tracking
+mlflow_tracking: true
+mlflow_uri: null  # Use default local tracking
+output_dir: "outputs/panel_analysis_sweep"
+
+# Parameter sweeps
+parameter_sweeps:
+  - name: "regression_specifications"
+    type: "grid"
+    parameters:
+      include_company: [true, false]
+      include_county: [true, false]
+      max_wells: [500, 1000, 2000]
+
+  - name: "sample_size_sensitivity"
+    type: "grid"
+    parameters:
+      max_wells: [100, 250, 500, 1000, 2000]
+      include_company: [true]
+      include_county: [true]
+
+  - name: "model_type_comparison"
+    type: "grid"
+    parameters:
+      model_type: ["hyperbolic", "exponential", "harmonic"]
+      include_company: [true]
+      include_county: [true]
+
+  - name: "random_sample_sizes"
+    type: "random"
+    n_samples: 20
+    seed: 42
+    parameters:
+      max_wells:
+        type: "choice"
+        values: [100, 250, 500, 1000, 2000]
+      include_company:
+        type: "boolean"
+      include_county:
+        type: "boolean"
