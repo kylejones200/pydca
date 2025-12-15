@@ -191,10 +191,16 @@ def detect_outliers_hampel(
     # Compute MAD (Median Absolute Deviation)
     mad = np.median(np.abs(residuals - np.median(residuals)))
 
-    # Threshold (using modified Z-score)
-    threshold = (
-        n_sigma * 1.4826 * mad
-    )  # 1.4826 makes MAD comparable to std for normal dist
+    # If MAD is zero or very small, use a small default threshold
+    # This handles cases where data is perfectly smooth
+    if mad < 1e-10:
+        # Use a small fraction of the median rate as threshold
+        threshold = n_sigma * 0.01 * np.median(np.abs(rates))
+    else:
+        # Threshold (using modified Z-score)
+        threshold = (
+            n_sigma * 1.4826 * mad
+        )  # 1.4826 makes MAD comparable to std for normal dist
 
     # Detect outliers
     is_outlier = np.abs(residuals) > threshold

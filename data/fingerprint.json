@@ -1,0 +1,37 @@
+{
+  "file": "north_dakota_production.csv",
+  "parquet_file": "north_dakota_production.parquet",
+  "sha256": "9463f2cfbb5125fb910a388d71741087e0c5a9cdaa593d1e044c7058ca39f36b",
+  "rows": 1945842,
+  "columns": [
+    "Unnamed: 0",
+    "ReportDate",
+    "API_WELLNO",
+    "FileNo",
+    "Company",
+    "WellName",
+    "Quarter",
+    "Section",
+    "Township",
+    "Range",
+    "County",
+    "FieldName",
+    "Pool",
+    "Oil",
+    "Wtr",
+    "Days",
+    "Runs",
+    "Gas",
+    "GasSold",
+    "Flared",
+    "Lat",
+    "Long",
+    "Source_File",
+    "Date"
+  ],
+  "date_range": {
+    "min": "2016-01-01",
+    "max": "2024-11-01"
+  },
+  "wells": 22962
+}
