@@ -16,7 +16,7 @@ Reserve estimation is fundamental to:
 Functions
 ---------
 
-.. automodule:: decline_analysis.reserves
+.. automodule:: decline_curve.reserves
    :members:
    :undoc-members:
    :show-inheritance:
@@ -29,7 +29,7 @@ Basic Reserve Estimation
 
 .. code-block:: python
 
-   import decline_analysis as dca
+   import decline_curve as dca
 
    # Define Arps parameters
    params = dca.ArpsParams(qi=1000, di=0.10, b=0.5)

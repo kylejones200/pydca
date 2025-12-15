@@ -16,7 +16,7 @@ Features
 
 * **Multi-Phase Forecasting**: Simultaneous oil, gas, and water forecasting ⭐ NEW
 * **Arps Decline Curves**: Exponential, harmonic, and hyperbolic models
-* **Time Series Forecasting**: ARIMA, Prophet, TimesFM, and Chronos models
+* **Time Series Forecasting**: ARIMA, TimesFM, and Chronos models
 * **Data Processing Utilities**: Production-ready data cleaning and preparation ⭐ NEW
 * **Economic Analysis**: NPV, cash flow, and payback calculations
 * **Sensitivity Analysis**: Parameter and price sensitivity studies
@@ -31,7 +31,7 @@ Quick Start
 
 .. code-block:: python
 
-   import decline_analysis as dca
+   import decline_curve as dca
    import pandas as pd
 
    # Load your production data

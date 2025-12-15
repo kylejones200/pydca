@@ -3,7 +3,7 @@ Data Processing Utilities
 
 The ``data_processing`` module provides utilities for cleaning, filtering, and preparing production data for decline curve analysis.
 
-.. automodule:: decline_analysis.utils.data_processing
+.. automodule:: decline_curve.utils.data_processing
    :members:
    :undoc-members:
    :show-inheritance:
@@ -11,39 +11,39 @@ The ``data_processing`` module provides utilities for cleaning, filtering, and p
 Data Cleaning
 -------------
 
-.. autofunction:: decline_analysis.utils.data_processing.remove_nan_and_zeroes
+.. autofunction:: decline_curve.utils.data_processing.remove_nan_and_zeroes
 
-.. autofunction:: decline_analysis.utils.data_processing.filter_wells_by_date_range
+.. autofunction:: decline_curve.utils.data_processing.filter_wells_by_date_range
 
 Time Calculations
 -----------------
 
-.. autofunction:: decline_analysis.utils.data_processing.calculate_days_online
+.. autofunction:: decline_curve.utils.data_processing.calculate_days_online
 
-.. autofunction:: decline_analysis.utils.data_processing.get_grouped_min_max
+.. autofunction:: decline_curve.utils.data_processing.get_grouped_min_max
 
 Production Metrics
 ------------------
 
-.. autofunction:: decline_analysis.utils.data_processing.calculate_cumulative_production
+.. autofunction:: decline_curve.utils.data_processing.calculate_cumulative_production
 
-.. autofunction:: decline_analysis.utils.data_processing.normalize_production_to_daily
+.. autofunction:: decline_curve.utils.data_processing.normalize_production_to_daily
 
-.. autofunction:: decline_analysis.utils.data_processing.calculate_water_cut
+.. autofunction:: decline_curve.utils.data_processing.calculate_water_cut
 
-.. autofunction:: decline_analysis.utils.data_processing.calculate_gor
+.. autofunction:: decline_curve.utils.data_processing.calculate_gor
 
-.. autofunction:: decline_analysis.utils.data_processing.get_max_initial_production
+.. autofunction:: decline_curve.utils.data_processing.get_max_initial_production
 
 Quality Control
 ---------------
 
-.. autofunction:: decline_analysis.utils.data_processing.detect_production_anomalies
+.. autofunction:: decline_curve.utils.data_processing.detect_production_anomalies
 
 Convenience Functions
 ---------------------
 
-.. autofunction:: decline_analysis.utils.data_processing.prepare_well_data_for_dca
+.. autofunction:: decline_curve.utils.data_processing.prepare_well_data_for_dca
 
 Examples
 --------
@@ -54,7 +54,7 @@ Data Cleaning
 .. code-block:: python
 
     import pandas as pd
-    from decline_analysis.utils import data_processing as dp
+    from decline_curve.utils import data_processing as dp
 
     # Load raw production data
     df = pd.read_csv('production.csv')
@@ -98,7 +98,7 @@ Quick Data Preparation
     )
 
     # Ready for forecasting
-    from decline_analysis import dca
+    from decline_curve import dca
     forecast = dca.forecast(series, model='arps', horizon=12)
 
 Anomaly Detection

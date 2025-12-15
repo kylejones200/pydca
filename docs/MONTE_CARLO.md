@@ -25,7 +25,7 @@ pip install decline-curve
 ### Basic Monte Carlo Simulation
 
 ```python
-from decline_analysis.monte_carlo import (
+from decline_curve.monte_carlo import (
     monte_carlo_forecast,
     MonteCarloParams,
     DistributionParams,
@@ -167,7 +167,7 @@ results = monte_carlo_forecast(mc_params)
 Compute additional risk metrics:
 
 ```python
-from decline_analysis.monte_carlo import risk_analysis
+from decline_curve.monte_carlo import risk_analysis
 
 # Compute risk metrics
 risk_metrics = risk_analysis(results, threshold=0)
@@ -188,7 +188,7 @@ print(f"Prob(EUR > {target_eur:,}): {prob_exceed:.1%}")
 Convert sensitivity analysis ranges to Monte Carlo distributions:
 
 ```python
-from decline_analysis.monte_carlo import sensitivity_to_monte_carlo
+from decline_curve.monte_carlo import sensitivity_to_monte_carlo
 
 # Define ranges from sensitivity analysis
 mc_params = sensitivity_to_monte_carlo(
@@ -210,7 +210,7 @@ results = monte_carlo_forecast(mc_params)
 ### Comprehensive Plot
 
 ```python
-from decline_analysis.monte_carlo import plot_monte_carlo_results
+from decline_curve.monte_carlo import plot_monte_carlo_results
 
 plot_monte_carlo_results(
     results,
@@ -436,8 +436,8 @@ mc_params.n_simulations = 500
 ### With Sensitivity Analysis
 
 ```python
-from decline_analysis import dca
-from decline_analysis.monte_carlo import monte_carlo_forecast
+from decline_curve import dca
+from decline_curve.monte_carlo import monte_carlo_forecast
 
 # Traditional sensitivity
 sensitivity = dca.sensitivity_analysis(
@@ -474,6 +474,6 @@ Use Monte Carlo to quantify uncertainty in ML model predictions.
 ## See Also
 
 - `examples/monte_carlo_example.py` - Complete working examples
-- `decline_analysis/monte_carlo.py` - Source code
+- `decline_curve/monte_carlo.py` - Source code
 - `docs/PERFORMANCE.md` - Performance optimization guide
 - `docs/sensitivity.rst` - Sensitivity analysis documentation

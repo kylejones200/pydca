@@ -3,7 +3,7 @@ Plotting (plot)
 
 The plotting module provides professional visualization capabilities with Tufte-style aesthetics.
 
-.. automodule:: decline_analysis.plot
+.. automodule:: decline_curve.plot
    :members:
    :undoc-members:
    :show-inheritance:
@@ -14,22 +14,22 @@ Functions
 plot_forecast
 ~~~~~~~~~~~~~
 
-.. autofunction:: decline_analysis.plot.plot_forecast
+.. autofunction:: decline_curve.plot.plot_forecast
 
 plot_decline_curve
 ~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: decline_analysis.plot.plot_decline_curve
+.. autofunction:: decline_curve.plot.plot_decline_curve
 
 plot_benchmark_results
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: decline_analysis.plot.plot_benchmark_results
+.. autofunction:: decline_curve.plot.plot_benchmark_results
 
 tufte_style
 ~~~~~~~~~~~
 
-.. autofunction:: decline_analysis.plot.tufte_style
+.. autofunction:: decline_curve.plot.tufte_style
 
 Styling and Aesthetics
 ----------------------
@@ -50,7 +50,7 @@ Basic Forecast Plot
 
 .. code-block:: python
 
-   import decline_analysis as dca
+   import decline_curve as dca
    import pandas as pd
 
    # Create sample data
@@ -69,8 +69,8 @@ Decline Curve Analysis Plot
 
 .. code-block:: python
 
-   from decline_analysis.models import fit_arps
-   from decline_analysis.plot import plot_decline_curve
+   from decline_curve.models import fit_arps
+   from decline_curve.plot import plot_decline_curve
    import numpy as np
 
    # Fit Arps model
@@ -90,7 +90,7 @@ Benchmark Results Visualization
    results = dca.benchmark(well_data, model="arps", top_n=10)
 
    # Plot results
-   from decline_analysis.plot import plot_benchmark_results
+   from decline_curve.plot import plot_benchmark_results
    plot_benchmark_results(results, metric='rmse', title="Model Performance")
 
 Customization Options

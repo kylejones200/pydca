@@ -10,14 +10,14 @@ Install the library using pip:
 
 .. code-block:: bash
 
-   pip install decline-analysis
+   pip install decline-curve
 
 Or install from source:
 
 .. code-block:: bash
 
-   git clone https://github.com/yourusername/decline-analysis.git
-   cd decline-analysis
+   git clone https://github.com/kylejones200/decline-curve.git
+   cd decline-curve
    pip install -e .
 
 Basic Usage
@@ -28,7 +28,7 @@ Import the Library
 
 .. code-block:: python
 
-   import decline_analysis as dca
+   import decline_curve as dca
    import pandas as pd
    import numpy as np
 
@@ -126,7 +126,7 @@ For more control, use the Forecaster class directly:
 
 .. code-block:: python
 
-   from decline_analysis.forecast import Forecaster
+   from decline_curve.forecast import Forecaster
 
    # Create forecaster instance
    forecaster = Forecaster(series)
@@ -148,7 +148,7 @@ Customize ARIMA parameters:
 
 .. code-block:: python
 
-   from decline_analysis.forecast_arima import forecast_arima
+   from decline_curve.forecast_arima import forecast_arima
 
    # Use automatic parameter selection
    auto_forecast = forecast_arima(series, horizon=12)
@@ -171,7 +171,7 @@ Direct access to Arps decline curve functions:
 
 .. code-block:: python
 
-   from decline_analysis.models import fit_arps, predict_arps
+   from decline_curve.models import fit_arps, predict_arps
    import numpy as np
 
    # Prepare time and production arrays

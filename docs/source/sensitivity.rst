@@ -16,7 +16,7 @@ Sensitivity analysis is crucial in petroleum engineering for:
 Functions
 ---------
 
-.. automodule:: decline_analysis.sensitivity
+.. automodule:: decline_curve.sensitivity
    :members:
    :undoc-members:
    :show-inheritance:
@@ -29,7 +29,7 @@ Basic Sensitivity Analysis
 
 .. code-block:: python
 
-   import decline_analysis as dca
+   import decline_curve as dca
 
    # Define parameter grid to test
    param_grid = [

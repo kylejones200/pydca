@@ -3,7 +3,7 @@ Models (models)
 
 The models module provides Arps decline curve fitting and prediction functionality.
 
-.. automodule:: decline_analysis.models
+.. automodule:: decline_curve.models
    :members:
    :undoc-members:
    :show-inheritance:
@@ -14,7 +14,7 @@ Classes
 ArpsParams
 ~~~~~~~~~~
 
-.. autoclass:: decline_analysis.models.ArpsParams
+.. autoclass:: decline_curve.models.ArpsParams
    :members:
    :undoc-members:
    :show-inheritance:
@@ -25,22 +25,22 @@ Functions
 fit_arps
 ~~~~~~~~
 
-.. autofunction:: decline_analysis.models.fit_arps
+.. autofunction:: decline_curve.models.fit_arps
 
 predict_arps
 ~~~~~~~~~~~~
 
-.. autofunction:: decline_analysis.models.predict_arps
+.. autofunction:: decline_curve.models.predict_arps
 
 q_exp
 ~~~~~
 
-.. autofunction:: decline_analysis.models.q_exp
+.. autofunction:: decline_curve.models.q_exp
 
 q_hyp
 ~~~~~
 
-.. autofunction:: decline_analysis.models.q_hyp
+.. autofunction:: decline_curve.models.q_hyp
 
 Mathematical Background
 -----------------------

@@ -42,6 +42,7 @@ ENV/
 .pytest_cache/
 .coverage
 .coverage.*
+coverage.xml
 htmlcov/
 
 # Documentation builds
@@ -52,6 +53,11 @@ docs/.doctrees/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Build artifacts
+dist/
+*.egg-info/
+build/
 
 # OS
 .DS_Store
@@ -77,3 +83,7 @@ about_dca.md
 Deep-AR for Production Forecasting.md
 *_concepts.md
 *_notes.md
+.cursor/
+
+# Untracked experimental code
+_untracked/

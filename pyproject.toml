@@ -3,18 +3,18 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "decline_curve"
+name = "decline-curve"
 version = "0.2.0"
-description = "Decline curve analysis with multi-phase forecasting, data utilities, and ML models"
+description = "Decline Curve Analysis: A comprehensive Python library for decline curve analysis with multi-phase forecasting, data utilities, and ML models"
 readme = "README.md"
-license = {text = "Apache-2.0"}
+license = "Apache-2.0"
 authors = [
   { name = "Kyle T. Jones", email = "kyletjones@gmail.com" }
 ]
 maintainers = [
   { name = "Kyle T. Jones", email = "kyletjones@gmail.com" }
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 keywords = [
   "decline-curve-analysis",
   "petroleum-engineering",
@@ -30,12 +30,8 @@ classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Science/Research",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: Apache Software License",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Topic :: Scientific/Engineering",
   "Topic :: Scientific/Engineering :: Information Analysis",
@@ -62,7 +58,7 @@ ml = [
   "torch>=2.0",
   "accelerate>=0.29",
   "einops>=0.7",
-  "prophet>=1.1"
+  "scikit-learn>=1.3"
 ]
 dev = [
   "pytest>=7.0",
@@ -87,26 +83,26 @@ examples = [
   "ipykernel>=6.0"
 ]
 all = [
-  "decline_curve[ml,dev,docs,examples]"
+  "decline-curve[ml,dev,docs,examples]"
 ]
 
 [project.urls]
-Homepage = "https://github.com/kylejones200/pydca"
-Documentation = "https://decline-analysis.readthedocs.io/"
-Repository = "https://github.com/kylejones200/pydca"
-"Bug Tracker" = "https://github.com/kylejones200/pydca/issues"
-Changelog = "https://github.com/kylejones200/pydca/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/kylejones200/decline-curve"
+Documentation = "https://decline-curve.readthedocs.io/"
+Repository = "https://github.com/kylejones200/decline-curve"
+"Bug Tracker" = "https://github.com/kylejones200/decline-curve/issues"
+Changelog = "https://github.com/kylejones200/decline-curve/blob/main/CHANGELOG.md"
 
 [project.scripts]
-decline = "decline_analysis.__main__:main"
+dca = "decline_curve.__main__:main"
 
 [tool.setuptools.packages.find]
-include = ["decline_analysis*"]
+include = ["decline_curve*"]
 exclude = ["ndic_raw*"]
 
 [tool.black]
 line-length = 88
-target-version = ['py39']
+target-version = ['py312']
 include = '\.pyi?$'
 extend-exclude = '''
 (
@@ -136,7 +132,7 @@ use_parentheses = true
 ensure_newline_before_comments = true
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
@@ -159,7 +155,7 @@ addopts = [
   "--strict-markers",
   "--strict-config",
   "--color=yes",
-  "--cov=decline_analysis",
+  "--cov=decline_curve",
   "--cov-report=term-missing",
   "--cov-report=html",
   "--disable-warnings",
@@ -175,7 +171,7 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-source = ["decline_analysis"]
+source = ["decline_curve"]
 omit = [
   "*/tests/*",
   "*/test_*.py",

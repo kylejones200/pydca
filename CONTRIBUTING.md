@@ -6,8 +6,8 @@ Thank you for your interest in contributing to the Decline Curve Analysis librar
 
 1. **Fork and Clone**
    ```bash
-   git clone https://github.com/yourusername/pydca.git
-   cd pydca
+   git clone https://github.com/yourusername/decline-curve.git
+   cd decline-curve
    ```
 
 2. **Create Development Environment**
@@ -31,7 +31,7 @@ Thank you for your interest in contributing to the Decline Curve Analysis librar
 pytest
 
 # Run with coverage
-pytest --cov=decline_analysis --cov-report=html
+pytest --cov=decline_curve --cov-report=html
 
 # Run specific test file
 pytest tests/test_models.py -v
@@ -46,16 +46,16 @@ We use several tools to maintain code quality:
 
 ```bash
 # Format code with Black
-black decline_analysis/ tests/
+black decline_curve/ tests/
 
 # Sort imports with isort
-isort decline_analysis/ tests/
+isort decline_curve/ tests/
 
 # Lint with flake8
-flake8 decline_analysis/ tests/
+flake8 decline_curve/ tests/
 
 # Type check with mypy
-mypy decline_analysis/
+mypy decline_curve/
 ```
 
 ### Pre-commit Hooks (Recommended)
@@ -154,7 +154,7 @@ A clear description of what the bug is.
 **To Reproduce**
 ```python
 # Minimal code to reproduce
-import decline_analysis as dca
+import decline_curve as dca
 # ...
 ```
 
@@ -220,7 +220,7 @@ Examples:
 We especially welcome contributions in these areas:
 
 ### High Priority
-- **New forecasting models** (e.g., Prophet, LSTM, Transformer)
+- **New forecasting models** (e.g., LSTM, Transformer, additional time series models)
 - **Performance optimizations** (vectorization, caching)
 - **Additional evaluation metrics** (MASE, WAPE, etc.)
 - **Enhanced visualizations** (interactive plots, dashboards)
@@ -240,8 +240,8 @@ We especially welcome contributions in these areas:
 ## 💬 Getting Help
 
 - **Documentation**: [https://decline-analysis.readthedocs.io/](https://decline-analysis.readthedocs.io/)
-- **GitHub Issues**: [https://github.com/yourusername/pydca/issues](https://github.com/yourusername/pydca/issues)
-- **Discussions**: [https://github.com/yourusername/pydca/discussions](https://github.com/yourusername/pydca/discussions)
+- **GitHub Issues**: [https://github.com/yourusername/decline-curve/issues](https://github.com/yourusername/decline-curve/issues)
+- **Discussions**: [https://github.com/yourusername/decline-curve/discussions](https://github.com/yourusername/decline-curve/discussions)
 
 ## 📜 Code of Conduct
 

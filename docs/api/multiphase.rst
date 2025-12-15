@@ -3,7 +3,7 @@ Multi-Phase Forecasting
 
 The ``multiphase`` module provides functionality for simultaneous forecasting of oil, gas, and water production.
 
-.. automodule:: decline_analysis.multiphase
+.. automodule:: decline_curve.multiphase
    :members:
    :undoc-members:
    :show-inheritance:
@@ -11,7 +11,7 @@ The ``multiphase`` module provides functionality for simultaneous forecasting of
 MultiPhaseData
 --------------
 
-.. autoclass:: decline_analysis.multiphase.MultiPhaseData
+.. autoclass:: decline_curve.multiphase.MultiPhaseData
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ MultiPhaseData
 MultiPhaseForecaster
 --------------------
 
-.. autoclass:: decline_analysis.multiphase.MultiPhaseForecaster
+.. autoclass:: decline_curve.multiphase.MultiPhaseForecaster
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ MultiPhaseForecaster
 Helper Functions
 ----------------
 
-.. autofunction:: decline_analysis.multiphase.create_multiphase_data_from_dataframe
+.. autofunction:: decline_curve.multiphase.create_multiphase_data_from_dataframe
 
 Examples
 --------
@@ -47,7 +47,7 @@ Basic Usage
 .. code-block:: python
 
     import pandas as pd
-    from decline_analysis.multiphase import (
+    from decline_curve.multiphase import (
         MultiPhaseData,
         MultiPhaseForecaster,
         create_multiphase_data_from_dataframe

@@ -5,7 +5,7 @@ Unit tests for Arps decline curve models.
 import numpy as np
 import pytest
 
-from decline_analysis.models import (
+from decline_curve.models import (
     ArpsParams,
     estimate_reserves,
     fit_arps,

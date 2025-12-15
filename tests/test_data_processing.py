@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from decline_analysis.utils import data_processing as dp
+from decline_curve.utils import data_processing as dp
 
 
 class TestRemoveNanAndZeroes:

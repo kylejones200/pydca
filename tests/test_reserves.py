@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from decline_analysis.models import ArpsParams
-from decline_analysis.reserves import forecast_and_reserves
+from decline_curve.models import ArpsParams
+from decline_curve.reserves import forecast_and_reserves
 
 
 class TestReservesEstimation:
@@ -156,7 +156,7 @@ class TestReservesIntegration:
 
     def test_reserves_with_dca_api(self):
         """Test reserves calculation through main DCA API."""
-        from decline_analysis.dca import ArpsParams, reserves
+        from decline_curve.dca import ArpsParams, reserves
 
         params = ArpsParams(qi=1000, di=0.10, b=0.5)
         result = reserves(params, t_max=120, econ_limit=15.0)
@@ -167,7 +167,7 @@ class TestReservesIntegration:
 
     def test_reserves_consistency_with_models(self):
         """Test that reserves are consistent with direct model predictions."""
-        from decline_analysis.models import predict_arps
+        from decline_curve.models import predict_arps
 
         params = ArpsParams(qi=1000, di=0.10, b=0.5)
 

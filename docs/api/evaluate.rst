@@ -3,7 +3,7 @@ Evaluation (evaluate)
 
 The evaluation module provides metrics for assessing forecast accuracy.
 
-.. automodule:: decline_analysis.evaluate
+.. automodule:: decline_curve.evaluate
    :members:
    :undoc-members:
    :show-inheritance:
@@ -14,32 +14,32 @@ Functions
 rmse
 ~~~~
 
-.. autofunction:: decline_analysis.evaluate.rmse
+.. autofunction:: decline_curve.evaluate.rmse
 
 mae
 ~~~
 
-.. autofunction:: decline_analysis.evaluate.mae
+.. autofunction:: decline_curve.evaluate.mae
 
 smape
 ~~~~~
 
-.. autofunction:: decline_analysis.evaluate.smape
+.. autofunction:: decline_curve.evaluate.smape
 
 mape
 ~~~~
 
-.. autofunction:: decline_analysis.evaluate.mape
+.. autofunction:: decline_curve.evaluate.mape
 
 r2_score
 ~~~~~~~~
 
-.. autofunction:: decline_analysis.evaluate.r2_score
+.. autofunction:: decline_curve.evaluate.r2_score
 
 evaluate_forecast
 ~~~~~~~~~~~~~~~~~
 
-.. autofunction:: decline_analysis.evaluate.evaluate_forecast
+.. autofunction:: decline_curve.evaluate.evaluate_forecast
 
 Evaluation Metrics
 ------------------

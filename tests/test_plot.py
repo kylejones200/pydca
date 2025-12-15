@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-from decline_analysis.plot import (  # noqa: E402
+from decline_curve.plot import (  # noqa: E402
     _range_markers,
     plot_benchmark_results,
     plot_decline_curve,

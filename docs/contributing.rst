@@ -40,7 +40,7 @@ Run with coverage:
 
 .. code-block:: bash
 
-   pytest tests/ --cov=decline_analysis --cov-report=html
+   pytest tests/ --cov=decline_curve --cov-report=html
 
 Code Style
 ----------
@@ -51,25 +51,25 @@ We use several tools to maintain code quality:
 
 .. code-block:: bash
 
-   black decline_analysis/ tests/
+   black decline_curve/ tests/
 
 **isort** for import sorting:
 
 .. code-block:: bash
 
-   isort decline_analysis/ tests/
+   isort decline_curve/ tests/
 
 **flake8** for linting:
 
 .. code-block:: bash
 
-   flake8 decline_analysis/ tests/
+   flake8 decline_curve/ tests/
 
 **mypy** for type checking:
 
 .. code-block:: bash
 
-   mypy decline_analysis/
+   mypy decline_curve/
 
 Documentation
 -------------

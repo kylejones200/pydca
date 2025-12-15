@@ -10,12 +10,14 @@ This example demonstrates:
 6. Comparing deterministic vs probabilistic forecasts
 """
 
+import logging
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from decline_analysis.models import ArpsParams, predict_arps
-from decline_analysis.monte_carlo import (
+from decline_curve.models import ArpsParams, predict_arps
+from decline_curve.monte_carlo import (
     DistributionParams,
     MonteCarloParams,
     monte_carlo_forecast,
@@ -24,13 +26,14 @@ from decline_analysis.monte_carlo import (
     sensitivity_to_monte_carlo,
 )
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 def example_1_basic_monte_carlo():
     """Example 1: Basic Monte Carlo simulation with uniform distributions."""
-    print("=" * 70)
-    print("EXAMPLE 1: Basic Monte Carlo Simulation")
-    print("=" * 70)
-    print("\nUsing uniform distributions for all parameters...")
+    logger.info("EXAMPLE 1: Basic Monte Carlo Simulation")
+    logger.info("Using uniform distributions for all parameters")
 
     # Define parameter distributions
     mc_params = MonteCarloParams(
@@ -47,20 +50,13 @@ def example_1_basic_monte_carlo():
     results = monte_carlo_forecast(mc_params, verbose=True)
 
     # Display results
-    print("\n" + "-" * 70)
-    print("Probabilistic Forecast Results:")
-    print("-" * 70)
-    print(f"\nEUR (bbl):")
-    print(f"  P90 (conservative): {results.p90_eur:>10,.0f}")
-    print(f"  P50 (median):       {results.p50_eur:>10,.0f}")
-    print(f"  P10 (optimistic):   {results.p10_eur:>10,.0f}")
-    print(f"  Mean:               {results.mean_eur:>10,.0f}")
-
-    print(f"\nNPV ($):")
-    print(f"  P90 (conservative): {results.p90_npv:>10,.0f}")
-    print(f"  P50 (median):       {results.p50_npv:>10,.0f}")
-    print(f"  P10 (optimistic):   {results.p10_npv:>10,.0f}")
-    print(f"  Mean:               {results.mean_npv:>10,.0f}")
+    logger.info("Probabilistic Forecast Results:")
+    logger.info(
+        f"EUR (bbl) - P90: {results.p90_eur:,.0f}, P50: {results.p50_eur:,.0f}, P10: {results.p10_eur:,.0f}, Mean: {results.mean_eur:,.0f}"
+    )
+    logger.info(
+        f"NPV ($) - P90: {results.p90_npv:,.0f}, P50: {results.p50_npv:,.0f}, P10: {results.p10_npv:,.0f}, Mean: {results.mean_npv:,.0f}"
+    )
 
     # Plot results
     plot_monte_carlo_results(results, title="Example 1: Basic Monte Carlo")
@@ -70,10 +66,8 @@ def example_1_basic_monte_carlo():
 
 def example_2_lognormal_distributions():
     """Example 2: Monte Carlo with lognormal distributions (more realistic)."""
-    print("\n" + "=" * 70)
-    print("EXAMPLE 2: Monte Carlo with Lognormal Distributions")
-    print("=" * 70)
-    print("\nUsing lognormal distributions for reservoir parameters...")
+    logger.info("EXAMPLE 2: Monte Carlo with Lognormal Distributions")
+    logger.info("Using lognormal distributions for reservoir parameters")
 
     # Lognormal distributions are more realistic for reservoir properties
     mc_params = MonteCarloParams(
@@ -92,13 +86,11 @@ def example_2_lognormal_distributions():
     # Compute risk metrics
     risk_metrics = risk_analysis(results, threshold=0)
 
-    print("\n" + "-" * 70)
-    print("Risk Analysis:")
-    print("-" * 70)
-    print(f"EUR Coefficient of Variation: {risk_metrics['eur_cv']:.2%}")
-    print(f"NPV Coefficient of Variation: {risk_metrics['npv_cv']:.2%}")
-    print(f"Probability of Positive NPV:  {risk_metrics['prob_positive_npv']:.1%}")
-    print(f"Value at Risk (5%):           ${risk_metrics['value_at_risk_npv']:,.0f}")
+    logger.info("Risk Analysis:")
+    logger.info(f"EUR Coefficient of Variation: {risk_metrics['eur_cv']:.2%}")
+    logger.info(f"NPV Coefficient of Variation: {risk_metrics['npv_cv']:.2%}")
+    logger.info(f"Probability of Positive NPV: {risk_metrics['prob_positive_npv']:.1%}")
+    logger.info(f"Value at Risk (5%): ${risk_metrics['value_at_risk_npv']:,.0f}")
 
     # Plot results
     plot_monte_carlo_results(results, title="Example 2: Lognormal Distributions")
@@ -108,11 +100,9 @@ def example_2_lognormal_distributions():
 
 def example_3_correlated_parameters():
     """Example 3: Monte Carlo with correlated parameters."""
-    print("\n" + "=" * 70)
-    print("EXAMPLE 3: Monte Carlo with Correlated Parameters")
-    print("=" * 70)
-    print(
-        "\nApplying correlation between qi and di (higher qi often means higher di)..."
+    logger.info("EXAMPLE 3: Monte Carlo with Correlated Parameters")
+    logger.info(
+        "Applying correlation between qi and di (higher qi often means higher di)"
     )
 
     # Define correlation matrix
@@ -141,11 +131,9 @@ def example_3_correlated_parameters():
     results = monte_carlo_forecast(mc_params, verbose=True)
 
     # Compare with uncorrelated
-    print("\n" + "-" * 70)
-    print("Observed Correlation in Results:")
-    print("-" * 70)
+    logger.info("Observed Correlation in Results:")
     corr_qi_di = results.parameters["qi"].corr(results.parameters["di"])
-    print(f"qi-di correlation: {corr_qi_di:.3f} (target: 0.60)")
+    logger.info(f"qi-di correlation: {corr_qi_di:.3f} (target: 0.60)")
 
     plot_monte_carlo_results(results, title="Example 3: Correlated Parameters")
 
@@ -154,20 +142,18 @@ def example_3_correlated_parameters():
 
 def example_4_deterministic_vs_probabilistic():
     """Example 4: Compare deterministic and probabilistic approaches."""
-    print("\n" + "=" * 70)
-    print("EXAMPLE 4: Deterministic vs Probabilistic Comparison")
-    print("=" * 70)
+    logger.info("EXAMPLE 4: Deterministic vs Probabilistic Comparison")
 
     # Deterministic case (single forecast)
-    print("\n--- Deterministic Forecast ---")
+    logger.info("Deterministic Forecast")
     det_params = ArpsParams(qi=1200, di=0.15, b=0.5)
     t = np.arange(0, 240, 1.0)
     det_forecast = predict_arps(t, det_params)
     det_eur = np.trapz(det_forecast[det_forecast > 10], t[det_forecast > 10])
-    print(f"Deterministic EUR: {det_eur:,.0f} bbl")
+    logger.info(f"Deterministic EUR: {det_eur:,.0f} bbl")
 
     # Probabilistic case (Monte Carlo)
-    print("\n--- Probabilistic Forecast ---")
+    logger.info("Probabilistic Forecast")
     mc_params = MonteCarloParams(
         qi_dist=DistributionParams("normal", mean=1200, std=120),
         di_dist=DistributionParams("normal", mean=0.15, std=0.03),
@@ -180,15 +166,14 @@ def example_4_deterministic_vs_probabilistic():
 
     results = monte_carlo_forecast(mc_params, verbose=False)
 
-    print(f"Probabilistic EUR:")
-    print(
-        f"  P90: {results.p90_eur:,.0f} bbl ({results.p90_eur/det_eur:.1%} of deterministic)"
+    logger.info(
+        f"Probabilistic EUR - P90: {results.p90_eur:,.0f} bbl ({results.p90_eur/det_eur:.1%} of deterministic)"
     )
-    print(
-        f"  P50: {results.p50_eur:,.0f} bbl ({results.p50_eur/det_eur:.1%} of deterministic)"
+    logger.info(
+        f"Probabilistic EUR - P50: {results.p50_eur:,.0f} bbl ({results.p50_eur/det_eur:.1%} of deterministic)"
     )
-    print(
-        f"  P10: {results.p10_eur:,.0f} bbl ({results.p10_eur/det_eur:.1%} of deterministic)"
+    logger.info(
+        f"Probabilistic EUR - P10: {results.p10_eur:,.0f} bbl ({results.p10_eur/det_eur:.1%} of deterministic)"
     )
 
     # Create comparison plot
@@ -243,17 +228,13 @@ def example_4_deterministic_vs_probabilistic():
 
 def example_5_sensitivity_to_monte_carlo():
     """Example 5: Convert sensitivity ranges to Monte Carlo distributions."""
-    print("\n" + "=" * 70)
-    print("EXAMPLE 5: From Sensitivity Analysis to Monte Carlo")
-    print("=" * 70)
-    print("\nConverting sensitivity ranges to probabilistic distributions...")
+    logger.info("EXAMPLE 5: From Sensitivity Analysis to Monte Carlo")
+    logger.info("Converting sensitivity ranges to probabilistic distributions")
 
     # Define sensitivity ranges
-    print("\nSensitivity Ranges:")
-    print("  qi: 1000 - 1400 bbl/month")
-    print("  di: 0.10 - 0.20 /year")
-    print("  b:  0.3 - 0.7")
-    print("  Price: $50 - $90 /bbl")
+    logger.info(
+        "Sensitivity Ranges: qi: 1000-1400 bbl/month, di: 0.10-0.20/year, b: 0.3-0.7, Price: $50-$90/bbl"
+    )
 
     # Convert to Monte Carlo parameters
     mc_params = sensitivity_to_monte_carlo(
@@ -277,11 +258,9 @@ def example_5_sensitivity_to_monte_carlo():
     prob_eur = np.mean(results.eur_samples > target_eur)
     prob_npv = np.mean(results.npv_samples > target_npv)
 
-    print("\n" + "-" * 70)
-    print("Probability of Hitting Targets:")
-    print("-" * 70)
-    print(f"P(EUR > {target_eur:,.0f} bbl) = {prob_eur:.1%}")
-    print(f"P(NPV > ${target_npv:,.0f}) = {prob_npv:.1%}")
+    logger.info("Probability of Hitting Targets:")
+    logger.info(f"P(EUR > {target_eur:,.0f} bbl) = {prob_eur:.1%}")
+    logger.info(f"P(NPV > ${target_npv:,.0f}) = {prob_npv:.1%}")
 
     plot_monte_carlo_results(results, title="Example 5: Sensitivity to Monte Carlo")
 
@@ -290,59 +269,47 @@ def example_5_sensitivity_to_monte_carlo():
 
 def main():
     """Run all Monte Carlo examples."""
-    print("\n" + "=" * 70)
-    print("MONTE CARLO SIMULATION EXAMPLES")
-    print("Decline Curve Analysis with Uncertainty Quantification")
-    print("=" * 70)
-    print("\nThese examples demonstrate probabilistic forecasting using")
-    print("Monte Carlo simulation for risk assessment and decision-making.")
-    print("\nNote: Simulations use Numba JIT and joblib parallelization")
-    print("for fast execution (5-20x speedup).")
+    logger.info("MONTE CARLO SIMULATION EXAMPLES")
+    logger.info("Decline Curve Analysis with Uncertainty Quantification")
+    logger.info(
+        "These examples demonstrate probabilistic forecasting using Monte Carlo simulation for risk assessment and decision-making"
+    )
+    logger.info(
+        "Note: Simulations use Numba JIT and joblib parallelization for fast execution (5-20x speedup)"
+    )
 
     # Run examples
     try:
         results1 = example_1_basic_monte_carlo()
-        input("\nPress Enter to continue to Example 2...")
+        logger.info("Completed Example 1, proceeding to Example 2")
 
         results2 = example_2_lognormal_distributions()
-        input("\nPress Enter to continue to Example 3...")
+        logger.info("Completed Example 2, proceeding to Example 3")
 
         results3 = example_3_correlated_parameters()
-        input("\nPress Enter to continue to Example 4...")
+        logger.info("Completed Example 3, proceeding to Example 4")
 
         results4 = example_4_deterministic_vs_probabilistic()
-        input("\nPress Enter to continue to Example 5...")
+        logger.info("Completed Example 4, proceeding to Example 5")
 
         results5 = example_5_sensitivity_to_monte_carlo()
 
     except KeyboardInterrupt:
-        print("\n\nExamples interrupted by user.")
+        logger.warning("Examples interrupted by user")
         return
 
     # Summary
-    print("\n" + "=" * 70)
-    print("SUMMARY")
-    print("=" * 70)
-    print("\nMonte Carlo simulation provides:")
-    print("  ✓ Probabilistic forecasts (P10/P50/P90)")
-    print("  ✓ Uncertainty quantification")
-    print("  ✓ Risk assessment metrics")
-    print("  ✓ Better decision-making under uncertainty")
-    print("  ✓ Fast execution with parallel processing")
-
-    print("\nKey Functions:")
-    print("  - monte_carlo_forecast(): Run simulation")
-    print("  - plot_monte_carlo_results(): Visualize results")
-    print("  - risk_analysis(): Compute risk metrics")
-    print("  - sensitivity_to_monte_carlo(): Convert ranges to distributions")
-
-    print("\nFor more information, see:")
-    print("  - decline_analysis/monte_carlo.py")
-    print("  - docs/MONTE_CARLO.md (documentation)")
-
-    print("\n" + "=" * 70)
-    print("Examples complete!")
-    print("=" * 70 + "\n")
+    logger.info("SUMMARY")
+    logger.info(
+        "Monte Carlo simulation provides: probabilistic forecasts (P10/P50/P90), uncertainty quantification, risk assessment metrics, better decision-making under uncertainty, fast execution with parallel processing"
+    )
+    logger.info(
+        "Key Functions: monte_carlo_forecast(), plot_monte_carlo_results(), risk_analysis(), sensitivity_to_monte_carlo()"
+    )
+    logger.info(
+        "For more information, see: decline_curve/monte_carlo.py, docs/MONTE_CARLO.md"
+    )
+    logger.info("Examples complete")
 
 
 if __name__ == "__main__":

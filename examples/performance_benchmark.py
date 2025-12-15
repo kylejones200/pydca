@@ -10,21 +10,25 @@ Run this script to compare sequential vs parallel performance and
 profile your code to find optimization opportunities.
 """
 
+import logging
 import time
 
 import numpy as np
 import pandas as pd
 
-from decline_analysis import dca
-from decline_analysis.models import ArpsParams
-from decline_analysis.profiling import profile_context, time_function
+from decline_curve import dca
+from decline_curve.logging_config import configure_logging, get_logger
+from decline_curve.models import ArpsParams
+from decline_curve.profiling import profile_context, time_function
+
+logger = get_logger(__name__)
 
 
 def generate_synthetic_well_data(
     n_wells: int = 100, n_months: int = 36
 ) -> pd.DataFrame:
     """Generate synthetic production data for benchmarking."""
-    print(f"Generating synthetic data for {n_wells} wells...")
+    logger.info(f"Generating synthetic data for {n_wells} wells")
 
     data = []
     for well_id in range(n_wells):
@@ -55,7 +59,7 @@ def generate_synthetic_well_data(
 @time_function
 def benchmark_sequential(df: pd.DataFrame, n_wells: int = 20) -> pd.DataFrame:
     """Benchmark sequential processing."""
-    print(f"\n--- Sequential Benchmark (n_jobs=1) ---")
+    logger.info("Sequential Benchmark (n_jobs=1)")
     return dca.benchmark(
         df,
         model="arps",
@@ -70,7 +74,7 @@ def benchmark_sequential(df: pd.DataFrame, n_wells: int = 20) -> pd.DataFrame:
 @time_function
 def benchmark_parallel(df: pd.DataFrame, n_wells: int = 20) -> pd.DataFrame:
     """Benchmark parallel processing."""
-    print(f"\n--- Parallel Benchmark (n_jobs=-1, all cores) ---")
+    logger.info("Parallel Benchmark (n_jobs=-1, all cores)")
     return dca.benchmark(
         df,
         model="arps",
@@ -85,7 +89,7 @@ def benchmark_parallel(df: pd.DataFrame, n_wells: int = 20) -> pd.DataFrame:
 @time_function
 def sensitivity_sequential(param_grid, prices) -> pd.DataFrame:
     """Benchmark sequential sensitivity analysis."""
-    print(f"\n--- Sequential Sensitivity Analysis (n_jobs=1) ---")
+    logger.info("Sequential Sensitivity Analysis (n_jobs=1)")
     return dca.sensitivity_analysis(
         param_grid=param_grid,
         prices=prices,
@@ -101,7 +105,7 @@ def sensitivity_sequential(param_grid, prices) -> pd.DataFrame:
 @time_function
 def sensitivity_parallel(param_grid, prices) -> pd.DataFrame:
     """Benchmark parallel sensitivity analysis."""
-    print(f"\n--- Parallel Sensitivity Analysis (n_jobs=-1, all cores) ---")
+    logger.info("Parallel Sensitivity Analysis (n_jobs=-1, all cores)")
     return dca.sensitivity_analysis(
         param_grid=param_grid,
         prices=prices,
@@ -116,24 +120,22 @@ def sensitivity_parallel(param_grid, prices) -> pd.DataFrame:
 
 def run_numba_warmup():
     """Run a small test to warm up Numba JIT compilation."""
-    print("\nWarming up Numba JIT compiler...")
+    logger.info("Warming up Numba JIT compiler")
     dates = pd.date_range("2020-01-01", periods=12, freq="MS")
     production = 1000 * np.exp(-0.05 * np.arange(12))
     series = pd.Series(production, index=dates)
     _ = dca.forecast(series, model="arps", kind="hyperbolic", horizon=6)
-    print("Numba warmup complete.")
+    logger.info("Numba warmup complete")
 
 
 def main():
     """Run performance benchmarks."""
-    print("=" * 70)
-    print("DECLINE CURVE ANALYSIS - PERFORMANCE BENCHMARK")
-    print("=" * 70)
-    print("\nThis script demonstrates performance improvements from:")
-    print("  1. Numba JIT compilation (10-100x speedup)")
-    print("  2. Joblib parallelization (near-linear scaling with cores)")
-    print("  3. Line profiling tools for optimization")
-    print("=" * 70)
+    configure_logging(level=logging.INFO)
+    logger.info("DECLINE CURVE ANALYSIS - PERFORMANCE BENCHMARK")
+    logger.info("This script demonstrates performance improvements from:")
+    logger.info("  1. Numba JIT compilation (10-100x speedup)")
+    logger.info("  2. Joblib parallelization (near-linear scaling with cores)")
+    logger.info("  3. Line profiling tools for optimization")
 
     # Warm up Numba
     run_numba_warmup()
@@ -141,9 +143,7 @@ def main():
     # ========================================================================
     # Benchmark 1: Multi-well benchmarking
     # ========================================================================
-    print("\n" + "=" * 70)
-    print("BENCHMARK 1: Multi-Well Processing")
-    print("=" * 70)
+    logger.info("BENCHMARK 1: Multi-Well Processing")
 
     n_wells_benchmark = 50
     df = generate_synthetic_well_data(n_wells=n_wells_benchmark, n_months=36)
@@ -156,18 +156,17 @@ def main():
     with profile_context("Parallel multi-well benchmark"):
         results_par = benchmark_parallel(df, n_wells=n_wells_benchmark)
 
-    print(f"\nResults:")
-    print(f"  Sequential: {len(results_seq)} wells processed")
-    print(f"  Parallel:   {len(results_par)} wells processed")
-    print(f"\n  Average RMSE (sequential): {results_seq['rmse'].mean():.2f}")
-    print(f"  Average RMSE (parallel):   {results_par['rmse'].mean():.2f}")
+    logger.info(
+        f"Results: Sequential: {len(results_seq)} wells, Parallel: {len(results_par)} wells"
+    )
+    logger.info(
+        f"Average RMSE - Sequential: {results_seq['rmse'].mean():.2f}, Parallel: {results_par['rmse'].mean():.2f}"
+    )
 
     # ========================================================================
     # Benchmark 2: Sensitivity Analysis
     # ========================================================================
-    print("\n" + "=" * 70)
-    print("BENCHMARK 2: Sensitivity Analysis")
-    print("=" * 70)
+    logger.info("BENCHMARK 2: Sensitivity Analysis")
 
     # Create parameter grid
     param_grid = [
@@ -178,8 +177,10 @@ def main():
     ]
     prices = [50, 60, 70, 80, 90]
 
-    print(f"\nTesting {len(param_grid)} parameter combinations x {len(prices)} prices")
-    print(f"Total cases: {len(param_grid) * len(prices)}")
+    logger.info(
+        f"Testing {len(param_grid)} parameter combinations x {len(prices)} prices"
+    )
+    logger.info(f"Total cases: {len(param_grid) * len(prices)}")
 
     # Sequential
     with profile_context("Sequential sensitivity analysis"):
@@ -189,68 +190,64 @@ def main():
     with profile_context("Parallel sensitivity analysis"):
         sens_par = sensitivity_parallel(param_grid, prices)
 
-    print(f"\nResults:")
-    print(f"  Sequential: {len(sens_seq)} cases computed")
-    print(f"  Parallel:   {len(sens_par)} cases computed")
+    logger.info(
+        f"Results: Sequential: {len(sens_seq)} cases, Parallel: {len(sens_par)} cases"
+    )
 
     # ========================================================================
     # Benchmark 3: Numba JIT Compilation Impact
     # ========================================================================
-    print("\n" + "=" * 70)
-    print("BENCHMARK 3: Numba JIT Compilation Impact")
-    print("=" * 70)
+    logger.info("BENCHMARK 3: Numba JIT Compilation Impact")
+    logger.info("Testing Arps prediction performance")
 
-    print("\nTesting Arps prediction performance...")
-    from decline_analysis.models import predict_arps
+    from decline_curve.models import predict_arps
 
     params = ArpsParams(qi=1200, di=0.15, b=0.5)
     t = np.arange(0, 240, 1.0)
 
     # Run multiple times to show JIT compilation benefit
-    print("\nFirst call (includes JIT compilation overhead):")
+    logger.info("First call (includes JIT compilation overhead)")
     start = time.time()
     for _ in range(1000):
         _ = predict_arps(t, params)
     first_time = time.time() - start
-    print(f"  1000 iterations: {first_time:.3f} seconds")
+    logger.info(f"1000 iterations: {first_time:.3f} seconds")
 
-    print("\nSubsequent calls (JIT compiled, cached):")
+    logger.info("Subsequent calls (JIT compiled, cached)")
     start = time.time()
     for _ in range(1000):
         _ = predict_arps(t, params)
     second_time = time.time() - start
-    print(f"  1000 iterations: {second_time:.3f} seconds")
+    logger.info(f"1000 iterations: {second_time:.3f} seconds")
 
     if second_time < first_time:
         speedup = first_time / second_time
-        print(f"\n  JIT warmup speedup: {speedup:.2f}x")
+        logger.info(f"JIT warmup speedup: {speedup:.2f}x")
 
     # ========================================================================
     # Summary
     # ========================================================================
-    print("\n" + "=" * 70)
-    print("PERFORMANCE SUMMARY")
-    print("=" * 70)
-    print("\nKey Improvements:")
-    print("  ✓ Numba JIT: 10-100x faster numerical computations")
-    print("  ✓ Joblib parallelization: Near-linear scaling with CPU cores")
-    print("  ✓ Minimal code changes required")
-    print("  ✓ Backward compatible (works without numba/joblib)")
+    logger.info("PERFORMANCE SUMMARY")
+    logger.info("Key Improvements:")
+    logger.info("  Numba JIT: 10-100x faster numerical computations")
+    logger.info("  Joblib parallelization: Near-linear scaling with CPU cores")
+    logger.info("  Minimal code changes required")
+    logger.info("  Backward compatible (works without numba/joblib)")
 
-    print("\nOptimization Tips:")
-    print("  1. Use n_jobs=-1 for parallel processing (default)")
-    print("  2. Use n_jobs=1 for sequential processing if needed")
-    print("  3. Profile your code with: from decline_analysis.profiling import profile")
-    print("  4. Numba JIT compiles on first use - expect warmup overhead")
+    logger.info("Optimization Tips:")
+    logger.info("  1. Use n_jobs=-1 for parallel processing (default)")
+    logger.info("  2. Use n_jobs=1 for sequential processing if needed")
+    logger.info(
+        "  3. Profile your code with: from decline_curve.profiling import profile"
+    )
+    logger.info("  4. Numba JIT compiles on first use - expect warmup overhead")
 
-    print("\nFor more details, see:")
-    print("  - decline_analysis/profiling.py for profiling utilities")
-    print("  - decline_analysis/models.py for Numba implementations")
-    print("  - decline_analysis/dca.py and sensitivity.py for parallelization")
+    logger.info("For more details, see:")
+    logger.info("  - decline_curve/profiling.py for profiling utilities")
+    logger.info("  - decline_curve/models.py for Numba implementations")
+    logger.info("  - decline_curve/dca.py and sensitivity.py for parallelization")
 
-    print("\n" + "=" * 70)
-    print("Benchmark complete!")
-    print("=" * 70 + "\n")
+    logger.info("Benchmark complete")
 
 
 if __name__ == "__main__":

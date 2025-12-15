@@ -14,7 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MultiPhaseData` class for managing multi-phase production data
 - `MultiPhaseForecaster` with coupled and independent forecasting modes
 - **Data processing utilities** module with 11 production-ready functions
-- Prophet forecasting integration for seasonal patterns
 - Real Bakken well production data for examples
 - 5 comprehensive Jupyter notebook examples
 - Complete unit test suite (54 tests, 98% passing)
@@ -132,8 +131,8 @@ Major API changes. See [migration guide](https://decline-analysis.readthedocs.io
 
 ---
 
-[Unreleased]: https://github.com/yourusername/pydca/compare/v0.1.2...HEAD
-[0.1.2]: https://github.com/yourusername/pydca/compare/v0.1.1...v0.1.2
-[0.1.1]: https://github.com/yourusername/pydca/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/yourusername/pydca/compare/v0.0.1...v0.1.0
-[0.0.1]: https://github.com/yourusername/pydca/releases/tag/v0.0.1
+[Unreleased]: https://github.com/yourusername/decline-curve/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/yourusername/decline-curve/compare/v0.1.1...v0.1.2
+[0.1.1]: https://github.com/yourusername/decline-curve/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/yourusername/decline-curve/compare/v0.0.1...v0.1.0
+[0.0.1]: https://github.com/yourusername/decline-curve/releases/tag/v0.0.1

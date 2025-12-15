@@ -25,7 +25,7 @@ Your production data should be a pandas Series with a DatetimeIndex:
 
    import pandas as pd
    import numpy as np
-   import decline_analysis as dca
+   import decline_curve as dca
 
    # Create sample monthly production data
    dates = pd.date_range('2020-01-01', periods=36, freq='MS')
@@ -119,7 +119,7 @@ Manual ARIMA configuration:
 
 .. code-block:: python
 
-   from decline_analysis.forecast_arima import forecast_arima
+   from decline_curve.forecast_arima import forecast_arima
 
    # Specify ARIMA order manually
    manual_arima = forecast_arima(series, horizon=12, order=(2, 1, 1))
@@ -233,7 +233,7 @@ Visualize Benchmark Results
 
 .. code-block:: python
 
-   from decline_analysis.plot import plot_benchmark_results
+   from decline_curve.plot import plot_benchmark_results
 
    # Plot RMSE comparison
    plot_benchmark_results(arps_results, metric='rmse',
@@ -250,7 +250,7 @@ Custom Forecaster Workflow
 
 .. code-block:: python
 
-   from decline_analysis.forecast import Forecaster
+   from decline_curve.forecast import Forecaster
 
    # Create forecaster instance
    forecaster = Forecaster(series)

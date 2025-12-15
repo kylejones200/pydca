@@ -16,7 +16,7 @@ Data loading capabilities include:
 Functions
 ---------
 
-.. automodule:: decline_analysis.utils.data_loader
+.. automodule:: decline_curve.utils.data_loader
    :members:
    :undoc-members:
    :show-inheritance:
@@ -29,7 +29,7 @@ Basic NDIC Data Loading
 
 .. code-block:: python
 
-   import decline_analysis as dca
+   import decline_curve as dca
 
    # Define months to download
    months = ['2023-01', '2023-02', '2023-03', '2023-04']

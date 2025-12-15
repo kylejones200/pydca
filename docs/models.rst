@@ -85,7 +85,7 @@ The library uses non-linear least squares optimization to fit Arps parameters:
 
 .. code-block:: python
 
-   from decline_analysis.models import fit_arps, predict_arps
+   from decline_curve.models import fit_arps, predict_arps
    import numpy as np
 
    # Prepare data
@@ -134,7 +134,7 @@ The library uses statsmodels for ARIMA forecasting. You can specify the order ma
 
 .. code-block:: python
 
-   from decline_analysis.forecast_arima import forecast_arima
+   from decline_curve.forecast_arima import forecast_arima
 
    # Use default ARIMA(1,1,1) order
    forecast = forecast_arima(series, horizon=12)
@@ -200,7 +200,7 @@ Chronos is Amazon's probabilistic foundation model for time series forecasting.
    forecast = dca.forecast(series, model="chronos", horizon=12)
 
    # Probabilistic forecasting
-   from decline_analysis.forecast_chronos import forecast_chronos_probabilistic
+   from decline_curve.forecast_chronos import forecast_chronos_probabilistic
    quantiles = forecast_chronos_probabilistic(series, horizon=12,
                                             quantiles=[0.1, 0.5, 0.9])
 

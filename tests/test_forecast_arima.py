@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from decline_analysis.forecast_arima import forecast_arima
+from decline_curve.forecast_arima import forecast_arima
 
 
 class TestARIMAForecasting:
@@ -135,7 +135,7 @@ class TestARIMAIntegration:
 
     def test_arima_in_forecaster_class(self, sample_production_data):
         """Test ARIMA model in the main Forecaster class."""
-        from decline_analysis.forecast import Forecaster
+        from decline_curve.forecast import Forecaster
 
         forecaster = Forecaster(sample_production_data)
         forecast = forecaster.forecast(model="arima", horizon=12)
@@ -146,7 +146,7 @@ class TestARIMAIntegration:
 
     def test_arima_in_main_api(self, sample_production_data):
         """Test ARIMA model in the main DCA API."""
-        from decline_analysis import dca
+        from decline_curve import dca
 
         result = dca.forecast(sample_production_data, model="arima", horizon=6)
 
@@ -155,7 +155,7 @@ class TestARIMAIntegration:
 
     def test_arima_benchmark(self, sample_well_data):
         """Test ARIMA in benchmark function."""
-        from decline_analysis import dca
+        from decline_curve import dca
 
         result = dca.benchmark(sample_well_data, model="arima", horizon=6, top_n=2)
 

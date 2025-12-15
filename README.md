@@ -1,24 +1,23 @@
 # Decline Curve Analysis (DCA)
 
 [![PyPI version](https://badge.fury.io/py/decline-curve.svg)](https://badge.fury.io/py/decline-curve)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://decline-analysis.readthedocs.io/)
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://decline-curve.readthedocs.io/)
 
-A modern, open-source Python package for **decline curve analysis** and **production forecasting** in petroleum engineering. Combines traditional Arps decline models with advanced machine learning approaches (ARIMA, Chronos, TimesFM) for accurate oil and gas production forecasting.
+A modern, open-source Python package for decline curve analysis and production forecasting in petroleum engineering. Combines traditional Arps decline models with advanced machine learning approaches (ARIMA, Chronos, TimesFM) for accurate oil and gas production forecasting.
 
 ## 🎯 Key Features
 
-- **📉 Arps Decline Models**: Exponential, harmonic, and hyperbolic decline curve analysis
-- **🤖 ML Forecasting**: ARIMA, Chronos (Amazon), and TimesFM (Google) foundation models
-- **🎲 Monte Carlo Simulation**: Probabilistic forecasting with P10/P50/P90 and uncertainty quantification
-- **💰 Economic Analysis**: NPV, cash flow, and payback period calculations
-- **📊 Sensitivity Analysis**: Parameter sensitivity with tornado plots and 3D visualizations
-- **🔍 Reserves Estimation**: EUR (Estimated Ultimate Recovery) calculations
-- **📈 Professional Plotting**: Publication-ready Tufte-style visualizations
-- **⚡ Batch Processing**: Multi-well benchmarking and analysis
-- **🌐 Data Integration**: Built-in NDIC (North Dakota) production data scraper
-- **🚀 Performance**: Numba JIT (10-100x) + Joblib parallelization (4-8x speedup)
+- 📉 Arps Decline Models: Exponential, harmonic, and hyperbolic decline curve analysis
+- 🤖 ML Forecasting: ARIMA, Chronos (Amazon), and TimesFM (Google) foundation models
+- 🎲 Monte Carlo Simulation: Probabilistic forecasting with P10/P50/P90 and uncertainty quantification
+- 💰 Economic Analysis: NPV, cash flow, and payback period calculations
+- 📊 Sensitivity Analysis: Parameter sensitivity with tornado plots and 3D visualizations
+- 🔍 Reserves Estimation: EUR (Estimated Ultimate Recovery) calculations
+- 📈 Professional Plotting: Publication-ready Tufte-style visualizations
+- ⚡ Batch Processing: Multi-well benchmarking and analysis
+- 🚀 Performance: Numba JIT (10-100x) + Joblib parallelization (4-8x speedup)
 
 ## 🚀 Quick Start
 
@@ -28,12 +27,12 @@ A modern, open-source Python package for **decline curve analysis** and **produc
 pip install decline-curve
 ```
 
-**Note**: The package name is `decline-curve` on PyPI, but imports as `decline_analysis`.
+Note: The package name is `decline-curve` on PyPI, but imports as `decline_curve`.
 
 For development installation:
 ```bash
-git clone https://github.com/kylejones200/pydca.git
-cd pydca
+git clone https://github.com/kylejones200/decline-curve.git
+cd decline-curve
 pip install -e .
 ```
 
@@ -42,7 +41,7 @@ pip install -e .
 ```python
 import pandas as pd
 import numpy as np
-from decline_analysis import dca
+from decline_curve import dca
 
 # Create sample production data
 dates = pd.date_range('2020-01-01', periods=24, freq='MS')
@@ -64,8 +63,8 @@ dca.plot(series, forecast, title='Production Forecast', filename='forecast.png')
 ### Economic Analysis
 
 ```python
-from decline_analysis.models import ArpsParams
-from decline_analysis import dca
+from decline_curve.models import ArpsParams
+from decline_curve import dca
 
 # Define well parameters
 params = ArpsParams(qi=1200, di=0.15, b=0.4)  # Initial rate, decline rate, b-factor
@@ -117,10 +116,10 @@ decline --csv production.csv --benchmark --model arima --top_n 20
 
 Full documentation is available at [Read the Docs](https://decline-analysis.readthedocs.io/) including:
 
-- **[Tutorial](https://decline-analysis.readthedocs.io/tutorial.html)**: Step-by-step guide
-- **[API Reference](https://decline-analysis.readthedocs.io/api/dca.html)**: Complete function documentation
-- **[Examples](https://decline-analysis.readthedocs.io/examples.html)**: Real-world use cases
-- **[Models](https://decline-analysis.readthedocs.io/models.html)**: Theory and implementation details
+- [Tutorial](https://decline-analysis.readthedocs.io/tutorial.html): Step-by-step guide
+- [API Reference](https://decline-analysis.readthedocs.io/api/dca.html): Complete function documentation
+- [Examples](https://decline-analysis.readthedocs.io/examples.html): Real-world use cases
+- [Models](https://decline-analysis.readthedocs.io/models.html): Theory and implementation details
 
 ## 🔬 Advanced Features
 
@@ -164,7 +163,7 @@ forecast_arima = dca.forecast(series, model='arima', horizon=24)
 Probabilistic forecasting with uncertainty quantification:
 
 ```python
-from decline_analysis.monte_carlo import (
+from decline_curve.monte_carlo import (
     monte_carlo_forecast,
     MonteCarloParams,
     DistributionParams,
@@ -194,12 +193,12 @@ print(f"NPV P50: ${results.p50_npv:,.0f}")
 plot_monte_carlo_results(results, title="Probabilistic Forecast")
 
 # Risk analysis
-from decline_analysis.monte_carlo import risk_analysis
+from decline_curve.monte_carlo import risk_analysis
 risk_metrics = risk_analysis(results, threshold=0)
 print(f"Probability of positive NPV: {risk_metrics['prob_positive_npv']:.1%}")
 ```
 
-**Key capabilities:**
+Key capabilities:
 - P10/P50/P90 forecasts for reserves booking
 - Multiple distribution types (normal, lognormal, uniform, triangular)
 - Correlated parameters
@@ -213,7 +212,7 @@ See `examples/monte_carlo_example.py` and `docs/MONTE_CARLO.md` for complete gui
 The package includes built-in optimizations for fast execution:
 
 ```python
-from decline_analysis import dca
+from decline_curve import dca
 
 # Parallel processing (uses all CPU cores by default)
 results = dca.benchmark(
@@ -232,7 +231,7 @@ sensitivity = dca.sensitivity_analysis(
 )
 
 # Profile your code to find bottlenecks
-from decline_analysis.profiling import profile, print_stats
+from decline_curve.profiling import profile, print_stats
 
 @profile
 def my_analysis():
@@ -243,7 +242,7 @@ my_analysis()
 print_stats()  # Shows line-by-line timing
 ```
 
-**Performance gains:**
+Performance gains:
 - Numba JIT compilation: 10-100x faster numerical operations
 - Joblib parallelization: 4-8x faster on multi-core CPUs
 - Combined: 5-20x overall speedup
@@ -256,8 +255,8 @@ See `examples/performance_benchmark.py` for detailed benchmarks and `docs/PERFOR
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/pydca.git
-cd pydca
+git clone https://github.com/yourusername/decline-curve.git
+cd decline-curve
 
 # Create virtual environment
 python -m venv venv
@@ -274,7 +273,7 @@ pip install -e ".[dev]"
 pytest
 
 # Run with coverage
-pytest --cov=decline_analysis --cov-report=html
+pytest --cov=decline_curve --cov-report=html
 
 # Run specific test file
 pytest tests/test_models.py -v
@@ -284,28 +283,28 @@ pytest tests/test_models.py -v
 
 ```bash
 # Format code
-black decline_analysis/ tests/
+black decline_curve/ tests/
 
 # Sort imports
-isort decline_analysis/ tests/
+isort decline_curve/ tests/
 
 # Lint
-flake8 decline_analysis/ tests/
+flake8 decline_curve/ tests/
 
 # Type checking
-mypy decline_analysis/
+mypy decline_curve/
 ```
 
 ## 📊 Models Supported
 
 | Model | Type | Best For | Speed |
 |-------|------|----------|-------|
-| **Exponential Arps** | Physics-based | Mature wells, constant decline | ⚡⚡⚡ |
-| **Harmonic Arps** | Physics-based | Low decline rate wells | ⚡⚡⚡ |
-| **Hyperbolic Arps** | Physics-based | Unconventional wells, shale | ⚡⚡⚡ |
-| **ARIMA** | Statistical | Complex patterns, seasonality | ⚡⚡ |
-| **TimesFM** | Foundation model | Long-term forecasts | ⚡ |
-| **Chronos** | Foundation model | Zero-shot forecasting | ⚡ |
+| Exponential Arps | Physics-based | Mature wells, constant decline | ⚡⚡⚡ |
+| Harmonic Arps | Physics-based | Low decline rate wells | ⚡⚡⚡ |
+| Hyperbolic Arps | Physics-based | Unconventional wells, shale | ⚡⚡⚡ |
+| ARIMA | Statistical | Complex patterns, seasonality | ⚡⚡ |
+| TimesFM | Foundation model | Long-term forecasts | ⚡ |
+| Chronos | Foundation model | Zero-shot forecasting | ⚡ |
 
 ## 🤝 Contributing
 
@@ -328,8 +327,8 @@ If you use this package in your research, please cite:
   title = {Decline Curve Analysis: Production Forecasting for Oil and Gas Wells},
   year = {2025},
   publisher = {GitHub},
-  url = {https://github.com/yourusername/pydca},
-  doi = {10.5281/zenodo.XXXXXXX}
+  url = {https://github.com/kylejones200/decline-curve},
+
 }
 ```
 
@@ -346,10 +345,6 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## 📞 Support
 
-- **Documentation**: [https://decline-analysis.readthedocs.io/](https://decline-analysis.readthedocs.io/)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/pydca/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/pydca/discussions)
-
----
-
-**Made with ❤️ for the petroleum engineering community**
+- Documentation: [https://decline-analysis.readthedocs.io/](https://decline-analysis.readthedocs.io/)
+- Issues: [GitHub Issues](https://github.com/kylejones200/decline-curve/issues)
+- Discussions: [GitHub Discussions](https://github.com/kylejones200/decline-curve/discussions)

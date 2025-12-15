@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from decline_analysis.economics import economic_metrics
+from decline_curve.economics import economic_metrics
 
 
 class TestEconomicMetrics:
@@ -157,7 +157,7 @@ class TestEconomicsIntegration:
 
     def test_economics_with_pandas_series(self):
         """Test economics calculation with pandas Series input."""
-        from decline_analysis.dca import economics
+        from decline_curve.dca import economics
 
         # Create production series
         dates = pd.date_range("2024-01-01", periods=12, freq="MS")

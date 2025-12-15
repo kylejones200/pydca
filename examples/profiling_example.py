@@ -8,17 +8,22 @@ This example demonstrates:
 4. Interpreting profiling results
 """
 
+import logging
+
 import numpy as np
 import pandas as pd
 
-from decline_analysis import dca
-from decline_analysis.profiling import (
+from decline_curve import dca
+from decline_curve.logging_config import configure_logging, get_logger
+from decline_curve.profiling import (
     print_stats,
     profile,
     profile_context,
     save_stats,
     time_function,
 )
+
+logger = get_logger(__name__)
 
 
 # Example 1: Profile a function with @profile decorator
@@ -75,99 +80,79 @@ def generate_sample_data(n_wells=20, n_months=36):
 
 def main():
     """Main profiling example."""
-    print("=" * 70)
-    print("PROFILING EXAMPLE")
-    print("=" * 70)
-    print("\nThis example shows how to profile your decline curve analysis code.")
-    print("We'll generate synthetic data and profile various operations.\n")
+    configure_logging(level=logging.INFO)
+    logger.info("PROFILING EXAMPLE")
+    logger.info("This example shows how to profile your decline curve analysis code")
+    logger.info("We'll generate synthetic data and profile various operations")
 
     # Generate sample data
-    print("Generating sample data...")
+    logger.info("Generating sample data")
     df = generate_sample_data(n_wells=20, n_months=36)
-    print(f"Created data for {len(df['well_id'].unique())} wells")
+    logger.info(f"Created data for {len(df['well_id'].unique())} wells")
 
     # Example 3: Use profile_context for timing blocks
-    print("\n" + "-" * 70)
-    print("Example 1: Timing with profile_context")
-    print("-" * 70)
+    logger.info("Example 1: Timing with profile_context")
 
     with profile_context("Data preparation") as timer:
         well_data = df[df["well_id"] == "WELL_0000"]
         series = well_data.set_index("date")["oil_bbl"]
 
-    print(f"Data prep took {timer['elapsed']:.4f} seconds")
+    logger.info(f"Data prep took {timer['elapsed']:.4f} seconds")
 
     # Example 4: Profile individual function calls
-    print("\n" + "-" * 70)
-    print("Example 2: Profiling individual functions")
-    print("-" * 70)
-
-    print("\nRunning forecast_single_well (profiled function)...")
+    logger.info("Example 2: Profiling individual functions")
+    logger.info("Running forecast_single_well (profiled function)")
     forecast, metrics = forecast_single_well(series)
-    print(f"Forecast completed. RMSE: {metrics['rmse']:.2f}")
+    logger.info(f"Forecast completed. RMSE: {metrics['rmse']:.2f}")
 
     # Example 5: Time multiple operations
-    print("\n" + "-" * 70)
-    print("Example 3: Timing with @time_function decorator")
-    print("-" * 70)
-
-    print("\nProcessing 10 wells...")
+    logger.info("Example 3: Timing with @time_function decorator")
+    logger.info("Processing 10 wells")
     results = process_multiple_wells(df, n_wells=10)
-    print(f"Processed {len(results)} wells")
+    logger.info(f"Processed {len(results)} wells")
 
     # Example 6: Compare sequential vs parallel
-    print("\n" + "-" * 70)
-    print("Example 4: Sequential vs Parallel Performance")
-    print("-" * 70)
-
-    print("\nSequential processing (n_jobs=1):")
+    logger.info("Example 4: Sequential vs Parallel Performance")
+    logger.info("Sequential processing (n_jobs=1)")
     with profile_context("Sequential benchmark", print_time=True):
         results_seq = dca.benchmark(df, top_n=10, n_jobs=1, verbose=False)
 
-    print("\nParallel processing (n_jobs=-1):")
+    logger.info("Parallel processing (n_jobs=-1)")
     with profile_context("Parallel benchmark", print_time=True):
         results_par = dca.benchmark(df, top_n=10, n_jobs=-1, verbose=False)
 
     # Show profiling results
-    print("\n" + "=" * 70)
-    print("PROFILING RESULTS")
-    print("=" * 70)
-    print("\nLine-by-line profiling for forecast_single_well():")
-    print("-" * 70)
+    logger.info("PROFILING RESULTS")
+    logger.info("Line-by-line profiling for forecast_single_well()")
     print_stats()
 
     # Save results to file
-    print("\n" + "-" * 70)
-    print("Saving profiling results to file...")
+    logger.info("Saving profiling results to file")
     save_stats("profiling_results.txt")
-    print("Results saved to profiling_results.txt")
+    logger.info("Results saved to profiling_results.txt")
 
     # Summary
-    print("\n" + "=" * 70)
-    print("SUMMARY")
-    print("=" * 70)
-    print("\nProfiling Tools Used:")
-    print("  1. @profile decorator - Line-by-line profiling")
-    print("  2. @time_function decorator - Function timing")
-    print("  3. profile_context() - Block timing")
-    print("  4. print_stats() - Display profiling results")
-    print("  5. save_stats() - Save results to file")
+    logger.info("SUMMARY")
+    logger.info("Profiling Tools Used:")
+    logger.info("  1. @profile decorator - Line-by-line profiling")
+    logger.info("  2. @time_function decorator - Function timing")
+    logger.info("  3. profile_context() - Block timing")
+    logger.info("  4. print_stats() - Display profiling results")
+    logger.info("  5. save_stats() - Save results to file")
 
-    print("\nHow to Interpret Results:")
-    print("  - 'Time' column: seconds spent on each line")
-    print("  - 'Per Hit' column: average time per execution")
-    print("  - 'Hits' column: number of times line was executed")
-    print("  - Look for lines with high 'Time' values")
+    logger.info("How to Interpret Results:")
+    logger.info("  - 'Time' column: seconds spent on each line")
+    logger.info("  - 'Per Hit' column: average time per execution")
+    logger.info("  - 'Hits' column: number of times line was executed")
+    logger.info("  - Look for lines with high 'Time' values")
 
-    print("\nNext Steps:")
-    print("  1. Identify slow lines in profiling output")
-    print("  2. Consider parallelization (n_jobs=-1)")
-    print("  3. Check if Numba is accelerating numerical code")
-    print("  4. Profile your own code using these tools")
+    logger.info("Next Steps:")
+    logger.info("  1. Identify slow lines in profiling output")
+    logger.info("  2. Consider parallelization (n_jobs=-1)")
+    logger.info("  3. Check if Numba is accelerating numerical code")
+    logger.info("  4. Profile your own code using these tools")
 
-    print("\n" + "=" * 70)
-    print("Example complete! Check profiling_results.txt for details.")
-    print("=" * 70 + "\n")
+    logger.info("Example complete. Check profiling_results.txt for details")
 
 
 if __name__ == "__main__":

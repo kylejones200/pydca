@@ -6,12 +6,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from decline_analysis.forecast import Forecaster
-from decline_analysis.forecast_chronos import (
+from decline_curve.forecast import Forecaster
+from decline_curve.forecast_chronos import (
     check_chronos_availability,
     forecast_chronos,
 )
-from decline_analysis.forecast_timesfm import (
+from decline_curve.forecast_timesfm import (
     check_timesfm_availability,
     forecast_timesfm,
 )

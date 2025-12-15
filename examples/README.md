@@ -7,7 +7,7 @@ This directory contains practical examples demonstrating the use of the Decline 
 1. **[01_basic_dca_analysis.ipynb](01_basic_dca_analysis.ipynb)** - Introduction to decline curve analysis with Arps models
 2. **[02_economic_evaluation.ipynb](02_economic_evaluation.ipynb)** - Economic analysis, NPV, and reserves estimation
 3. **[03_real_bakken_well_analysis.ipynb](03_real_bakken_well_analysis.ipynb)** - ⭐ Real Bakken shale well production analysis
-4. **[04_advanced_data_processing.ipynb](04_advanced_data_processing.ipynb)** - ⭐ Advanced data cleaning and Prophet forecasting
+4. **[04_advanced_data_processing.ipynb](04_advanced_data_processing.ipynb)** - ⭐ Advanced data cleaning and ARIMA forecasting
 5. **[05_multiphase_forecasting.ipynb](05_multiphase_forecasting.ipynb)** - ⭐⭐ Multi-phase forecasting (oil + gas + water)
 6. **[06_multi_well_benchmarking.ipynb](06_multi_well_benchmarking.ipynb)** - Comparing models across multiple wells (coming soon)
 7. **[07_ml_forecasting.ipynb](07_ml_forecasting.ipynb)** - Using ARIMA and foundation models for forecasting (coming soon)
@@ -75,7 +75,7 @@ Master data preparation techniques:
 - Detect production anomalies
 - Use convenience functions for data prep
 - Calculate initial production rate (qi)
-- Optional: Prophet forecasting for seasonal patterns
+- Compare multiple forecasting models (Arps, ARIMA, TimesFM)
 
 ### 05 - Multi-Phase Forecasting ⭐⭐ NEW!
 Forecast oil, gas, and water simultaneously:

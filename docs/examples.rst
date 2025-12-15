@@ -10,7 +10,7 @@ Complete analysis of a single oil well with multiple forecasting models.
 
 .. code-block:: python
 
-   import decline_analysis as dca
+   import decline_curve as dca
    import pandas as pd
    import numpy as np
    import matplotlib.pyplot as plt
@@ -142,7 +142,7 @@ Comparing model performance across multiple wells in a field.
        print(f"{model.upper()}: Avg RMSE = {result['rmse'].mean():.2f}")
 
    # Visualize results
-   from decline_analysis.plot import plot_benchmark_results
+   from decline_curve.plot import plot_benchmark_results
 
    for model, result in results.items():
        plot_benchmark_results(result, metric='rmse',
@@ -181,7 +181,7 @@ Analyzing wells with seasonal production patterns.
    }
 
    # Also test ARIMA with explicit seasonal parameters
-   from decline_analysis.forecast_arima import forecast_arima
+   from decline_curve.forecast_arima import forecast_arima
 
    seasonal_arima = forecast_arima(seasonal_series, horizon=12,
                                   seasonal=True, seasonal_period=12)

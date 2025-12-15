@@ -5,7 +5,7 @@ Unit tests for evaluation metrics.
 import numpy as np
 import pandas as pd
 
-from decline_analysis.evaluate import (
+from decline_curve.evaluate import (
     evaluate_forecast,
     mae,
     mape,

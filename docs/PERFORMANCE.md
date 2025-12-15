@@ -36,7 +36,7 @@ Numba is a just-in-time (JIT) compiler that translates Python functions to optim
 Numba compiles functions on first use. Subsequent calls are 10-100x faster:
 
 ```python
-from decline_analysis.models import predict_arps, ArpsParams
+from decline_curve.models import predict_arps, ArpsParams
 import numpy as np
 
 params = ArpsParams(qi=1200, di=0.15, b=0.5)
@@ -74,7 +74,7 @@ Joblib provides easy parallelization for embarrassingly parallel problems. The p
 Both functions accept an `n_jobs` parameter:
 
 ```python
-from decline_analysis import dca
+from decline_curve import dca
 
 # Use all CPU cores (default)
 results = dca.benchmark(df, model='arps', n_jobs=-1)
@@ -90,7 +90,7 @@ results = dca.benchmark(df, model='arps', n_jobs=1)
 
 ```python
 import pandas as pd
-from decline_analysis import dca
+from decline_curve import dca
 
 # Load data with multiple wells
 df = pd.read_csv('production_data.csv')
@@ -112,7 +112,7 @@ print(results[['well_id', 'rmse', 'mae']])
 ### Example: Sensitivity Analysis
 
 ```python
-from decline_analysis import dca
+from decline_curve import dca
 
 # Define parameter grid
 param_grid = [
@@ -161,7 +161,7 @@ pip install decline-curve[dev]
 ### Basic Usage
 
 ```python
-from decline_analysis.profiling import profile, print_stats
+from decline_curve.profiling import profile, print_stats
 
 @profile
 def my_analysis():
@@ -178,7 +178,7 @@ print_stats()
 ### Context Manager
 
 ```python
-from decline_analysis.profiling import profile_context
+from decline_curve.profiling import profile_context
 
 with profile_context("My expensive operation") as timer:
     # Your code here
@@ -190,7 +190,7 @@ print(f"Took {timer['elapsed']:.2f} seconds")
 ### Time Decorator
 
 ```python
-from decline_analysis.profiling import time_function
+from decline_curve.profiling import time_function
 
 @time_function
 def forecast_all_wells(df):
@@ -204,8 +204,8 @@ forecast_all_wells(df)
 ### Example: Profile Your Analysis
 
 ```python
-from decline_analysis import dca
-from decline_analysis.profiling import profile, print_stats
+from decline_curve import dca
+from decline_curve.profiling import profile, print_stats
 import pandas as pd
 
 @profile
@@ -230,7 +230,7 @@ print_stats()
 ### Save Profiling Results
 
 ```python
-from decline_analysis.profiling import save_stats
+from decline_curve.profiling import save_stats
 
 # After running profiled functions
 save_stats("profiling_results.txt")
@@ -279,7 +279,7 @@ elapsed = time.time() - start
 ### 3. Profile Before Optimizing
 
 ```python
-from decline_analysis.profiling import profile, print_stats
+from decline_curve.profiling import profile, print_stats
 
 # Profile your code first
 @profile

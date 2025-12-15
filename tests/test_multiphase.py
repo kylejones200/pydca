@@ -4,10 +4,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from decline_analysis.multiphase import (
+from decline_curve.multiphase import (
     MultiPhaseData,
     MultiPhaseForecaster,
     create_multiphase_data_from_dataframe,
+    load_multiphase_data,
 )
 
 
@@ -387,6 +388,128 @@ class TestIntegration:
         df = data.to_dataframe()
         assert len(df) == 24
         assert len(df.columns) == 3
+
+
+class TestPhaseCorrelations:
+    """Test phase correlation metrics."""
+
+    def test_calculate_phase_correlations(self):
+        """Test phase correlation calculation."""
+        dates = pd.date_range("2020-01-01", periods=12, freq="MS")
+        # Create correlated data
+        oil = pd.Series(np.linspace(1000, 500, 12), index=dates, name="oil")
+        gas = pd.Series(oil * 1.5, index=dates, name="gas")  # Strongly correlated
+        water = pd.Series(np.linspace(100, 500, 12), index=dates, name="water")
+
+        data = MultiPhaseData(oil=oil, gas=gas, water=water)
+        correlations = data.calculate_phase_correlations()
+
+        assert "oil_gas" in correlations
+        assert correlations["oil_gas"] > 0.9  # Should be highly correlated
+        assert "oil_water" in correlations
+        assert "gas_water" in correlations
+
+    def test_calculate_phase_correlations_oil_only(self):
+        """Test correlation calculation with oil only."""
+        dates = pd.date_range("2020-01-01", periods=12, freq="MS")
+        oil = pd.Series(np.linspace(1000, 500, 12), index=dates, name="oil")
+        data = MultiPhaseData(oil=oil)
+        correlations = data.calculate_phase_correlations()
+        assert len(correlations) == 0
+
+
+class TestEnhancedEvaluation:
+    """Test enhanced evaluation metrics."""
+
+    def test_evaluate_with_consistency_metrics(self):
+        """Test evaluation includes consistency metrics."""
+        dates = pd.date_range("2020-01-01", periods=12, freq="MS")
+        oil = pd.Series(np.linspace(1000, 500, 12), index=dates, name="oil")
+        gas = pd.Series(oil * 1.5, index=dates, name="gas")
+        water = pd.Series(np.linspace(100, 500, 12), index=dates, name="water")
+
+        data = MultiPhaseData(oil=oil, gas=gas, water=water)
+        forecaster = MultiPhaseForecaster()
+        forecasts = forecaster.forecast(data, horizon=6)
+
+        metrics = forecaster.evaluate(data, forecasts)
+
+        # Check individual phase metrics
+        assert "oil" in metrics
+        assert "gas" in metrics
+        assert "water" in metrics
+
+        # Check consistency metrics
+        assert "consistency" in metrics
+        assert isinstance(metrics["consistency"], dict)
+
+        # Check overall metrics
+        assert "overall" in metrics
+        assert "rmse" in metrics["overall"]
+        assert "mae" in metrics["overall"]
+        assert "smape" in metrics["overall"]
+
+
+class TestUnifiedDataLoader:
+    """Test unified data loader function."""
+
+    def test_load_from_dataframe(self):
+        """Test loading from DataFrame."""
+        dates = pd.date_range("2020-01-01", periods=12, freq="MS")
+        df = pd.DataFrame(
+            {
+                "date": dates,
+                "Oil": np.linspace(1000, 500, 12),
+                "Gas": np.linspace(1500, 750, 12),
+                "Wtr": np.linspace(100, 500, 12),
+            }
+        )
+
+        data = load_multiphase_data(df, date_column="date")
+        assert isinstance(data, MultiPhaseData)
+        assert data.phases == ["oil", "gas", "water"]
+
+    def test_load_multi_well_data(self):
+        """Test loading multi-well data."""
+        dates = pd.date_range("2020-01-01", periods=12, freq="MS")
+        df = pd.DataFrame(
+            {
+                "date": dates.tolist() * 2,
+                "well_id": ["WELL_001"] * 12 + ["WELL_002"] * 12,
+                "Oil": np.linspace(1000, 500, 24),
+                "Gas": np.linspace(1500, 750, 24),
+            }
+        )
+
+        multi_well_data = load_multiphase_data(
+            df, date_column="date", well_id_column="well_id"
+        )
+        assert isinstance(multi_well_data, dict)
+        assert "WELL_001" in multi_well_data
+        assert "WELL_002" in multi_well_data
+        assert isinstance(multi_well_data["WELL_001"], MultiPhaseData)
+
+
+class TestSharedModelArchitecture:
+    """Test shared model architecture."""
+
+    def test_shared_model_forecast(self):
+        """Test forecasting with shared model architecture."""
+        dates = pd.date_range("2020-01-01", periods=12, freq="MS")
+        oil = pd.Series(np.linspace(1000, 500, 12), index=dates, name="oil")
+        gas = pd.Series(oil * 1.5, index=dates, name="gas")
+        water = pd.Series(np.linspace(100, 500, 12), index=dates, name="water")
+
+        data = MultiPhaseData(oil=oil, gas=gas, water=water)
+        forecaster = MultiPhaseForecaster(shared_model=True)
+        forecasts = forecaster.forecast(
+            data, horizon=6, model="arps", kind="hyperbolic"
+        )
+
+        assert "oil" in forecasts
+        assert "gas" in forecasts
+        assert "water" in forecasts
+        assert len(forecasts["oil"]) == 18  # 12 historical + 6 forecast
 
 
 if __name__ == "__main__":

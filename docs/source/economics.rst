@@ -16,7 +16,7 @@ Economic evaluation is essential for:
 Functions
 ---------
 
-.. automodule:: decline_analysis.economics
+.. automodule:: decline_curve.economics
    :members:
    :undoc-members:
    :show-inheritance:
@@ -29,7 +29,7 @@ Basic Economic Analysis
 
 .. code-block:: python
 
-   import decline_analysis as dca
+   import decline_curve as dca
    import pandas as pd
    import numpy as np
 
