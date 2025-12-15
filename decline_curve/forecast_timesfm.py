@@ -84,8 +84,7 @@ def forecast_timesfm(series: pd.Series, horizon: int = 12) -> pd.Series:
 
 
 def _generate_timesfm_forecast(input_seq: np.ndarray, horizon: int) -> np.ndarray:
-    """
-    Generate forecast using a simplified TimesFM-like approach.
+    """Generate forecast using a simplified TimesFM-like approach.
     This is a placeholder implementation.
     """
     # Simple trend and seasonality extraction
@@ -123,8 +122,7 @@ def _generate_timesfm_forecast(input_seq: np.ndarray, horizon: int) -> np.ndarra
 
 
 def _fallback_timesfm_forecast(series: pd.Series, horizon: int) -> pd.Series:
-    """
-    Fallback forecasting method when TimesFM is not available.
+    """Fallback forecasting method when TimesFM is not available.
     Uses exponential smoothing as a proxy.
     """
     from scipy.optimize import minimize_scalar

@@ -1,3 +1,5 @@
+"""Command-line interface for decline curve analysis."""
+
 import argparse
 import logging
 
@@ -10,6 +12,7 @@ logger = get_logger(__name__)
 
 
 def main():
+    """Run the CLI entry point."""
     parser = argparse.ArgumentParser(description="Decline curve forecast tool")
     parser.add_argument("csv", help="Input CSV file")
     parser.add_argument(

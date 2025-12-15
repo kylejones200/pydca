@@ -1,11 +1,17 @@
 """Main API for decline curve analysis and forecasting."""
 
-import logging
 from typing import Any, Literal, Optional
 
 import pandas as pd
 
+from .economics import economic_metrics
+from .evaluate import mae, rmse, smape
+from .forecast import Forecaster
 from .logging_config import get_logger
+from .models import ArpsParams
+from .plot import plot_forecast
+from .reserves import forecast_and_reserves
+from .sensitivity import run_sensitivity
 
 logger = get_logger(__name__)
 
@@ -15,14 +21,6 @@ try:
     JOBLIB_AVAILABLE = True
 except ImportError:
     JOBLIB_AVAILABLE = False
-
-from .economics import economic_metrics
-from .evaluate import mae, rmse, smape
-from .forecast import Forecaster
-from .models import ArpsParams
-from .plot import plot_forecast
-from .reserves import forecast_and_reserves
-from .sensitivity import run_sensitivity
 
 
 def forecast(
@@ -50,24 +48,33 @@ def forecast(
 
     Args:
         series: Historical production time series.
-        model: Forecasting model to use ('arps', 'timesfm', 'chronos', 'arima', 'deepar', 'tft', 'ensemble').
+        model: Forecasting model to use.
+            Options: 'arps', 'timesfm', 'chronos', 'arima', 'deepar', 'tft',
+            'ensemble'.
         kind: Arps decline type ('exponential', 'harmonic', 'hyperbolic').
         horizon: Number of periods to forecast.
         verbose: Print forecast details.
         deepar_model: Pre-trained DeepAR model (required if model='deepar').
         tft_model: Pre-trained TFT model (required if model='tft').
-        production_data: Production DataFrame (required for deepar/tft/ensemble with ML models).
-        well_id: Well identifier (required for deepar/tft/ensemble with ML models).
-        quantiles: Quantiles for DeepAR probabilistic forecasts (default [0.1, 0.5, 0.9]).
-        return_interpretation: If True, return attention weights for TFT (default False).
-        ensemble_models: List of models for ensemble (default ['arps', 'lstm', 'deepar']).
+        production_data: Production DataFrame (required for deepar/tft/ensemble
+            with ML models).
+        well_id: Well identifier (required for deepar/tft/ensemble with ML
+            models).
+        quantiles: Quantiles for DeepAR probabilistic forecasts
+            (default [0.1, 0.5, 0.9]).
+        return_interpretation: If True, return attention weights for TFT
+            (default False).
+        ensemble_models: List of models for ensemble
+            (default ['arps', 'lstm', 'deepar']).
         ensemble_weights: Custom weights for ensemble (EnsembleWeights object).
-        ensemble_method: Ensemble combination method ('weighted', 'confidence', 'stacking').
+        ensemble_method: Ensemble combination method
+            ('weighted', 'confidence', 'stacking').
         lstm_model: Pre-trained LSTM model (for ensemble).
 
         Returns:
-        Forecasted production series (or dict with quantiles for DeepAR probabilistic mode,
-        or tuple (forecast, interpretation) for TFT with return_interpretation=True).
+            Forecasted production series (or dict with quantiles for DeepAR
+            probabilistic mode, or tuple (forecast, interpretation) for TFT
+            with return_interpretation=True).
 
     Example:
         >>> # Arps forecast
@@ -88,7 +95,8 @@ def forecast(
     # Handle DeepAR model
     if model == "deepar":
         try:
-            from .forecast_deepar import DeepARForecaster
+            # DeepARForecaster is used via deepar_model parameter
+            pass
 
             if deepar_model is None:
                 raise ValueError(
@@ -133,7 +141,8 @@ def forecast(
     # Handle TFT model
     elif model == "tft":
         try:
-            from .forecast_tft import TFTForecaster
+            # TFTForecaster is used via tft_model parameter
+            pass
 
             if tft_model is None:
                 raise ValueError(

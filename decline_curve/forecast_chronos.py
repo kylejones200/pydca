@@ -71,7 +71,7 @@ def forecast_chronos(series: pd.Series, horizon: int = 12) -> pd.Series:
 
 
 def _generate_chronos_forecast(values: np.ndarray, horizon: int, device) -> np.ndarray:
-    """
+    """Generate forecast using Chronos model.
     Generate forecast using a simplified Chronos-like approach.
     This is a placeholder implementation.
     """
@@ -120,8 +120,7 @@ def _generate_chronos_forecast(values: np.ndarray, horizon: int, device) -> np.n
 
 
 def _fallback_chronos_forecast(series: pd.Series, horizon: int) -> pd.Series:
-    """
-    Fallback forecasting method when Chronos is not available.
+    """Fallback forecasting method when Chronos is not available.
     Uses Holt-Winters exponential smoothing as a proxy.
     """
     try:

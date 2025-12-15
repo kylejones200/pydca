@@ -12,7 +12,6 @@ import numpy as np
 import pandas as pd
 
 from . import dca
-from .forecast import Forecaster
 from .logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -219,15 +218,6 @@ class EnsembleForecaster:
 
         # Align indices
         aligned_forecasts = pd.DataFrame(forecast_only)
-
-        # Weighted average
-        weights = np.array(
-            [
-                self.weights.arps if "arps" in aligned_forecasts.columns else 0.0,
-                self.weights.lstm if "lstm" in aligned_forecasts.columns else 0.0,
-                self.weights.deepar if "deepar" in aligned_forecasts.columns else 0.0,
-            ]
-        )
 
         # Normalize weights based on available models
         model_cols = list(aligned_forecasts.columns)

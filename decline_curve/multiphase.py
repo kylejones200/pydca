@@ -106,7 +106,7 @@ class MultiPhaseData:
         Example:
             >>> data = MultiPhaseData(oil=oil_series, gas=gas_series, water=water_series)
             >>> correlations = data.calculate_phase_correlations()
-            >>> print(f"Oil-Gas correlation: {correlations['oil_gas']:.3f}")
+            >>> logger.info(f"Oil-Gas correlation: {correlations['oil_gas']:.3f}")
         """
         correlations = {}
 
@@ -201,7 +201,7 @@ class MultiPhaseForecaster:
             >>> gas_forecast = forecasts['gas']
         """
         from . import dca  # Import here to avoid circular dependency
-        from .models import ArpsParams, fit_arps, predict_arps
+        from .models import fit_arps, predict_arps
 
         forecasts = {}
 

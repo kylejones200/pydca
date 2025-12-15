@@ -4,7 +4,7 @@ This module defines the strict interface that all decline curve models must impl
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Tuple
+from typing import Dict, Tuple
 
 import numpy as np
 

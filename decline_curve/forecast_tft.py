@@ -11,8 +11,6 @@ Based on research showing TFT's ability to:
 - Achieve state-of-the-art forecasting performance
 """
 
-from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Literal, Optional, Union
 
 import numpy as np
@@ -488,7 +486,8 @@ class TFTForecaster:
 
             if verbose and (epoch + 1) % 10 == 0:
                 logger.info(
-                    f"Epoch {epoch+1}/{epochs} - Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}"
+                    f"Epoch {epoch+1}/{epochs} - Loss: {train_loss:.4f}, "
+                    f"Val Loss: {val_loss:.4f}"
                 )
 
         self.is_fitted = True
@@ -512,7 +511,8 @@ class TFTForecaster:
             static_features: Optional static features
             control_variables: Optional control variables
             horizon: Forecast horizon (overrides default)
-            return_interpretation: If True, return attention weights and feature importance
+            return_interpretation: If True, return attention weights and
+                feature importance
 
         Returns:
             Dictionary with forecasts for each phase, optionally with interpretation dict
@@ -707,6 +707,7 @@ if not TORCH_AVAILABLE:
         """Placeholder when PyTorch is not available."""
 
         def __init__(self, *args, **kwargs):
+            """Initialize placeholder when PyTorch is not available."""
             raise ImportError(
                 "PyTorch is required for TFT. Install with: pip install torch"
             )

@@ -14,7 +14,10 @@ try:
 except ImportError:
     PYDANTIC_AVAILABLE = False
     BaseModel = object
-    Field = lambda default, **kwargs: default
+
+    def Field(default, **kwargs):
+        """Field function for when pydantic is not available."""
+        return default
 
 
 if PYDANTIC_AVAILABLE:

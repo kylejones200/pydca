@@ -181,7 +181,8 @@ def validate_uptime_data(
             if max_val > 1.0 and max_val < 1000:
                 # Likely hours, not fraction
                 warnings.append(
-                    f"uptime values appear to be hours (max: {max_val:.1f}), not fraction"
+                    f"uptime values appear to be hours (max: {max_val:.1f}), "
+                    f"not fraction"
                 )
             elif max_val > 1.0:
                 warnings.append(f"uptime values exceed 1.0 (max: {max_val:.2f})")

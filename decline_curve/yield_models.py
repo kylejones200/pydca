@@ -81,6 +81,7 @@ class ConstantYield(YieldModel):
 
     @property
     def name(self) -> str:
+        """Return model name."""
         return "ConstantYield"
 
     def yield_rate(
@@ -126,6 +127,7 @@ class DecliningYield(YieldModel):
 
     @property
     def name(self) -> str:
+        """Return model name."""
         return "DecliningYield"
 
     def yield_rate(
@@ -175,6 +177,7 @@ class HyperbolicYield(YieldModel):
 
     @property
     def name(self) -> str:
+        """Return model name."""
         return "HyperbolicYield"
 
     def yield_rate(
@@ -231,6 +234,7 @@ class TimeBasedYield(YieldModel):
 
     @property
     def name(self) -> str:
+        """Return model name."""
         return "TimeBasedYield"
 
     def yield_rate(
@@ -322,7 +326,9 @@ def create_gor_model(
         >>> gor_model = create_gor_model(1000.0, model_type='constant')
         >>>
         >>> # Declining GOR
-        >>> gor_model = create_gor_model(1000.0, gor_decline_rate=0.001, model_type='declining')
+        >>> gor_model = create_gor_model(
+        ...     1000.0, gor_decline_rate=0.001, model_type='declining'
+        ... )
     """
     if model_type == "constant":
         model = ConstantYield()
@@ -357,8 +363,10 @@ def create_water_cut_model(
 
     Args:
         water_cut_initial: Initial water cut (fraction, 0-1)
-        water_cut_growth_rate: Water cut growth rate (1/day) - only used for growing models
-        model_type: 'constant', 'declining' (for water cut, declining means increasing), or 'hyperbolic'
+        water_cut_growth_rate: Water cut growth rate (1/day) - only used for
+            growing models
+        model_type: 'constant', 'declining' (for water cut, declining means
+            increasing), or 'hyperbolic'
 
     Returns:
         YieldModelAttachment configured for water cut

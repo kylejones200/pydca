@@ -15,7 +15,7 @@ Quality checks:
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -43,7 +43,7 @@ class QAResult:
     recommendations: List[str]
 
     def __str__(self) -> str:
-        """String representation of QA result."""
+        """Return string representation of QA result."""
         if self.passed:
             return "QA checks passed"
         else:
@@ -490,7 +490,8 @@ def run_data_qa(
         if reset_issues:
             issues["rate_resets"] = reset_issues
             warnings.append(
-                f"Found {len(reset_issues)} potential rate resets (workovers/recompletions)"
+                f"Found {len(reset_issues)} potential rate resets "
+                f"(workovers/recompletions)"
             )
 
     # Determine if passed (no critical issues)

@@ -12,14 +12,12 @@ Features:
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Literal, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
-import pandas as pd
 
 from .fitting import FitResult
 from .logging_config import get_logger
-from .models_base import Model
 
 logger = get_logger(__name__)
 
@@ -45,7 +43,7 @@ class DiagnosticsResult:
     quality_flags: Dict[str, bool] = field(default_factory=dict)
 
     def __str__(self) -> str:
-        """String representation of diagnostics result."""
+        """Return string representation of diagnostics result."""
         return f"Grade: {self.grade} (Score: {self.numeric_score:.1f})"
 
 

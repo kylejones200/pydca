@@ -1,3 +1,9 @@
+"""Decline Curve Analysis package.
+
+A comprehensive Python library for decline curve analysis with multi-phase
+forecasting, data utilities, and ML models.
+"""
+
 from . import dca, monte_carlo, multiphase, profiling  # noqa: F401
 from .logging_config import configure_logging, get_logger  # noqa: F401
 

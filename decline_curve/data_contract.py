@@ -12,9 +12,8 @@ The canonical schema enforces:
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 
 from .logging_config import get_logger
@@ -39,7 +38,7 @@ class ValidationResult:
     errors: List[str]
 
     def __str__(self) -> str:
-        """String representation of validation result."""
+        """Return string representation of validation result."""
         if self.is_valid:
             return "Validation passed"
         else:
@@ -191,7 +190,10 @@ class ProductionDataValidator:
             try:
                 pd.to_datetime(col)
             except Exception as e:
-                return f"Date column '{self.date_column}' cannot be converted to datetime: {e}"
+                return (
+                    f"Date column '{self.date_column}' "
+                    f"cannot be converted to datetime: {e}"
+                )
 
         # Check for null dates
         null_count = col.isna().sum()

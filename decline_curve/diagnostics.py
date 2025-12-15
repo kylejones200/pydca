@@ -13,7 +13,6 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 
 import numpy as np
-from scipy import signal
 
 from .logging_config import get_logger
 
@@ -60,7 +59,8 @@ def compute_decline_rate_diagnostic(
     Args:
         t: Time array (days)
         q: Production rate array
-        method: Method for computing derivative ('log_derivative' or 'finite_difference')
+        method: Method for computing derivative
+            ('log_derivative' or 'finite_difference')
 
     Returns:
         Decline rate diagnostic array D(t)

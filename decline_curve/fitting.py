@@ -35,7 +35,11 @@ try:
 except ImportError:
     PYDANTIC_AVAILABLE = False
     BaseModel = object
-    Field = lambda default, **kwargs: default
+
+    def Field(default, **kwargs):
+        """Field function for when pydantic is not available."""
+        return default
+
     logger.warning(
         "pydantic not available. Install with: pip install pydantic. "
         "FitSpec validation will be limited."
@@ -122,6 +126,8 @@ if PYDANTIC_AVAILABLE:
         ramp_window_months: int = 6
 
         class Config:
+            """Pydantic configuration."""
+
             arbitrary_types_allowed = True
 
 else:
@@ -304,7 +310,8 @@ def validate_fit_result(
             lower, upper = constraints[param]
             if value < lower or value > upper:
                 warnings.append(
-                    f"Parameter {param}={value:.4f} outside bounds [{lower:.4f}, {upper:.4f}]"
+                    f"Parameter {param}={value:.4f} "
+                    f"outside bounds [{lower:.4f}, {upper:.4f}]"
                 )
 
     # Check for non-negative rates
@@ -338,6 +345,7 @@ class CurveFitFitter(Fitter):
 
     @property
     def name(self) -> str:
+        """Return fitter name."""
         return "curve_fit"
 
     def fit(

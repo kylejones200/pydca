@@ -11,15 +11,13 @@ References:
 - SPEE REP 6 - Uncertainty quantification standards
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Dict, List, Optional
 
 import numpy as np
-import pandas as pd
 
 from .fitting import FitResult
 from .logging_config import get_logger
-from .models_base import Model
 
 logger = get_logger(__name__)
 
@@ -289,7 +287,7 @@ def quantify_uncertainty_bootstrap(
 
     for i, boot_residuals in enumerate(bootstrap_residuals):
         # Add bootstrap residuals to observed data
-        q_boot = q_obs + boot_residuals
+        # q_boot = q_obs + boot_residuals  # Used in refitting
 
         # Refit model (simplified - in practice might want to use original fitter)
         # For now, use original parameters (bootstrap on residuals only)

@@ -8,7 +8,7 @@ and training pipelines. It validates that:
 - Normalization/scaling only uses training data statistics
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -208,7 +208,8 @@ def check_sequence_preparation(
     if len(sequences) != len(targets):
         checks["proper_sequencing"] = False
         checks["errors"].append(
-            f"Sequence count ({len(sequences)}) doesn't match target count ({len(targets)})"
+            f"Sequence count ({len(sequences)}) doesn't match "
+            f"target count ({len(targets)})"
         )
 
     return checks

@@ -5,14 +5,12 @@ against historical data, including walk-forward and rolling origin methods.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import numpy as np
-import pandas as pd
 
-from .fitting import FitResult, FitSpec
+from .fitting import FitSpec
 from .logging_config import get_logger
-from .uncertainty import UncertaintyResult
 
 logger = get_logger(__name__)
 
@@ -125,10 +123,9 @@ def walk_forward_backtest(
                 errors_by_horizon[horizon]["rmse"].append(rmse)
                 errors_by_horizon[horizon]["mape"].append(mape)
 
-                # Check coverage (simplified - would use uncertainty bands in full implementation)
+                # Check coverage (simplified - would use uncertainty bands)
                 # For now, just check if actual is within reasonable range
                 if len(q_forecast) > 0 and len(q_actual) > 0:
-                    p50_forecast = q_forecast
                     p10_forecast = q_forecast * 1.2  # Approximate
                     p90_forecast = q_forecast * 0.8  # Approximate
 
@@ -176,7 +173,7 @@ def rolling_origin_backtest(
     step_size: int = 1,
     seed: int = 42,
 ) -> BacktestResult:
-    """Rolling origin backtest: fixed training window.
+    """Perform rolling origin backtest with fixed training window.
 
     Args:
         t: Time array

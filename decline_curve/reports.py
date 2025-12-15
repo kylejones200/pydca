@@ -4,8 +4,6 @@ This module provides single-page summary reports for wells and fields,
 including HTML and PDF output formats.
 """
 
-from dataclasses import asdict
-from pathlib import Path
 from typing import Dict, List, Optional
 
 from .artifacts import FitArtifact
@@ -64,7 +62,16 @@ def _generate_html_report(
     diagnostics: Optional[DiagnosticsResult],
     artifact: Optional[FitArtifact],
 ) -> str:
-    """Generate HTML content for well report."""
+    """Generate HTML content for well report.
+
+    Args:
+        fit_result: Fit result object
+        diagnostics: Optional diagnostics result
+        artifact: Optional fit artifact
+
+    Returns:
+        HTML string
+    """
 
     # Extract key information
     params = fit_result.params

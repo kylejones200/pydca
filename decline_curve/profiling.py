@@ -19,7 +19,6 @@ Usage:
         pass
 """
 
-import logging
 import time
 from contextlib import contextmanager
 from functools import wraps
@@ -51,8 +50,7 @@ def get_profiler() -> Optional[LineProfiler]:
 
 
 def profile(func: Callable) -> Callable:
-    """
-    Decorator to profile a function with line_profiler.
+    """Decorate a function to profile it with line_profiler.
 
     If line_profiler is not installed, this decorator does nothing.
 
@@ -169,8 +167,7 @@ def profile_context(name: str = "Operation", print_time: bool = True):
 
 
 def time_function(func: Callable) -> Callable:
-    """
-    Decorator to time function execution.
+    """Decorate a function to time its execution.
 
     Args:
         func: Function to time

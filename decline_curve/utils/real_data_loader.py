@@ -7,7 +7,6 @@ and prepare it for training deep learning models.
 from pathlib import Path
 from typing import Optional, Union
 
-import numpy as np
 import pandas as pd
 
 
@@ -41,7 +40,9 @@ def load_north_dakota_production(
         - static_features_df: DataFrame with well_id and static features
 
     Example:
-        >>> from decline_curve.utils.real_data_loader import load_north_dakota_production
+        >>> from decline_curve.utils.real_data_loader import (
+        ...     load_north_dakota_production
+        ... )
         >>>
         >>> prod_df, static_df = load_north_dakota_production(
         ...     data_path='path/to/north_dakota_production.csv',

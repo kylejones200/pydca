@@ -10,7 +10,6 @@ This module enables uncertainty quantification and risk assessment by:
 Performance: Uses Numba JIT and joblib parallelization for fast execution.
 """
 
-import logging
 from dataclasses import dataclass
 from types import SimpleNamespace
 from typing import Any, Literal, Optional, cast
@@ -43,7 +42,6 @@ except ImportError:
         return decorator
 
     numba = cast(Any, SimpleNamespace(jit=_jit_noop))
-
 
 from .economics import economic_metrics
 from .models import ArpsParams, predict_arps

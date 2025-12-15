@@ -21,6 +21,7 @@ class ExponentialArps(Model):
 
     @property
     def name(self) -> str:
+        """Return model name."""
         return "ExponentialArps"
 
     def rate(self, t: np.ndarray, params: Dict[str, float]) -> np.ndarray:
@@ -121,6 +122,7 @@ class HarmonicArps(Model):
 
     @property
     def name(self) -> str:
+        """Return model name."""
         return "HarmonicArps"
 
     def rate(self, t: np.ndarray, params: Dict[str, float]) -> np.ndarray:
@@ -217,6 +219,7 @@ class HyperbolicArps(Model):
 
     @property
     def name(self) -> str:
+        """Return model name."""
         return "HyperbolicArps"
 
     def rate(self, t: np.ndarray, params: Dict[str, float]) -> np.ndarray:
@@ -347,9 +350,8 @@ class HyperbolicArps(Model):
 
         # Estimate di and b
         if len(q_valid) >= 3:
-            # Use first, middle, and last points to estimate b
+            # Use first and last points to estimate b
             q0 = q_valid[0]
-            q_mid = q_valid[len(q_valid) // 2]
             q_last = q_valid[-1]
             t_mid = t_valid[len(t_valid) // 2]
             t_span = t_valid[-1] - t_valid[0]

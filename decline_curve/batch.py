@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Union
 import numpy as np
 import pandas as pd
 
-from .fitting import CurveFitFitter, FitResult, FitSpec, RobustLeastSquaresFitter
+from .fitting import CurveFitFitter, FitSpec, RobustLeastSquaresFitter
 from .logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -93,7 +93,7 @@ def process_single_well(
             else pd.read_parquet(data_path)
         )
 
-        # Extract time and rate (simplified - would use data contract in full implementation)
+        # Extract time and rate (simplified - would use data contract)
         t = df["date"].values if "date" in df.columns else np.arange(len(df))
         q = df["oil_rate"].values if "oil_rate" in df.columns else df["rate"].values
 
@@ -188,10 +188,11 @@ def batch_fit(
     output_file = output_path / "batch_results.parquet"
     df_results.to_parquet(output_file, index=False)
 
+    n_successful = int(df_results["success"].sum())
     logger.info(
-        f"Batch fit complete: {df_results['success'].sum()}/{len(df_results)} successful",
+        f"Batch fit complete: {n_successful}/{len(df_results)} successful",
         extra={
-            "n_successful": int(df_results["success"].sum()),
+            "n_successful": n_successful,
             "output_file": str(output_file),
         },
     )

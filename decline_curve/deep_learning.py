@@ -261,7 +261,7 @@ if TORCH_AVAILABLE:
             Returns:
                 Forecast (batch, horizon, output_size)
             """
-            batch_size = sequence.size(0)
+            # batch_size = sequence.size(0)  # Unused
 
             # Encode input sequence
             encoder_output, (hidden, cell) = self.encoder(sequence)
@@ -1009,7 +1009,8 @@ class EncoderDecoderLSTMForecaster:
             static_features: Static features DataFrame
             control_variables: Control variables dict
             epochs: Number of fine-tuning epochs (typically fewer than initial training)
-            learning_rate: Learning rate for fine-tuning (usually smaller, defaults to 0.1 * original)
+            learning_rate: Learning rate for fine-tuning (usually smaller,
+                defaults to 0.1 * original)
             batch_size: Batch size
             freeze_encoder: If True, only fine-tune decoder (faster, less flexible)
 
@@ -1088,6 +1089,7 @@ if not TORCH_AVAILABLE:
         """Placeholder when PyTorch is not available."""
 
         def __init__(self, *args, **kwargs):
+            """Initialize placeholder when PyTorch is not available."""
             raise ImportError(
                 "PyTorch is required for deep learning models. "
                 "Install with: pip install torch"

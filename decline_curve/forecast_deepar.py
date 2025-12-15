@@ -11,8 +11,6 @@ production forecasting with support for:
 - Quantile predictions
 """
 
-from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Literal, Optional, Union
 
 import numpy as np
@@ -359,7 +357,8 @@ class DeepARForecaster:
 
             if verbose and (epoch + 1) % 10 == 0:
                 logger.info(
-                    f"Epoch {epoch+1}/{epochs} - Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}"
+                    f"Epoch {epoch+1}/{epochs} - Loss: {train_loss:.4f}, "
+                    f"Val Loss: {val_loss:.4f}"
                 )
 
         self.is_fitted = True
@@ -381,7 +380,8 @@ class DeepARForecaster:
             well_id: Well identifier
             production_data: Historical production data
             static_features: Optional static features
-            quantiles: List of quantiles to predict (e.g., [0.1, 0.5, 0.9] for P10, P50, P90)
+            quantiles: List of quantiles to predict
+                (e.g., [0.1, 0.5, 0.9] for P10, P50, P90)
             horizon: Forecast horizon (overrides default)
             n_samples: Number of samples for quantile estimation
 
@@ -611,6 +611,7 @@ if not TORCH_AVAILABLE:
         """Placeholder when PyTorch is not available."""
 
         def __init__(self, *args, **kwargs):
+            """Initialize placeholder when PyTorch is not available."""
             raise ImportError(
                 "PyTorch is required for DeepAR. Install with: pip install torch"
             )

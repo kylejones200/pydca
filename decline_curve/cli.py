@@ -9,7 +9,6 @@ This module provides a simple CLI for common DCA operations:
 
 import argparse
 import sys
-from pathlib import Path
 
 from .logging_config import configure_logging, get_logger
 
@@ -17,7 +16,7 @@ logger = get_logger(__name__)
 
 
 def main():
-    """Main CLI entry point."""
+    """Run the CLI entry point."""
     parser = argparse.ArgumentParser(
         description="Decline Curve Analysis CLI",
         prog="dca",

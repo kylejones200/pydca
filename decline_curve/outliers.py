@@ -400,7 +400,8 @@ def detect_outliers(
         mask = mask.apply_keep_last_k(keep_last_k)
 
     logger.info(
-        f"Outlier detection complete: {mask.n_outliers} outliers detected using {method}",
+        f"Outlier detection complete: {mask.n_outliers} outliers "
+        f"detected using {method}",
         extra={
             "method": method,
             "n_outliers": mask.n_outliers,
