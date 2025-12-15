@@ -80,7 +80,7 @@ def moving_average_forecast(
     if len(series) == 0:
         raise ValueError("Series must not be empty")
 
-    ma = series.rolling(window=window).mean().iloc[-1]
+    ma = series.rolling(window=window, center=False).mean().iloc[-1]
     if pd.isna(ma):
         ma = series.mean()
 

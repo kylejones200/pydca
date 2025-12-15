@@ -404,10 +404,23 @@ class EncoderDecoderLSTMForecaster:
             production_data, static_features, control_variables
         )
 
-        # Fit scaler and normalize sequences/targets
+        # Split data FIRST to avoid leakage
+        n_train = int(len(sequences) * (1 - validation_split))
+        train_sequences = sequences[:n_train]
+        train_targets = targets[:n_train]
+        val_sequences = sequences[n_train:]
+        val_targets = targets[n_train:]
+
+        # Fit scaler ONLY on training data to prevent leakage
         self.scaler = self._create_scaler()
-        sequences_normalized = self._normalize_sequences(sequences, fit=True)
-        targets_normalized = self._normalize_sequences(targets, fit=False)
+        sequences_normalized_train = self._normalize_sequences(
+            train_sequences, fit=True
+        )
+        targets_normalized_train = self._normalize_sequences(train_targets, fit=False)
+
+        # Transform validation data using scaler fit on training data only
+        sequences_normalized_val = self._normalize_sequences(val_sequences, fit=False)
+        targets_normalized_val = self._normalize_sequences(val_targets, fit=False)
 
         # Create model
         input_size = len(self.phases)
@@ -434,18 +447,15 @@ class EncoderDecoderLSTMForecaster:
         # Loss and optimizer
         criterion = nn.MSELoss()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
-
-        # Split data
-        n_train = int(len(sequences_normalized) * (1 - validation_split))
         train_dataset = ProductionDataset(
-            sequences_normalized[:n_train],
-            targets_normalized[:n_train],
+            sequences_normalized_train,
+            targets_normalized_train,
             static_feat_array[:n_train] if static_feat_array is not None else None,
             control_array[:n_train] if control_array is not None else None,
         )
         val_dataset = ProductionDataset(
-            sequences_normalized[n_train:],
-            targets_normalized[n_train:],
+            sequences_normalized_val,
+            targets_normalized_val,
             static_feat_array[n_train:] if static_feat_array is not None else None,
             control_array[n_train:] if control_array is not None else None,
         )

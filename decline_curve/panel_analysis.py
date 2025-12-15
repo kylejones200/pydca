@@ -107,6 +107,10 @@ def calculate_spatial_features(
 ) -> pd.DataFrame:
     """Calculate spatial features from location data.
 
+    Note: This function calculates well density using all wells in the dataset.
+    This is appropriate for panel data regression analysis (not forecasting),
+    where spatial features are used as controls rather than predictors.
+
     Args:
         df: DataFrame with lat/long columns
         lat_col: Column name for latitude
@@ -127,6 +131,8 @@ def calculate_spatial_features(
         )
 
         # Calculate well density (neighbors within 5 km) - vectorized
+        # Note: Uses all wells in dataset - appropriate for panel regression,
+        # not for time-series forecasting where this would cause leakage
         # Approximate: 1 degree ≈ 111 km
         distance_threshold = (5 / 111) ** 2
 

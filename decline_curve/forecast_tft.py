@@ -257,52 +257,52 @@ if TORCH_AVAILABLE:
 
             return output, interpretation
 
-
-class TFTForecaster:
-    """
-    Temporal Fusion Transformer forecaster for production data.
-
-    Provides interpretable forecasting with attention mechanisms.
-    """
-
-    def __init__(
-        self,
-        phases: list[str] = ["oil"],
-        hidden_size: int = 64,
-        num_heads: int = 4,
-        num_layers: int = 2,
-        sequence_length: int = 24,
-        horizon: int = 12,
-        static_features: Optional[list[str]] = None,
-        control_variables: Optional[list[str]] = None,
-        dropout: float = 0.1,
-        normalization_method: Literal["minmax", "standard"] = "minmax",
-        learning_rate: float = 0.001,
-        device: Optional[str] = None,
-    ):
+    class TFTForecaster:
         """
-        Initialize TFT forecaster.
+        Temporal Fusion Transformer forecaster for production data.
 
-        Args:
-            phases: List of phases to forecast
-            hidden_size: Hidden layer size
-            num_heads: Number of attention heads
-            num_layers: Number of transformer layers
-            sequence_length: Input sequence length (months)
-            horizon: Forecast horizon (months)
-            static_features: List of static feature names
-            control_variables: List of control variable names
-            dropout: Dropout rate
-            normalization_method: Normalization method
-            learning_rate: Learning rate
-            device: Device to use ('cpu' or 'cuda')
+        Provides interpretable forecasting with attention mechanisms.
         """
-        if not TORCH_AVAILABLE:
-            raise ImportError(
-                "PyTorch is required for TFT. Install with: pip install torch"
-            )
 
-        self.phases = phases
+        def __init__(
+            self,
+            phases: list[str] = ["oil"],
+            hidden_size: int = 64,
+            num_heads: int = 4,
+            num_layers: int = 2,
+            sequence_length: int = 24,
+            horizon: int = 12,
+            static_features: Optional[list[str]] = None,
+            control_variables: Optional[list[str]] = None,
+            dropout: float = 0.1,
+            normalization_method: Literal["minmax", "standard"] = "minmax",
+            learning_rate: float = 0.001,
+            device: Optional[str] = None,
+        ):
+            """
+            Initialize TFT forecaster.
+
+            Args:
+                phases: List of phases to forecast
+                hidden_size: Hidden layer size
+                num_heads: Number of attention heads
+                num_layers: Number of transformer layers
+                sequence_length: Input sequence length (months)
+                horizon: Forecast horizon (months)
+                static_features: List of static feature names
+                control_variables: List of control variable names
+                dropout: Dropout rate
+                normalization_method: Normalization method
+                learning_rate: Learning rate
+                device: Device to use ('cpu' or 'cuda')
+            """
+            if not TORCH_AVAILABLE:
+                raise ImportError(
+                    "PyTorch is required for TFT. Install with: pip install torch"
+                )
+
+            self.phases = phases
+
         self.hidden_size = hidden_size
         self.num_heads = num_heads
         self.num_layers = num_layers
@@ -372,15 +372,37 @@ class TFTForecaster:
             )
         )
 
-        # Fit scaler and normalize
+        # Split data FIRST to avoid leakage
+        n_train = int(len(sequences) * (1 - validation_split))
+        train_sequences = sequences[:n_train]
+        train_targets = targets[:n_train]
+        val_sequences = sequences[n_train:]
+        val_targets = targets[n_train:]
+
+        # Fit scaler ONLY on training data to prevent leakage
         self.scaler = lstm_helper._create_scaler()
-        # Fit scaler on sequences
-        sequences_reshaped = sequences.reshape(-1, sequences.shape[-1])
-        self.scaler.fit(sequences_reshaped)
+        # Fit scaler on training sequences only
+        train_sequences_reshaped = train_sequences.reshape(
+            -1, train_sequences.shape[-1]
+        )
+        self.scaler.fit(train_sequences_reshaped)
         lstm_helper.scaler = self.scaler
 
-        sequences_normalized = lstm_helper._normalize_sequences(sequences, fit=False)
-        targets_normalized = lstm_helper._normalize_sequences(targets, fit=False)
+        # Normalize training data
+        sequences_normalized_train = lstm_helper._normalize_sequences(
+            train_sequences, fit=False
+        )
+        targets_normalized_train = lstm_helper._normalize_sequences(
+            train_targets, fit=False
+        )
+
+        # Transform validation data using scaler fit on training data only
+        sequences_normalized_val = lstm_helper._normalize_sequences(
+            val_sequences, fit=False
+        )
+        targets_normalized_val = lstm_helper._normalize_sequences(
+            val_targets, fit=False
+        )
 
         # Create model
         input_size = len(self.phases)
@@ -427,17 +449,15 @@ class TFTForecaster:
                     item["control_variables"] = self.control[idx]
                 return item
 
-        # Split data
-        n_train = int(len(sequences_normalized) * (1 - validation_split))
         train_dataset = TFTDataset(
-            sequences_normalized[:n_train],
-            targets_normalized[:n_train],
+            sequences_normalized_train,
+            targets_normalized_train,
             static_feat_array[:n_train] if static_feat_array is not None else None,
             control_array[:n_train] if control_array is not None else None,
         )
         val_dataset = TFTDataset(
-            sequences_normalized[n_train:],
-            targets_normalized[n_train:],
+            sequences_normalized_val,
+            targets_normalized_val,
             static_feat_array[n_train:] if static_feat_array is not None else None,
             control_array[n_train:] if control_array is not None else None,
         )
@@ -515,7 +535,7 @@ class TFTForecaster:
                 feature importance
 
         Returns:
-            Dictionary with forecasts for each phase, optionally with interpretation dict
+            Dictionary with forecasts for each phase, optionally with interpretation dict  # noqa: E501
         """
         if not self.is_fitted:
             raise ValueError("Model must be fitted before prediction")

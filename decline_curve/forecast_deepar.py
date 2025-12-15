@@ -11,7 +11,7 @@ production forecasting with support for:
 - Quantile predictions
 """
 
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal, Optional
 
 import numpy as np
 import pandas as pd
@@ -190,104 +190,118 @@ if TORCH_AVAILABLE:
                 item["static_features"] = self.static_features[idx]
             return item
 
-
-class DeepARForecaster:
-    """
-    DeepAR probabilistic forecaster for production data.
-
-    Provides probabilistic forecasts with uncertainty quantification
-    through quantile predictions (P10, P50, P90).
-    """
-
-    def __init__(
-        self,
-        phases: list[str] = ["oil"],
-        hidden_size: int = 64,
-        num_layers: int = 2,
-        sequence_length: int = 24,
-        horizon: int = 12,
-        dropout: float = 0.1,
-        distribution: Literal["normal", "negative_binomial"] = "normal",
-        normalization_method: Literal["minmax", "standard"] = "minmax",
-        learning_rate: float = 0.001,
-        device: Optional[str] = None,
-    ):
+    class DeepARForecaster:
         """
-        Initialize DeepAR forecaster.
+        DeepAR probabilistic forecaster for production data.
 
-        Args:
-            phases: List of phases to forecast
-            hidden_size: LSTM hidden layer size
-            num_layers: Number of LSTM layers
-            sequence_length: Input sequence length (months)
-            horizon: Forecast horizon (months)
-            dropout: Dropout rate
-            distribution: Output distribution type
-            normalization_method: Normalization method
-            learning_rate: Learning rate
-            device: Device to use ('cpu' or 'cuda')
+        Provides probabilistic forecasts with uncertainty quantification
+        through quantile predictions (P10, P50, P90).
         """
-        if not TORCH_AVAILABLE:
-            raise ImportError(
-                "PyTorch is required for DeepAR. Install with: pip install torch"
-            )
 
-        self.phases = phases
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        self.sequence_length = sequence_length
-        self.horizon = horizon
-        self.dropout = dropout
-        self.distribution = distribution
-        self.normalization_method = normalization_method
-        self.learning_rate = learning_rate
+        def __init__(
+            self,
+            phases: list[str] = ["oil"],
+            hidden_size: int = 64,
+            num_layers: int = 2,
+            sequence_length: int = 24,
+            horizon: int = 12,
+            dropout: float = 0.1,
+            distribution: Literal["normal", "negative_binomial"] = "normal",
+            normalization_method: Literal["minmax", "standard"] = "minmax",
+            learning_rate: float = 0.001,
+            device: Optional[str] = None,
+        ):
+            """
+            Initialize DeepAR forecaster.
 
-        # Set device
-        if device is None:
-            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        else:
-            self.device = torch.device(device)
+            Args:
+                phases: List of phases to forecast
+                hidden_size: LSTM hidden layer size
+                num_layers: Number of LSTM layers
+                sequence_length: Input sequence length (months)
+                horizon: Forecast horizon (months)
+                dropout: Dropout rate
+                distribution: Output distribution type
+                normalization_method: Normalization method
+                learning_rate: Learning rate
+                device: Device to use ('cpu' or 'cuda')
+            """
+            if not TORCH_AVAILABLE:
+                raise ImportError(
+                    "PyTorch is required for DeepAR. Install with: pip install torch"
+                )
 
-        # Initialize model (will be created during fit)
-        self.model: Optional[DeepARModel] = None
-        self.scaler: Optional[Any] = None
-        self.is_fitted = False
+            self.phases = phases
+            self.hidden_size = hidden_size
+            self.num_layers = num_layers
+            self.sequence_length = sequence_length
+            self.horizon = horizon
+            self.dropout = dropout
+            self.distribution = distribution
+            self.normalization_method = normalization_method
+            self.learning_rate = learning_rate
 
-    def fit(
-        self,
-        production_data: pd.DataFrame,
-        static_features: Optional[pd.DataFrame] = None,
-        epochs: int = 100,
-        batch_size: int = 32,
-        validation_split: float = 0.2,
-        verbose: bool = True,
-    ) -> dict[str, list[float]]:
-        """
-        Train the DeepAR model.
+            # Set device
+            if device is None:
+                self.device = torch.device(
+                    "cuda" if torch.cuda.is_available() else "cpu"
+                )
+            else:
+                self.device = torch.device(device)
 
-        Args:
-            production_data: DataFrame with columns: well_id, date, and phase columns
-            static_features: Optional DataFrame with well_id and static features
-            epochs: Number of training epochs
-            batch_size: Batch size
-            validation_split: Fraction of data for validation
-            verbose: Whether to print training progress
+            # Initialize model (will be created during fit)
+            self.model: Optional[DeepARModel] = None
+            self.scaler: Optional[Any] = None
+            self.is_fitted = False
 
-        Returns:
-            Dictionary with training history
-        """
-        if not TORCH_AVAILABLE:
-            raise ImportError("PyTorch is required for training")
+        def fit(
+            self,
+            production_data: pd.DataFrame,
+            static_features: Optional[pd.DataFrame] = None,
+            epochs: int = 100,
+            batch_size: int = 32,
+            validation_split: float = 0.2,
+            verbose: bool = True,
+        ) -> dict[str, list[float]]:
+            """
+            Train the DeepAR model.
+
+            Args:
+                production_data: DataFrame with columns: well_id, date, and phase columns
+                static_features: Optional DataFrame with well_id and static features
+                epochs: Number of training epochs
+                batch_size: Batch size
+                validation_split: Fraction of data for validation
+                verbose: Whether to print training progress
+
+            Returns:
+                Dictionary with training history
+            """
+            if not TORCH_AVAILABLE:
+                raise ImportError("PyTorch is required for training")
 
         # Prepare data
         sequences, targets, static_feat_array = self._prepare_data(
             production_data, static_features
         )
 
-        # Fit scaler and normalize
+        # Split data FIRST to avoid leakage
+        n_train = int(len(sequences) * (1 - validation_split))
+        train_sequences = sequences[:n_train]
+        train_targets = targets[:n_train]
+        val_sequences = sequences[n_train:]
+        val_targets = targets[n_train:]
+
+        # Fit scaler ONLY on training data to prevent leakage
         self.scaler = self._create_scaler()
-        sequences_normalized = self._normalize_sequences(sequences, fit=True)
-        targets_normalized = self._normalize_sequences(targets, fit=False)
+        sequences_normalized_train = self._normalize_sequences(
+            train_sequences, fit=True
+        )
+        targets_normalized_train = self._normalize_sequences(train_targets, fit=False)
+
+        # Transform validation data using scaler fit on training data only
+        sequences_normalized_val = self._normalize_sequences(val_sequences, fit=False)
+        targets_normalized_val = self._normalize_sequences(val_targets, fit=False)
 
         # Create model
         input_size = len(self.phases)
@@ -308,16 +322,14 @@ class DeepARForecaster:
         criterion = nll_loss
         optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
-        # Split data
-        n_train = int(len(sequences_normalized) * (1 - validation_split))
         train_dataset = DeepARDataset(
-            sequences_normalized[:n_train],
-            targets_normalized[:n_train],
+            sequences_normalized_train,
+            targets_normalized_train,
             static_feat_array[:n_train] if static_feat_array is not None else None,
         )
         val_dataset = DeepARDataset(
-            sequences_normalized[n_train:],
-            targets_normalized[n_train:],
+            sequences_normalized_val,
+            targets_normalized_val,
             static_feat_array[n_train:] if static_feat_array is not None else None,
         )
 
