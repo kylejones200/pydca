@@ -267,8 +267,10 @@ if TORCH_AVAILABLE:
             Train the DeepAR model.
 
             Args:
-                production_data: DataFrame with columns: well_id, date, and phase columns
-                static_features: Optional DataFrame with well_id and static features
+                production_data: DataFrame with columns: well_id, date,
+                    and phase columns
+                static_features: Optional DataFrame with well_id and
+                    static features
                 epochs: Number of training epochs
                 batch_size: Batch size
                 validation_split: Fraction of data for validation
@@ -280,346 +282,361 @@ if TORCH_AVAILABLE:
             if not TORCH_AVAILABLE:
                 raise ImportError("PyTorch is required for training")
 
-        # Prepare data
-        sequences, targets, static_feat_array = self._prepare_data(
-            production_data, static_features
-        )
+            # Prepare data
+            sequences, targets, static_feat_array = self._prepare_data(
+                production_data, static_features
+            )
 
-        # Split data FIRST to avoid leakage
-        n_train = int(len(sequences) * (1 - validation_split))
-        train_sequences = sequences[:n_train]
-        train_targets = targets[:n_train]
-        val_sequences = sequences[n_train:]
-        val_targets = targets[n_train:]
+            # Split data FIRST to avoid leakage
+            n_train = int(len(sequences) * (1 - validation_split))
+            train_sequences = sequences[:n_train]
+            train_targets = targets[:n_train]
+            val_sequences = sequences[n_train:]
+            val_targets = targets[n_train:]
 
-        # Fit scaler ONLY on training data to prevent leakage
-        self.scaler = self._create_scaler()
-        sequences_normalized_train = self._normalize_sequences(
-            train_sequences, fit=True
-        )
-        targets_normalized_train = self._normalize_sequences(train_targets, fit=False)
+            # Fit scaler ONLY on training data to prevent leakage
+            self.scaler = self._create_scaler()
+            sequences_normalized_train = self._normalize_sequences(
+                train_sequences, fit=True
+            )
+            targets_normalized_train = self._normalize_sequences(
+                train_targets, fit=False
+            )
 
-        # Transform validation data using scaler fit on training data only
-        sequences_normalized_val = self._normalize_sequences(val_sequences, fit=False)
-        targets_normalized_val = self._normalize_sequences(val_targets, fit=False)
+            # Transform validation data using scaler fit on training data only
+            sequences_normalized_val = self._normalize_sequences(
+                val_sequences, fit=False
+            )
+            targets_normalized_val = self._normalize_sequences(val_targets, fit=False)
 
-        # Create model
-        input_size = len(self.phases)
-        self.model = DeepARModel(
-            input_size=input_size,
-            hidden_size=self.hidden_size,
-            num_layers=self.num_layers,
-            dropout=self.dropout,
-            distribution=self.distribution,
-        ).to(self.device)
+            # Create model
+            input_size = len(self.phases)
+            self.model = DeepARModel(
+                input_size=input_size,
+                hidden_size=self.hidden_size,
+                num_layers=self.num_layers,
+                dropout=self.dropout,
+                distribution=self.distribution,
+            ).to(self.device)
 
-        # Loss function (negative log-likelihood for probabilistic model)
-        def nll_loss(mean, scale, target):
-            """Negative log-likelihood for normal distribution."""
-            dist = torch.distributions.Normal(mean, scale)
-            return -dist.log_prob(target).mean()
+            # Loss function (negative log-likelihood for probabilistic model)
+            def nll_loss(mean, scale, target):
+                """Negative log-likelihood for normal distribution."""
+                dist = torch.distributions.Normal(mean, scale)
+                return -dist.log_prob(target).mean()
 
-        criterion = nll_loss
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+            criterion = nll_loss
+            optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
-        train_dataset = DeepARDataset(
-            sequences_normalized_train,
-            targets_normalized_train,
-            static_feat_array[:n_train] if static_feat_array is not None else None,
-        )
-        val_dataset = DeepARDataset(
-            sequences_normalized_val,
-            targets_normalized_val,
-            static_feat_array[n_train:] if static_feat_array is not None else None,
-        )
+            train_dataset = DeepARDataset(
+                sequences_normalized_train,
+                targets_normalized_train,
+                static_feat_array[:n_train] if static_feat_array is not None else None,
+            )
+            val_dataset = DeepARDataset(
+                sequences_normalized_val,
+                targets_normalized_val,
+                static_feat_array[n_train:] if static_feat_array is not None else None,
+            )
 
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+            train_loader = DataLoader(
+                train_dataset, batch_size=batch_size, shuffle=True
+            )
+            val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
-        # Training loop
-        history = {"loss": [], "val_loss": []}
+            # Training loop
+            history = {"loss": [], "val_loss": []}
 
-        for epoch in range(epochs):
-            # Training
-            self.model.train()
-            train_loss = 0.0
-            for batch in train_loader:
-                optimizer.zero_grad()
-                mean, scale = self.model(batch["sequence"].to(self.device))
-                target = batch["target"].to(self.device)
-                loss = criterion(mean, scale, target)
-                loss.backward()
-                optimizer.step()
-                train_loss += loss.item()
-
-            # Validation
-            self.model.eval()
-            val_loss = 0.0
-            with torch.no_grad():
-                for batch in val_loader:
+            for epoch in range(epochs):
+                # Training
+                self.model.train()
+                train_loss = 0.0
+                for batch in train_loader:
+                    optimizer.zero_grad()
                     mean, scale = self.model(batch["sequence"].to(self.device))
                     target = batch["target"].to(self.device)
                     loss = criterion(mean, scale, target)
-                    val_loss += loss.item()
+                    loss.backward()
+                    optimizer.step()
+                    train_loss += loss.item()
 
-            train_loss /= len(train_loader)
-            val_loss /= len(val_loader)
-            history["loss"].append(train_loss)
-            history["val_loss"].append(val_loss)
+                # Validation
+                self.model.eval()
+                val_loss = 0.0
+                with torch.no_grad():
+                    for batch in val_loader:
+                        mean, scale = self.model(batch["sequence"].to(self.device))
+                        target = batch["target"].to(self.device)
+                        loss = criterion(mean, scale, target)
+                        val_loss += loss.item()
 
-            if verbose and (epoch + 1) % 10 == 0:
-                logger.info(
-                    f"Epoch {epoch+1}/{epochs} - Loss: {train_loss:.4f}, "
-                    f"Val Loss: {val_loss:.4f}"
-                )
+                train_loss /= len(train_loader)
+                val_loss /= len(val_loader)
+                history["loss"].append(train_loss)
+                history["val_loss"].append(val_loss)
 
-        self.is_fitted = True
-        return history
-
-    def predict_quantiles(
-        self,
-        well_id: str,
-        production_data: pd.DataFrame,
-        static_features: Optional[pd.DataFrame] = None,
-        quantiles: list[float] = [0.1, 0.5, 0.9],
-        horizon: Optional[int] = None,
-        n_samples: int = 1000,
-    ) -> dict[str, pd.Series]:
-        """
-        Generate probabilistic forecast with quantiles.
-
-        Args:
-            well_id: Well identifier
-            production_data: Historical production data
-            static_features: Optional static features
-            quantiles: List of quantiles to predict
-                (e.g., [0.1, 0.5, 0.9] for P10, P50, P90)
-            horizon: Forecast horizon (overrides default)
-            n_samples: Number of samples for quantile estimation
-
-        Returns:
-            Dictionary with quantile forecasts for each phase
-        """
-        if not self.is_fitted:
-            raise ValueError("Model must be fitted before prediction")
-
-        horizon = horizon or self.horizon
-
-        # Prepare input sequence
-        well_data = production_data[production_data["well_id"] == well_id].copy()
-        if len(well_data) < self.sequence_length:
-            raise ValueError(
-                f"Insufficient data for well {well_id}. "
-                f"Need at least {self.sequence_length} months, got {len(well_data)}"
-            )
-
-        # Get last sequence_length months
-        well_data = well_data.tail(self.sequence_length)
-        sequence = well_data[self.phases].values
-
-        # Normalize
-        sequence_normalized = self._normalize_sequences(
-            sequence.reshape(1, *sequence.shape), fit=False
-        )[0]
-
-        # Predict
-        self.model.eval()
-        with torch.no_grad():
-            seq_tensor = (
-                torch.FloatTensor(sequence_normalized).unsqueeze(0).to(self.device)
-            )
-
-            # Generate samples for each forecast step (autoregressive)
-            all_samples = []
-            current_sequence = seq_tensor
-
-            for step in range(horizon):
-                # Predict distribution parameters for this step
-                mean, scale = self.model(current_sequence)
-
-                # Sample from distribution (n_samples, n_phases)
-                step_samples = torch.normal(
-                    mean.expand(n_samples, -1), scale.expand(n_samples, -1)
-                )
-                all_samples.append(step_samples.cpu().numpy())
-
-                # Use mean prediction as next input (autoregressive)
-                # For each sample path, we'd use different values, but for simplicity
-                # we use the mean for the next step
-                next_input = mean.unsqueeze(1)  # (1, 1, n_phases)
-                current_sequence = torch.cat([current_sequence, next_input], dim=1)[
-                    :, 1:, :
-                ]
-
-            # Stack samples: (horizon, n_samples, n_phases)
-            all_samples = np.array(all_samples)
-
-        # Calculate quantiles for each phase
-        forecasts = {}
-        last_date = pd.to_datetime(well_data["date"].iloc[-1])
-        forecast_dates = pd.date_range(
-            start=last_date + pd.DateOffset(months=1),
-            periods=horizon,
-            freq="MS",
-        )
-
-        for i, phase in enumerate(self.phases):
-            phase_samples = all_samples[:, :, i]  # (horizon, n_samples)
-
-            # Calculate quantiles
-            phase_quantiles = {}
-            for q in quantiles:
-                quantile_values = np.percentile(phase_samples, q * 100, axis=1)
-                # Denormalize - need to handle single phase case
-                if len(self.phases) == 1:
-                    # Single phase: quantile_values is (horizon,)
-                    quantile_values_2d = quantile_values.reshape(1, -1)
-                    quantile_values_denorm = self._denormalize_sequences(
-                        quantile_values_2d
-                    )[0]
-                else:
-                    # Multi-phase: need to denormalize with all phases
-                    # Create a dummy array with all phases, then extract the one we need
-                    quantile_values_full = np.zeros((horizon, len(self.phases)))
-                    quantile_values_full[:, i] = quantile_values
-                    quantile_values_denorm_full = self._denormalize_sequences(
-                        quantile_values_full
+                if verbose and (epoch + 1) % 10 == 0:
+                    logger.info(
+                        f"Epoch {epoch+1}/{epochs} - Loss: {train_loss:.4f}, "
+                        f"Val Loss: {val_loss:.4f}"
                     )
-                    quantile_values_denorm = quantile_values_denorm_full[:, i]
 
-                # Clip to non-negative
-                quantile_values_denorm = np.clip(quantile_values_denorm, 0, None)
-                phase_quantiles[f"q{int(q*100)}"] = pd.Series(
-                    quantile_values_denorm,
-                    index=forecast_dates,
-                    name=f"{phase}_q{int(q*100)}",
+            self.is_fitted = True
+            return history
+
+        def predict_quantiles(
+            self,
+            well_id: str,
+            production_data: pd.DataFrame,
+            static_features: Optional[pd.DataFrame] = None,
+            quantiles: list[float] = [0.1, 0.5, 0.9],
+            horizon: Optional[int] = None,
+            n_samples: int = 1000,
+        ) -> dict[str, pd.Series]:
+            """
+            Generate probabilistic forecast with quantiles.
+
+            Args:
+                well_id: Well identifier
+                production_data: Historical production data
+                static_features: Optional static features
+                quantiles: List of quantiles to predict
+                    (e.g., [0.1, 0.5, 0.9] for P10, P50, P90)
+                horizon: Forecast horizon (overrides default)
+                n_samples: Number of samples for quantile estimation
+
+            Returns:
+                Dictionary with quantile forecasts for each phase
+            """
+            if not self.is_fitted:
+                raise ValueError("Model must be fitted before prediction")
+
+            horizon = horizon or self.horizon
+
+            # Prepare input sequence
+            well_data = production_data[production_data["well_id"] == well_id].copy()
+            if len(well_data) < self.sequence_length:
+                raise ValueError(
+                    f"Insufficient data for well {well_id}. "
+                    f"Need at least {self.sequence_length} months, got {len(well_data)}"
                 )
 
-            forecasts[phase] = phase_quantiles
+            # Get last sequence_length months
+            well_data = well_data.tail(self.sequence_length)
+            sequence = well_data[self.phases].values
 
-        return forecasts
+            # Normalize
+            sequence_normalized = self._normalize_sequences(
+                sequence.reshape(1, *sequence.shape), fit=False
+            )[0]
 
-    def _prepare_data(
-        self,
-        production_data: pd.DataFrame,
-        static_features: Optional[pd.DataFrame],
-    ) -> tuple[np.ndarray, np.ndarray, Optional[np.ndarray]]:
-        """Prepare data for training."""
-        sequences = []
-        targets = []
-        static_feat_list = []
+            # Predict
+            self.model.eval()
+            with torch.no_grad():
+                seq_tensor = (
+                    torch.FloatTensor(sequence_normalized).unsqueeze(0).to(self.device)
+                )
 
-        # Group by well_id
-        for well_id, well_data in production_data.groupby("well_id"):
-            well_data = well_data.sort_values("date").reset_index(drop=True)
-            phase_data = well_data[self.phases].values
+                # Generate samples for each forecast step (autoregressive)
+                all_samples = []
+                current_sequence = seq_tensor
 
-            # Create sliding windows
-            for i in range(len(well_data) - self.sequence_length):
-                seq = phase_data[i : i + self.sequence_length]
-                target = phase_data[i + self.sequence_length]
-                sequences.append(seq)
-                targets.append(target)
+                for step in range(horizon):
+                    # Predict distribution parameters for this step
+                    mean, scale = self.model(current_sequence)
 
-                # Static features (if available)
-                if static_features is not None:
-                    well_static = static_features[static_features["well_id"] == well_id]
-                    if len(well_static) > 0:
-                        # Extract numeric columns only
-                        numeric_cols = well_static.select_dtypes(
-                            include=[np.number]
-                        ).columns
-                        numeric_cols = [c for c in numeric_cols if c != "well_id"]
-                        if len(numeric_cols) > 0:
-                            static_feat_list.append(well_static[numeric_cols].values[0])
+                    # Sample from distribution (n_samples, n_phases)
+                    step_samples = torch.normal(
+                        mean.expand(n_samples, -1), scale.expand(n_samples, -1)
+                    )
+                    all_samples.append(step_samples.cpu().numpy())
+
+                    # Use mean prediction as next input (autoregressive)
+                    # For each sample path, we'd use different values,
+                    # but for simplicity we use the mean for the next step
+                    next_input = mean.unsqueeze(1)  # (1, 1, n_phases)
+                    current_sequence = torch.cat([current_sequence, next_input], dim=1)[
+                        :, 1:, :
+                    ]
+
+                # Stack samples: (horizon, n_samples, n_phases)
+                all_samples = np.array(all_samples)
+
+            # Calculate quantiles for each phase
+            forecasts = {}
+            last_date = pd.to_datetime(well_data["date"].iloc[-1])
+            forecast_dates = pd.date_range(
+                start=last_date + pd.DateOffset(months=1),
+                periods=horizon,
+                freq="MS",
+            )
+
+            for i, phase in enumerate(self.phases):
+                phase_samples = all_samples[:, :, i]  # (horizon, n_samples)
+
+                # Calculate quantiles
+                phase_quantiles = {}
+                for q in quantiles:
+                    quantile_values = np.percentile(phase_samples, q * 100, axis=1)
+                    # Denormalize - need to handle single phase case
+                    if len(self.phases) == 1:
+                        # Single phase: quantile_values is (horizon,)
+                        quantile_values_2d = quantile_values.reshape(1, -1)
+                        quantile_values_denorm = self._denormalize_sequences(
+                            quantile_values_2d
+                        )[0]
+                    else:
+                        # Multi-phase: need to denormalize with all phases
+                        # Create a dummy array with all phases, then extract
+                        # the one we need
+                        quantile_values_full = np.zeros((horizon, len(self.phases)))
+                        quantile_values_full[:, i] = quantile_values
+                        quantile_values_denorm_full = self._denormalize_sequences(
+                            quantile_values_full
+                        )
+                        quantile_values_denorm = quantile_values_denorm_full[:, i]
+
+                    # Clip to non-negative
+                    quantile_values_denorm = np.clip(quantile_values_denorm, 0, None)
+                    phase_quantiles[f"q{int(q*100)}"] = pd.Series(
+                        quantile_values_denorm,
+                        index=forecast_dates,
+                        name=f"{phase}_q{int(q*100)}",
+                    )
+
+                forecasts[phase] = phase_quantiles
+
+            return forecasts
+
+        def _prepare_data(
+            self,
+            production_data: pd.DataFrame,
+            static_features: Optional[pd.DataFrame],
+        ) -> tuple[np.ndarray, np.ndarray, Optional[np.ndarray]]:
+            """Prepare data for training."""
+            sequences = []
+            targets = []
+            static_feat_list = []
+
+            # Group by well_id
+            for well_id, well_data in production_data.groupby("well_id"):
+                well_data = well_data.sort_values("date").reset_index(drop=True)
+                phase_data = well_data[self.phases].values
+
+                # Create sliding windows
+                for i in range(len(well_data) - self.sequence_length):
+                    seq = phase_data[i : i + self.sequence_length]
+                    target = phase_data[i + self.sequence_length]
+                    sequences.append(seq)
+                    targets.append(target)
+
+                    # Static features (if available)
+                    if static_features is not None:
+                        well_static = static_features[
+                            static_features["well_id"] == well_id
+                        ]
+                        if len(well_static) > 0:
+                            # Extract numeric columns only
+                            numeric_cols = well_static.select_dtypes(
+                                include=[np.number]
+                            ).columns
+                            numeric_cols = [c for c in numeric_cols if c != "well_id"]
+                            if len(numeric_cols) > 0:
+                                static_feat_list.append(
+                                    well_static[numeric_cols].values[0]
+                                )
+                            else:
+                                static_feat_list.append(None)
                         else:
                             static_feat_list.append(None)
                     else:
                         static_feat_list.append(None)
-                else:
-                    static_feat_list.append(None)
 
-        sequences = np.array(sequences)
-        targets = np.array(targets)
+            sequences = np.array(sequences)
+            targets = np.array(targets)
 
-        static_feat_array = (
-            np.array(static_feat_list)
-            if static_feat_list and static_feat_list[0] is not None
-            else None
-        )
-
-        return sequences, targets, static_feat_array
-
-    def _create_scaler(self) -> Any:
-        """Create scaler for normalization."""
-        if not SKLEARN_AVAILABLE:
-            return None
-
-        if self.normalization_method == "minmax":
-            return MinMaxScaler(feature_range=(0, 1))
-        elif self.normalization_method == "standard":
-            return StandardScaler()
-        else:
-            raise ValueError(
-                f"Unknown normalization method: {self.normalization_method}"
+            static_feat_array = (
+                np.array(static_feat_list)
+                if static_feat_list and static_feat_list[0] is not None
+                else None
             )
 
-    def _normalize_sequences(
-        self, sequences: np.ndarray, fit: bool = False
-    ) -> np.ndarray:
-        """Normalize sequences."""
-        if self.scaler is None:
-            # Simple min-max normalization
-            if len(sequences.shape) == 3:
-                min_vals = sequences.min(axis=(0, 1), keepdims=True)
-                max_vals = sequences.max(axis=(0, 1), keepdims=True)
-                range_vals = np.where(max_vals - min_vals == 0, 1, max_vals - min_vals)
-                return (sequences - min_vals) / range_vals
+            return sequences, targets, static_feat_array
+
+        def _create_scaler(self) -> Any:
+            """Create scaler for normalization."""
+            if not SKLEARN_AVAILABLE:
+                return None
+
+            if self.normalization_method == "minmax":
+                return MinMaxScaler(feature_range=(0, 1))
+            elif self.normalization_method == "standard":
+                return StandardScaler()
             else:
-                min_vals = sequences.min(axis=0, keepdims=True)
-                max_vals = sequences.max(axis=0, keepdims=True)
-                range_vals = np.where(max_vals - min_vals == 0, 1, max_vals - min_vals)
-                return (sequences - min_vals) / range_vals
+                raise ValueError(
+                    f"Unknown normalization method: {self.normalization_method}"
+                )
 
-        original_shape = sequences.shape
-        if len(sequences.shape) == 3:
-            n_samples, seq_len, n_features = sequences.shape
-            sequences_2d = sequences.reshape(-1, n_features)
-        else:
-            sequences_2d = sequences
+        def _normalize_sequences(
+            self, sequences: np.ndarray, fit: bool = False
+        ) -> np.ndarray:
+            """Normalize sequences."""
+            if self.scaler is None:
+                # Simple min-max normalization
+                if len(sequences.shape) == 3:
+                    min_vals = sequences.min(axis=(0, 1), keepdims=True)
+                    max_vals = sequences.max(axis=(0, 1), keepdims=True)
+                    range_vals = np.where(
+                        max_vals - min_vals == 0, 1, max_vals - min_vals
+                    )
+                    return (sequences - min_vals) / range_vals
+                else:
+                    min_vals = sequences.min(axis=0, keepdims=True)
+                    max_vals = sequences.max(axis=0, keepdims=True)
+                    range_vals = np.where(
+                        max_vals - min_vals == 0, 1, max_vals - min_vals
+                    )
+                    return (sequences - min_vals) / range_vals
 
-        if fit:
-            sequences_normalized = self.scaler.fit_transform(sequences_2d)
-        else:
-            sequences_normalized = self.scaler.transform(sequences_2d)
+            original_shape = sequences.shape
+            if len(sequences.shape) == 3:
+                n_samples, seq_len, n_features = sequences.shape
+                sequences_2d = sequences.reshape(-1, n_features)
+            else:
+                sequences_2d = sequences
 
-        if len(original_shape) == 3:
-            sequences_normalized = sequences_normalized.reshape(original_shape)
+            if fit:
+                sequences_normalized = self.scaler.fit_transform(sequences_2d)
+            else:
+                sequences_normalized = self.scaler.transform(sequences_2d)
 
-        return sequences_normalized
+            if len(original_shape) == 3:
+                sequences_normalized = sequences_normalized.reshape(original_shape)
 
-    def _denormalize_sequences(self, sequences: np.ndarray) -> np.ndarray:
-        """Denormalize sequences."""
-        if self.scaler is None:
-            return sequences
+            return sequences_normalized
 
-        original_shape = sequences.shape
-        if len(sequences.shape) == 2:
-            sequences_2d = sequences
-        else:
-            sequences_2d = sequences.reshape(-1, sequences.shape[-1])
+        def _denormalize_sequences(self, sequences: np.ndarray) -> np.ndarray:
+            """Denormalize sequences."""
+            if self.scaler is None:
+                return sequences
 
-        sequences_denormalized = self.scaler.inverse_transform(sequences_2d)
+            original_shape = sequences.shape
+            if len(sequences.shape) == 2:
+                sequences_2d = sequences
+            else:
+                sequences_2d = sequences.reshape(-1, sequences.shape[-1])
 
-        if len(original_shape) == 2:
-            return sequences_denormalized
-        else:
-            return sequences_denormalized.reshape(original_shape)
+            sequences_denormalized = self.scaler.inverse_transform(sequences_2d)
+
+            if len(original_shape) == 2:
+                return sequences_denormalized
+            else:
+                return sequences_denormalized.reshape(original_shape)
 
 
 if not TORCH_AVAILABLE:
     # Fallback when PyTorch is not available
-    class DeepARForecaster:
+    class DeepARForecaster:  # noqa: F811
         """Placeholder when PyTorch is not available."""
 
         def __init__(self, *args, **kwargs):

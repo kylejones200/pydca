@@ -302,194 +302,185 @@ if TORCH_AVAILABLE:
                 )
 
             self.phases = phases
+            self.hidden_size = hidden_size
+            self.num_heads = num_heads
+            self.num_layers = num_layers
+            self.sequence_length = sequence_length
+            self.horizon = horizon
+            self.static_features = static_features or []
+            self.control_variables = control_variables or []
+            self.dropout = dropout
+            self.normalization_method = normalization_method
+            self.learning_rate = learning_rate
 
-        self.hidden_size = hidden_size
-        self.num_heads = num_heads
-        self.num_layers = num_layers
-        self.sequence_length = sequence_length
-        self.horizon = horizon
-        self.static_features = static_features or []
-        self.control_variables = control_variables or []
-        self.dropout = dropout
-        self.normalization_method = normalization_method
-        self.learning_rate = learning_rate
+            # Set device
+            if device is None:
+                self.device = torch.device(
+                    "cuda" if torch.cuda.is_available() else "cpu"
+                )
+            else:
+                self.device = torch.device(device)
 
-        # Set device
-        if device is None:
-            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        else:
-            self.device = torch.device(device)
+            # Initialize model (will be created during fit)
+            self.model: Optional[TemporalFusionTransformer] = None
+            self.scaler: Optional[Any] = None
+            self.is_fitted = False
 
-        # Initialize model (will be created during fit)
-        self.model: Optional[TemporalFusionTransformer] = None
-        self.scaler: Optional[Any] = None
-        self.is_fitted = False
+        def fit(
+            self,
+            production_data: pd.DataFrame,
+            static_features: Optional[pd.DataFrame] = None,
+            control_variables: Optional[dict[str, dict]] = None,
+            epochs: int = 100,
+            batch_size: int = 32,
+            validation_split: float = 0.2,
+            verbose: bool = True,
+        ) -> dict[str, list[float]]:
+            """
+            Train the TFT model.
 
-    def fit(
-        self,
-        production_data: pd.DataFrame,
-        static_features: Optional[pd.DataFrame] = None,
-        control_variables: Optional[dict[str, dict]] = None,
-        epochs: int = 100,
-        batch_size: int = 32,
-        validation_split: float = 0.2,
-        verbose: bool = True,
-    ) -> dict[str, list[float]]:
-        """
-        Train the TFT model.
+            Args:
+                production_data: DataFrame with columns: well_id, date,
+                    and phase columns
+                static_features: Optional DataFrame with well_id and
+                    static features
+                control_variables: Optional control variables dict
+                epochs: Number of training epochs
+                batch_size: Batch size
+                validation_split: Fraction of data for validation
+                verbose: Whether to print training progress
 
-        Args:
-            production_data: DataFrame with columns: well_id, date, and phase columns
-            static_features: Optional DataFrame with well_id and static features
-            control_variables: Optional control variables dict
-            epochs: Number of training epochs
-            batch_size: Batch size
-            validation_split: Fraction of data for validation
-            verbose: Whether to print training progress
+            Returns:
+                Dictionary with training history
+            """
+            if not TORCH_AVAILABLE:
+                raise ImportError("PyTorch is required for training")
 
-        Returns:
-            Dictionary with training history
-        """
-        if not TORCH_AVAILABLE:
-            raise ImportError("PyTorch is required for training")
+            # Prepare data (similar to LSTM)
+            from .deep_learning import EncoderDecoderLSTMForecaster
 
-        # Prepare data (similar to LSTM)
-        from .deep_learning import EncoderDecoderLSTMForecaster
-
-        # Use LSTM's data preparation method
-        lstm_helper = EncoderDecoderLSTMForecaster(
-            phases=self.phases,
-            horizon=self.horizon,
-            sequence_length=self.sequence_length,
-            static_features=self.static_features,
-            control_variables=self.control_variables,
-            normalization_method=self.normalization_method,
-        )
-
-        sequences, targets, static_feat_array, control_array = (
-            lstm_helper._prepare_data(
-                production_data, static_features, control_variables
+            # Use LSTM's data preparation method
+            lstm_helper = EncoderDecoderLSTMForecaster(
+                phases=self.phases,
+                horizon=self.horizon,
+                sequence_length=self.sequence_length,
+                static_features=self.static_features,
+                control_variables=self.control_variables,
+                normalization_method=self.normalization_method,
             )
-        )
 
-        # Split data FIRST to avoid leakage
-        n_train = int(len(sequences) * (1 - validation_split))
-        train_sequences = sequences[:n_train]
-        train_targets = targets[:n_train]
-        val_sequences = sequences[n_train:]
-        val_targets = targets[n_train:]
-
-        # Fit scaler ONLY on training data to prevent leakage
-        self.scaler = lstm_helper._create_scaler()
-        # Fit scaler on training sequences only
-        train_sequences_reshaped = train_sequences.reshape(
-            -1, train_sequences.shape[-1]
-        )
-        self.scaler.fit(train_sequences_reshaped)
-        lstm_helper.scaler = self.scaler
-
-        # Normalize training data
-        sequences_normalized_train = lstm_helper._normalize_sequences(
-            train_sequences, fit=False
-        )
-        targets_normalized_train = lstm_helper._normalize_sequences(
-            train_targets, fit=False
-        )
-
-        # Transform validation data using scaler fit on training data only
-        sequences_normalized_val = lstm_helper._normalize_sequences(
-            val_sequences, fit=False
-        )
-        targets_normalized_val = lstm_helper._normalize_sequences(
-            val_targets, fit=False
-        )
-
-        # Create model
-        input_size = len(self.phases)
-        static_feature_size = (
-            len(self.static_features) if static_feat_array is not None else 0
-        )
-        control_variable_size = (
-            len(self.control_variables) if control_array is not None else 0
-        )
-
-        self.model = TemporalFusionTransformer(
-            input_size=input_size,
-            hidden_size=self.hidden_size,
-            num_heads=self.num_heads,
-            num_layers=self.num_layers,
-            static_feature_size=static_feature_size,
-            control_variable_size=control_variable_size,
-            horizon=self.horizon,
-            dropout=self.dropout,
-        ).to(self.device)
-
-        # Loss and optimizer
-        criterion = nn.MSELoss()
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
-
-        # Create dataset
-        class TFTDataset(Dataset):
-            def __init__(self, seq, tgt, static, control):
-                self.seq = torch.FloatTensor(seq)
-                self.tgt = torch.FloatTensor(tgt)
-                self.static = torch.FloatTensor(static) if static is not None else None
-                self.control = (
-                    torch.FloatTensor(control) if control is not None else None
+            sequences, targets, static_feat_array, control_array = (
+                lstm_helper._prepare_data(
+                    production_data, static_features, control_variables
                 )
+            )
 
-            def __len__(self):
-                return len(self.seq)
+            # Split data FIRST to avoid leakage
+            n_train = int(len(sequences) * (1 - validation_split))
+            train_sequences = sequences[:n_train]
+            train_targets = targets[:n_train]
+            val_sequences = sequences[n_train:]
+            val_targets = targets[n_train:]
 
-            def __getitem__(self, idx):
-                item = {"sequence": self.seq[idx], "target": self.tgt[idx]}
-                if self.static is not None:
-                    item["static_features"] = self.static[idx]
-                if self.control is not None:
-                    item["control_variables"] = self.control[idx]
-                return item
+            # Fit scaler ONLY on training data to prevent leakage
+            self.scaler = lstm_helper._create_scaler()
+            # Fit scaler on training sequences only
+            train_sequences_reshaped = train_sequences.reshape(
+                -1, train_sequences.shape[-1]
+            )
+            self.scaler.fit(train_sequences_reshaped)
+            lstm_helper.scaler = self.scaler
 
-        train_dataset = TFTDataset(
-            sequences_normalized_train,
-            targets_normalized_train,
-            static_feat_array[:n_train] if static_feat_array is not None else None,
-            control_array[:n_train] if control_array is not None else None,
-        )
-        val_dataset = TFTDataset(
-            sequences_normalized_val,
-            targets_normalized_val,
-            static_feat_array[n_train:] if static_feat_array is not None else None,
-            control_array[n_train:] if control_array is not None else None,
-        )
+            # Normalize training data
+            sequences_normalized_train = lstm_helper._normalize_sequences(
+                train_sequences, fit=False
+            )
+            targets_normalized_train = lstm_helper._normalize_sequences(
+                train_targets, fit=False
+            )
 
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+            # Transform validation data using scaler fit on training data only
+            sequences_normalized_val = lstm_helper._normalize_sequences(
+                val_sequences, fit=False
+            )
+            targets_normalized_val = lstm_helper._normalize_sequences(
+                val_targets, fit=False
+            )
 
-        # Training loop
-        history = {"loss": [], "val_loss": []}
+            # Create model
+            input_size = len(self.phases)
+            static_feature_size = (
+                len(self.static_features) if static_feat_array is not None else 0
+            )
+            control_variable_size = (
+                len(self.control_variables) if control_array is not None else 0
+            )
 
-        for epoch in range(epochs):
-            # Training
-            self.model.train()
-            train_loss = 0.0
-            for batch in train_loader:
-                optimizer.zero_grad()
-                output, _ = self.model(
-                    batch["sequence"].to(self.device),
-                    batch.get("static_features"),
-                    batch.get("control_variables"),
-                )
-                target = batch["target"].to(self.device)
-                loss = criterion(output, target)
-                loss.backward()
-                optimizer.step()
-                train_loss += loss.item()
+            self.model = TemporalFusionTransformer(
+                input_size=input_size,
+                hidden_size=self.hidden_size,
+                num_heads=self.num_heads,
+                num_layers=self.num_layers,
+                static_feature_size=static_feature_size,
+                control_variable_size=control_variable_size,
+                horizon=self.horizon,
+                dropout=self.dropout,
+            ).to(self.device)
 
-            # Validation
-            self.model.eval()
-            val_loss = 0.0
-            with torch.no_grad():
-                for batch in val_loader:
+            # Loss and optimizer
+            criterion = nn.MSELoss()
+            optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+
+            # Create dataset
+            class TFTDataset(Dataset):
+                def __init__(self, seq, tgt, static, control):
+                    self.seq = torch.FloatTensor(seq)
+                    self.tgt = torch.FloatTensor(tgt)
+                    self.static = (
+                        torch.FloatTensor(static) if static is not None else None
+                    )
+                    self.control = (
+                        torch.FloatTensor(control) if control is not None else None
+                    )
+
+                def __len__(self):
+                    return len(self.seq)
+
+                def __getitem__(self, idx):
+                    item = {"sequence": self.seq[idx], "target": self.tgt[idx]}
+                    if self.static is not None:
+                        item["static_features"] = self.static[idx]
+                    if self.control is not None:
+                        item["control_variables"] = self.control[idx]
+                    return item
+
+            train_dataset = TFTDataset(
+                sequences_normalized_train,
+                targets_normalized_train,
+                static_feat_array[:n_train] if static_feat_array is not None else None,
+                control_array[:n_train] if control_array is not None else None,
+            )
+            val_dataset = TFTDataset(
+                sequences_normalized_val,
+                targets_normalized_val,
+                static_feat_array[n_train:] if static_feat_array is not None else None,
+                control_array[n_train:] if control_array is not None else None,
+            )
+
+            train_loader = DataLoader(
+                train_dataset, batch_size=batch_size, shuffle=True
+            )
+            val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+
+            # Training loop
+            history = {"loss": [], "val_loss": []}
+
+            for epoch in range(epochs):
+                # Training
+                self.model.train()
+                train_loss = 0.0
+                for batch in train_loader:
+                    optimizer.zero_grad()
                     output, _ = self.model(
                         batch["sequence"].to(self.device),
                         batch.get("static_features"),
@@ -497,21 +488,37 @@ if TORCH_AVAILABLE:
                     )
                     target = batch["target"].to(self.device)
                     loss = criterion(output, target)
-                    val_loss += loss.item()
+                    loss.backward()
+                    optimizer.step()
+                    train_loss += loss.item()
 
-            train_loss /= len(train_loader)
-            val_loss /= len(val_loader)
-            history["loss"].append(train_loss)
-            history["val_loss"].append(val_loss)
+                # Validation
+                self.model.eval()
+                val_loss = 0.0
+                with torch.no_grad():
+                    for batch in val_loader:
+                        output, _ = self.model(
+                            batch["sequence"].to(self.device),
+                            batch.get("static_features"),
+                            batch.get("control_variables"),
+                        )
+                        target = batch["target"].to(self.device)
+                        loss = criterion(output, target)
+                        val_loss += loss.item()
 
-            if verbose and (epoch + 1) % 10 == 0:
-                logger.info(
-                    f"Epoch {epoch+1}/{epochs} - Loss: {train_loss:.4f}, "
-                    f"Val Loss: {val_loss:.4f}"
-                )
+                train_loss /= len(train_loader)
+                val_loss /= len(val_loader)
+                history["loss"].append(train_loss)
+                history["val_loss"].append(val_loss)
 
-        self.is_fitted = True
-        return history
+                if verbose and (epoch + 1) % 10 == 0:
+                    logger.info(
+                        f"Epoch {epoch+1}/{epochs} - Loss: {train_loss:.4f}, "
+                        f"Val Loss: {val_loss:.4f}"
+                    )
+
+            self.is_fitted = True
+            return history
 
     def predict(
         self,
@@ -723,7 +730,7 @@ if TORCH_AVAILABLE:
 
 if not TORCH_AVAILABLE:
     # Fallback when PyTorch is not available
-    class TFTForecaster:
+    class TFTForecaster:  # noqa: F811
         """Placeholder when PyTorch is not available."""
 
         def __init__(self, *args, **kwargs):
