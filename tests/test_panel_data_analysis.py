@@ -252,6 +252,8 @@ def test_real_data_panel_preparation():
 
     except FileNotFoundError:
         pytest.skip("Real data file not found")
+    except ImportError:
+        pytest.skip("Parquet support (pyarrow or fastparquet) not available")
 
 
 def test_eur_with_company_controls():
