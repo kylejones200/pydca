@@ -173,44 +173,52 @@ def segment_cusum(
     """Segment using CUSUM on residual of smooth baseline.
 
     CUSUM (Cumulative Sum) detects changes by tracking cumulative deviations
-    from a baseline. Uses a rolling median as baseline.
+    from a baseline. Detects change points by looking for significant shifts
+    in the rate values themselves.
 
     Args:
         rates: Production rate array
-        baseline_window: Window size for rolling median baseline
-        threshold: CUSUM threshold for change detection
+        baseline_window: Window size for detecting changes
+        threshold: Z-score threshold for change detection (lower = more sensitive)
 
     Returns:
         List of change point indices
     """
-    # Compute rolling median baseline (center=False to avoid future data leakage)
-    baseline = (
-        pd.Series(rates)
-        .rolling(window=baseline_window, center=False)
-        .median()
-        .fillna(pd.Series(rates).median())
-    )
+    if len(rates) < baseline_window * 2:
+        return []
 
-    # Compute residuals
-    residuals = rates - baseline.values
-
-    # Compute CUSUM
-    cusum = np.cumsum(residuals)
-    cusum_mean = cusum.mean()
-    cusum_std = cusum.std()
-
-    # Detect change points where CUSUM deviates significantly
     change_points = []
-    in_change = False
+    skip_until = 0
 
-    for i in range(1, len(cusum)):
-        z_score = abs((cusum[i] - cusum_mean) / cusum_std) if cusum_std > 0 else 0
+    # Slide a window and compare statistics before/after each point
+    for i in range(baseline_window, len(rates) - baseline_window):
+        # Skip if we're in a cooldown period after detecting a change
+        if i < skip_until:
+            continue
 
-        if z_score > threshold and not in_change:
-            change_points.append(i)
-            in_change = True
-        elif z_score <= threshold:
-            in_change = False
+        # Get windows before and after this point
+        before = rates[max(0, i - baseline_window) : i]
+        after = rates[i : min(len(rates), i + baseline_window)]
+
+        if len(before) > 0 and len(after) > 0:
+            # Calculate means
+            mean_before = np.mean(before)
+            mean_after = np.mean(after)
+
+            # Calculate pooled standard deviation
+            std_before = np.std(before)
+            std_after = np.std(after)
+            pooled_std = np.sqrt(
+                (std_before**2 + std_after**2) / 2 + 1e-10
+            )  # Add small constant to avoid div by zero
+
+            # Calculate z-score of difference in means
+            z_score = abs(mean_before - mean_after) / pooled_std
+
+            if z_score > threshold:
+                change_points.append(i)
+                # Skip ahead to avoid detecting the same change multiple times
+                skip_until = i + baseline_window
 
     return change_points
 
