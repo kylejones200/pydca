@@ -63,19 +63,21 @@ def calculate_risk_metrics(
         >>> metrics = calculate_risk_metrics(forecast, npv_threshold=1000000)
         >>> print(f"Probability of positive NPV: {metrics.prob_positive_npv:.1%}")
     """
-    if forecast.npv_bands is None:
-        raise ValueError("NPV bands not available. Provide price and opex in forecast.")
-
     if forecast.draws is None:
         raise ValueError("Forecast draws not available for risk calculation.")
 
-    # Calculate NPV for each draw
-    from .probabilistic_forecast import _calculate_npv_bands
+    if forecast.price is None or forecast.opex is None:
+        raise ValueError(
+            "price and opex must be provided to probabilistic_forecast() "
+            "to compute risk metrics."
+        )
 
-    # Extract price and opex from metadata or calculate from bands
-    # For now, we'll need to recalculate NPV from draws
-    # This is a limitation - we should store price/opex in forecast
-    npv_samples = _calculate_npv_samples_from_draws(forecast.draws)
+    npv_samples = _calculate_npv_samples_from_draws(
+        forecast.draws,
+        price=forecast.price,
+        opex=forecast.opex,
+        discount_rate=forecast.discount_rate,
+    )
 
     # Calculate risk metrics
     prob_positive_npv = float(np.mean(npv_samples > 0))
@@ -100,19 +102,40 @@ def calculate_risk_metrics(
     )
 
 
-def _calculate_npv_samples_from_draws(draws: ForecastDraws) -> np.ndarray:
-    """Calculate NPV samples from forecast draws.
+def _calculate_npv_samples_from_draws(
+    draws: ForecastDraws,
+    price: float,
+    opex: float,
+    discount_rate: float = 0.10,
+) -> np.ndarray:
+    """Calculate per-draw NPV samples using the full economics engine.
 
-    This is a helper that extracts NPV from draws metadata or recalculates.
-    In practice, we should store price/opex in the forecast object.
+    Args:
+        draws: ForecastDraws with shape (n_draws, n_periods).
+        price: Commodity price ($/BOE).
+        opex: Variable operating cost ($/BOE).
+        discount_rate: Annual discount rate.
+
+    Returns:
+        Array of NPV values, one per draw.
     """
-    # For now, return empty array - this needs to be implemented properly
-    # by storing price/opex in ProbabilisticForecast
-    logger.warning(
-        "NPV calculation from draws requires price/opex. "
-        "Please provide these in probabilistic_forecast() call."
+    from .economics import WellEconomics, cashflow, npv as _npv
+
+    econ = WellEconomics(
+        capex=0.0,
+        price=price,
+        opex_variable=opex,
+        discount_rate=discount_rate,
+        royalty_rate=0.0,
+        severance_tax_rate=0.0,
+        ad_valorem_rate=0.0,
     )
-    return np.array([])
+    n_draws = draws.draws.shape[0]
+    npv_samples = np.zeros(n_draws)
+    for i in range(n_draws):
+        result = cashflow(draws.draws[i], econ)
+        npv_samples[i] = _npv(result)
+    return npv_samples
 
 
 def portfolio_risk_report(

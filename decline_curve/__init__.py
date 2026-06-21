@@ -8,6 +8,7 @@ from . import (  # noqa: F401
     catalog,
     config,
     dca,
+    decline_variants,
     eur_estimation,
     history_matching,
     integrations,
@@ -27,6 +28,7 @@ from . import (  # noqa: F401
     portfolio,
     probabilistic_forecast,
     profiling,
+    prms,
     pvt,
     risk_report,
     rta,
@@ -35,9 +37,43 @@ from . import (  # noqa: F401
     schemas,
     segmented_decline,
     spatial_kriging,
+    type_curve_normalization,
     uncertainty_core,
     vlp,
     well_test,
+)
+from .models import (  # noqa: F401
+    ArpsParams,
+    DuongParams,
+    ModifiedHyperbolicParams,
+    PLEParams,
+    SEPDParams,
+)
+from .economics import (  # noqa: F401
+    WellEconomics,
+    CashflowResult,
+    cashflow,
+    npv,
+    irr,
+    payout,
+    roi,
+    breakeven_price,
+    portfolio_economics,
+)
+from .decline_variants import (  # noqa: F401
+    fit_duong,
+    predict_duong,
+    eur_duong,
+    fit_ple,
+    predict_ple,
+    eur_ple,
+    fit_sepd,
+    predict_sepd,
+    eur_sepd,
+    fit_modified_hyperbolic,
+    predict_modified_hyperbolic,
+    eur_modified_hyperbolic,
+    forecast_variant,
 )
 from .forecast_statistical import (  # noqa: F401
     calculate_confidence_intervals,
@@ -47,6 +83,22 @@ from .forecast_statistical import (  # noqa: F401
     simple_exponential_smoothing,
 )
 from .logging_config import configure_logging, get_logger  # noqa: F401
+from .prms import ReservesClassification, classify_reserves  # noqa: F401
+from .type_curve_normalization import (  # noqa: F401
+    TypeCurveMatch,
+    generate_arps_type_curve,
+    normalize_production_data,
+    match_type_curve,
+    denormalize_match,
+)
+from .dca import recommend_model  # noqa: F401
+from .scenarios import (  # noqa: F401
+    PriceScenario,
+    ScenarioResult,
+    run_price_scenarios,
+    run_multi_phase_scenarios,
+    compare_scenarios,
+)
 
 try:
     from . import deep_learning  # noqa: F401
@@ -68,4 +120,4 @@ except ImportError:
     # Benchmark factory requires optional dependencies
     pass
 
-__version__ = "0.2.1"
+__version__ = "0.6.0"

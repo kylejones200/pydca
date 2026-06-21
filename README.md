@@ -12,7 +12,32 @@ Whether you're analyzing a single well or benchmarking hundreds across a field, 
 
 ## Highlights
 
-The library combines traditional petroleum engineering methods with modern forecasting techniques, providing probabilistic forecasts, economic analysis, and batch processing capabilities. It uses Numba JIT compilation and parallel processing for fast execution on large datasets, making it practical for field-wide analysis and sensitivity studies.
+The library combines traditional petroleum engineering methods with modern forecasting techniques. It covers the full evaluation workflow from raw production data to reserves, economics, and risk — without stitching together multiple packages.
+
+## Feature comparison
+
+| Capability | decline-curve | petbox-dca | DCApy |
+|---|:---:|:---:|:---:|
+| Arps (exp / harmonic / hyperbolic) | ✓ | ✓ | ✓ |
+| Modified Hyperbolic (SEC standard) | ✓ | ✓ | — |
+| Duong model | ✓ | ✓ | — |
+| Power-Law Exponential (PLE / Ilk) | ✓ | ✓ | — |
+| Stretched Exponential (SEPD) | ✓ | ✓ | — |
+| EUR — closed form (SEPD) | ✓ | — | — |
+| Model auto-recommender | ✓ | — | — |
+| Full-cycle economics (royalty, WI, taxes) | ✓ | — | — |
+| CAPEX / IRR / payout / ROI | ✓ | — | — |
+| Breakeven price (Brent's method) | ✓ | — | — |
+| Price scenario analysis (low/base/high) | ✓ | — | — |
+| PRMS 1P/2P/3P reserves classification | ✓ | — | — |
+| Type curve normalization (Fetkovich) | ✓ | — | — |
+| Probabilistic P10/P50/P90 | ✓ | — | — |
+| NPV risk report (VaR, CVaR) | ✓ | — | — |
+| ARIMA / TimesFM / Chronos | ✓ | — | — |
+| Multi-phase (oil + gas + water) | ✓ | — | — |
+| Numba JIT acceleration | ✓ | — | — |
+| Batch / portfolio analysis | ✓ | — | — |
+| CLI (`dca fit …`) | ✓ | — | — |
 
 ## Installation
 

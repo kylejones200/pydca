@@ -32,6 +32,9 @@ class ProbabilisticForecast:
         eur_bands: EUR bands (P10, P50, P90)
         npv_bands: NPV bands (P10, P50, P90) if economics provided
         draws: Underlying forecast draws (optional)
+        price: Commodity price used for NPV bands ($/BOE or $/MCF)
+        opex: Variable operating cost used for NPV bands ($/BOE)
+        discount_rate: Annual discount rate used for NPV bands
     """
 
     p10: pd.Series
@@ -42,6 +45,9 @@ class ProbabilisticForecast:
     eur_bands: Dict[str, float]
     npv_bands: Optional[Dict[str, float]] = None
     draws: Optional[ForecastDraws] = None
+    price: Optional[float] = None
+    opex: Optional[float] = None
+    discount_rate: float = 0.10
 
     @classmethod
     def from_draws(
@@ -82,6 +88,9 @@ class ProbabilisticForecast:
             eur_bands=eur_bands,
             npv_bands=npv_bands,
             draws=draws,
+            price=price,
+            opex=opex,
+            discount_rate=discount_rate,
         )
 
     def to_dataframe(self) -> pd.DataFrame:

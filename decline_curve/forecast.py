@@ -94,7 +94,7 @@ class Forecaster:
             "linear_trend",
             "holt_winters",
         ],
-        kind: Optional[Literal["exponential", "harmonic", "hyperbolic"]] = "hyperbolic",
+        kind: Optional[str] = "hyperbolic",
         horizon: int = 12,
         **kwargs,
     ) -> pd.Series:
@@ -102,7 +102,8 @@ class Forecaster:
 
         Args:
             model: Forecasting model to use
-            kind: Arps decline type (if using arps model)
+            kind: Arps decline type ('exponential', 'harmonic', 'hyperbolic',
+                'duong', 'ple', 'sepd') — only used when model='arps'.
             horizon: Number of periods to forecast
             **kwargs: Additional model-specific arguments
 
@@ -110,20 +111,25 @@ class Forecaster:
             Forecasted production series
         """
         if model == "arps":
-            t = np.arange(len(self.series))
-            q = self.series.to_numpy()
-            arps_kind: Literal["exponential", "harmonic", "hyperbolic"] = (
-                "hyperbolic"
-                if kind is None
-                else cast(Literal["exponential", "harmonic", "hyperbolic"], kind)
-            )
-            params = fit_arps(t, q, kind=arps_kind)
-            full_t = np.arange(len(self.series) + horizon)
-            yhat = predict_arps(full_t, params)
-            idx = pd.date_range(
-                self.series.index[0], periods=len(yhat), freq=self.series.index.freq
-            )
-            forecast = pd.Series(yhat, index=idx, name=f"arps_{kind}")
+            if kind in ("duong", "ple", "sepd", "modified_hyperbolic", "mh"):
+                from .decline_variants import forecast_variant
+
+                forecast = forecast_variant(self.series, kind=kind, horizon=horizon)
+            else:
+                t = np.arange(len(self.series))
+                q = self.series.to_numpy()
+                arps_kind: Literal["exponential", "harmonic", "hyperbolic"] = (
+                    "hyperbolic"
+                    if kind is None
+                    else cast(Literal["exponential", "harmonic", "hyperbolic"], kind)
+                )
+                params = fit_arps(t, q, kind=arps_kind)
+                full_t = np.arange(len(self.series) + horizon)
+                yhat = predict_arps(full_t, params)
+                idx = pd.date_range(
+                    self.series.index[0], periods=len(yhat), freq=self.series.index.freq
+                )
+                forecast = pd.Series(yhat, index=idx, name=f"arps_{kind}")
 
         elif model == "timesfm":
             forecast = forecast_timesfm(self.series, horizon=horizon)

@@ -15,8 +15,8 @@ sys.path.insert(0, os.path.abspath(".."))
 project = "Decline Curve Analysis"
 copyright = "2025, Kyle T. Jones"
 author = "Kyle T. Jones"
-release = "0.2.0"
-version = "0.2.0"
+release = "0.5.0"
+version = "0.5.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

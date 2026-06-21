@@ -116,6 +116,60 @@ Benchmark models across multiple wells:
 
    print(results)
 
+Shale / Unconventional Wells
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For shale wells, Arps b > 1 is physically unsound at long time horizons. Use the
+Duong, PLE, or SEPD models instead:
+
+.. code-block:: python
+
+   from decline_curve import fit_duong, predict_duong, eur_duong
+   import numpy as np
+
+   # Fit Duong model to historical data
+   t = np.arange(len(series))
+   q = series.values
+   params = fit_duong(t, q)
+   print(f"Duong params: q1={params.q1:.0f}, a={params.a:.3f}, m={params.m:.3f}")
+
+   # Forecast 120 months
+   future_t = np.arange(120)
+   forecast = predict_duong(future_t, params)
+
+   # Estimated Ultimate Recovery
+   eur = eur_duong(params, t_max=360, econ_limit=5.0)
+   print(f"EUR = {eur:,.0f} BOE")
+
+   # Or use the main API dispatcher
+   duong_forecast = dca.forecast(series, model="arps", kind="duong", horizon=24)
+
+Full-Cycle Economics
+~~~~~~~~~~~~~~~~~~~~~
+
+The economics module handles royalties, taxes, CAPEX, OPEX, and all standard PE metrics:
+
+.. code-block:: python
+
+   from decline_curve.economics import WellEconomics, cashflow, npv, irr, payout, breakeven_price
+
+   econ = WellEconomics(
+       capex=5_000_000,          # $5MM drill & complete
+       price=70.0,               # $/BOE
+       royalty_rate=0.1875,      # 3/16 landowner royalty
+       severance_tax_rate=0.046, # Texas default
+       ad_valorem_rate=0.02,
+       opex_fixed=5_000,         # $/month fixed LOE
+       opex_variable=8.0,        # $/BOE variable LOE
+       discount_rate=0.10,
+   )
+
+   result = cashflow(forecast.values, econ)
+   print(f"NPV (10%): ${npv(result):>12,.0f}")
+   print(f"IRR:       {irr(result):.1%}")
+   print(f"Payout:    month {payout(result)}")
+   print(f"Breakeven: ${breakeven_price(forecast.values, econ):.2f}/BOE")
+
 Advanced Usage
 --------------
 

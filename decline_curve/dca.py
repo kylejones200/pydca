@@ -5,7 +5,16 @@ from typing import Any, Literal, Optional
 
 import pandas as pd
 
-from .economics import economic_metrics
+from .economics import (
+    economic_metrics,
+    WellEconomics,
+    cashflow as _cashflow,
+    npv as _npv,
+    irr as _irr,
+    payout as _payout,
+    roi as _roi,
+    breakeven_price as _breakeven_price,
+)
 from .evaluate import mae, rmse, smape
 from .forecast import Forecaster
 from .logging_config import configure_logging, get_logger
@@ -49,7 +58,7 @@ def forecast(
         "material_balance",
         "pressure_decline",
     ] = "arps",
-    kind: Optional[Literal["exponential", "harmonic", "hyperbolic"]] = "hyperbolic",
+    kind: Optional[str] = "hyperbolic",
     horizon: int = 12,
     verbose: bool = False,
     # DeepAR parameters
@@ -72,7 +81,8 @@ def forecast(
         model: Forecasting model to use.
             Options: 'arps', 'timesfm', 'chronos', 'arima', 'deepar', 'tft',
             'ensemble'.
-        kind: Arps decline type ('exponential', 'harmonic', 'hyperbolic').
+        kind: Decline type. Arps: 'exponential', 'harmonic', 'hyperbolic'.
+            Shale variants: 'duong', 'ple', 'sepd'.
         horizon: Number of periods to forecast.
         verbose: Print forecast details.
         deepar_model: Pre-trained DeepAR model (required if model='deepar').
@@ -521,6 +531,142 @@ def economics(
     return economic_metrics(production.values, price, opex, discount_rate)
 
 
+def well_economics(
+    production: pd.Series,
+    econ: WellEconomics,
+) -> dict:
+    """Full-cycle well economics: royalties, taxes, CAPEX, IRR, breakeven.
+
+    This is the primary economic evaluation entry point. For the simpler
+    legacy interface (price/opex only, no CAPEX), use :func:`economics`.
+
+    Args:
+        production: Monthly production forecast (BOE/month).
+        econ: :class:`~decline_curve.economics.WellEconomics` with all cost
+            and revenue parameters.
+
+    Returns:
+        Dict with keys: ``npv``, ``irr``, ``payout_month``, ``roi``,
+        ``breakeven_price``, and ``cashflow``
+        (:class:`~decline_curve.economics.CashflowResult`).
+
+    Example:
+        >>> from decline_curve import dca, WellEconomics
+        >>> econ = WellEconomics(capex=5_000_000, price=70.0, opex_variable=8.0)
+        >>> result = dca.well_economics(forecast, econ)
+        >>> print(f"NPV: ${result['npv']:,.0f}  IRR: {result['irr']:.1%}")
+    """
+    q = production.values
+    cf = _cashflow(q, econ)
+    return {
+        "npv": _npv(cf),
+        "irr": _irr(cf),
+        "payout_month": _payout(cf),
+        "roi": _roi(cf),
+        "breakeven_price": _breakeven_price(q, econ),
+        "cashflow": cf,
+    }
+
+
+def recommend_model(
+    series: pd.Series,
+    pressure: "pd.Series | None" = None,
+    drive_mechanism: str | None = None,
+) -> str:
+    """Recommend a decline model based on production data characteristics.
+
+    Analyzes the decline rate behavior and b-factor to recommend the best-fit
+    Arps or shale variant model. Extended from ressmith's
+    ``identify_decline_type_from_physics`` to include shale-specific models.
+
+    Args:
+        series: Historical production time series (monthly, DatetimeIndex).
+        pressure: Optional bottomhole/reservoir pressure data (unused currently
+            — reserved for future physics-informed routing).
+        drive_mechanism: Optional drive mechanism hint: ``'solution_gas'``,
+            ``'water_drive'``, ``'gas_cap'``, ``'compaction'``, ``'shale'``.
+            When supplied this can override the data-driven recommendation.
+
+    Returns:
+        One of: ``'exponential'``, ``'harmonic'``, ``'hyperbolic'``,
+        ``'modified_hyperbolic'``, ``'duong'``.
+
+    Example:
+        >>> model = dca.recommend_model(series)
+        >>> forecast = dca.forecast(series, model="arps", kind=model, horizon=120)
+    """
+    import numpy as np
+
+    q = series.dropna().values
+    if len(q) < 6:
+        return "hyperbolic"
+
+    # --- Drive mechanism shortcuts ---
+    if drive_mechanism == "solution_gas":
+        return "hyperbolic"
+    if drive_mechanism in ("water_drive", "compaction"):
+        return "exponential"
+    if drive_mechanism == "shale":
+        return "modified_hyperbolic"
+
+    # --- Compute instantaneous decline rates ---
+    q_safe = np.where(q > 0, q, np.nan)
+    # D[i] = (q[i-1] - q[i]) / q[i-1]  (fractional per period)
+    D = np.where(
+        (q_safe[:-1] > 0) & (q_safe[1:] > 0),
+        (q_safe[:-1] - q_safe[1:]) / q_safe[:-1],
+        np.nan,
+    )
+    D = D[~np.isnan(D)]
+    D = D[D > 0]  # only meaningful decline periods
+
+    if len(D) < 3:
+        return "hyperbolic"
+
+    cv_D = float(np.std(D) / np.mean(D)) if np.mean(D) > 0 else 0.0
+
+    # --- Early vs late decline ---
+    mid = max(1, len(D) // 2)
+    early_D = float(np.mean(D[:mid]))
+    late_D = float(np.mean(D[mid:]))
+
+    # --- Estimate b from log-log slope (simplified Fetkovich) ---
+    # b = (d/dt)(1/D) ≈ ΔD / (D_early * D_late) for small ΔD
+    b_estimate = 0.0
+    if len(D) >= 4 and late_D > 0 and early_D > 0:
+        b_estimate = float((early_D - late_D) / (early_D * late_D * len(D)))
+        b_estimate = max(0.0, b_estimate)
+
+    # --- Routing logic ---
+    # Shale / tight: rapid early hyperbolic with very high initial rate,
+    # then slow tail — best handled by Modified Hyperbolic or Duong.
+    # Duong signature: CV in early decline is high (non-monotone start),
+    #   and q[0] >> q[6] strongly (sharp frac-hit dominated peak).
+    qi = float(q[0])
+    q6 = float(q[min(6, len(q) - 1)])
+    fast_early_drop = (qi > 0) and (q6 / qi < 0.35)  # >65% drop in 6 months
+
+    if fast_early_drop and cv_D > 0.35:
+        # Highly irregular early decline — Duong transient model
+        return "duong"
+
+    if b_estimate > 1.2 and early_D > 0.08:
+        # High b-factor with steep initial decline → Modified Hyperbolic (SEC std)
+        return "modified_hyperbolic"
+
+    if cv_D < 0.10:
+        # Near-constant decline rate → exponential
+        return "exponential"
+
+    if late_D < 0.50 * early_D:
+        # Decline rate falling significantly over time → harmonic/hyperbolic
+        if b_estimate > 0.8:
+            return "hyperbolic"
+        return "harmonic"
+
+    return "hyperbolic"
+
+
 def reserves(
     params: ArpsParams, t_max: float = 240, dt: float = 1.0, econ_limit: float = 10.0
 ) -> dict:
@@ -542,7 +688,7 @@ def reserves(
 def single_well(
     series: pd.Series,
     model: Literal["arps", "arima", "timesfm", "chronos"] = "arps",
-    kind: Optional[Literal["exponential", "harmonic", "hyperbolic"]] = "hyperbolic",
+    kind: Optional[str] = "hyperbolic",
     horizon: int = 12,
     return_params: bool = False,
 ) -> pd.Series | tuple[pd.Series, dict]:
@@ -615,7 +761,7 @@ def batch_jobs(
     date_col: str = "date",
     value_col: str = "oil_bbl",
     model: Literal["arps", "arima"] = "arps",
-    kind: Optional[Literal["exponential", "harmonic", "hyperbolic"]] = "hyperbolic",
+    kind: Optional[str] = "hyperbolic",
     horizon: int = 12,
     n_jobs: int = -1,
     verbose: bool = False,

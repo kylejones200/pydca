@@ -204,6 +204,143 @@ Chronos is Amazon's probabilistic foundation model for time series forecasting.
    quantiles = forecast_chronos_probabilistic(series, horizon=12,
                                             quantiles=[0.1, 0.5, 0.9])
 
+Shale / Unconventional Decline Models
+--------------------------------------
+
+The three models below were developed specifically for shale and tight-reservoir wells
+where Arps b > 1 is physically unsound at long time scales. Each captures the
+fracture-dominated transient flow that drives early unconventional production.
+
+Model Comparison Table
+~~~~~~~~~~~~~~~~~~~~~~
+
++--------------------+-------------------------------+-------------------------------+-------------------+
+| Model              | Best For                      | EUR Closed Form?              | Key Parameters    |
++====================+===============================+===============================+===================+
+| Arps exponential   | Conventional, mature wells    | Yes                           | qi, di            |
++--------------------+-------------------------------+-------------------------------+-------------------+
+| Arps harmonic      | Pressure-maintenance wells    | Yes                           | qi, di            |
++--------------------+-------------------------------+-------------------------------+-------------------+
+| Arps hyperbolic    | Most wells, b ∈ (0,1)         | Yes                           | qi, di, b         |
++--------------------+-------------------------------+-------------------------------+-------------------+
+| **Duong**          | Shale / transient flow        | No (numerical)                | q1, a, m          |
++--------------------+-------------------------------+-------------------------------+-------------------+
+| **PLE (Ilk)**      | Tight gas / loss-ratio        | No (numerical)                | qi, D_inf, D1, n  |
++--------------------+-------------------------------+-------------------------------+-------------------+
+| **SEPD**           | Unconventionals, anomalous    | Yes (via Γ function)          | qi, tau, n        |
++--------------------+-------------------------------+-------------------------------+-------------------+
+
+Duong Model
+~~~~~~~~~~~
+
+The Duong model (Duong 2011) captures transient linear/bilinear flow in hydraulically
+fractured horizontal wells. Unlike Arps, it is physically grounded in fracture-matrix
+interaction theory.
+
+.. math::
+
+   q(t) = q_1 \cdot t^{-m} \cdot \exp\!\left(\frac{a}{1-m}\left(t^{1-m} - 1\right)\right)
+
+Where :math:`q_1` is the production rate at :math:`t = 1`, :math:`a` controls the
+time-rate of fracture interference, and :math:`m` governs long-term decline steepness.
+
+**Special case:** at :math:`m = 1`, L'Hôpital's rule gives :math:`q(t) = q_1 \cdot t^{-(1+a)}`.
+
+**Parameters:**
+
+- :math:`q_1 > 0` — production rate at month 1 (BOE/month)
+- :math:`a > 0` — fracture interference parameter (typical 0.5–2.5)
+- :math:`m > 0` — decline exponent (typical 0.9–1.5)
+
+.. code-block:: python
+
+   import numpy as np
+   from decline_curve import fit_duong, predict_duong, eur_duong
+
+   t = np.arange(60)  # months
+   q = 2000 * (t + 1) ** -0.9 * np.exp(1.2 / (1 - 0.9) * ((t + 1) ** 0.1 - 1))
+
+   params = fit_duong(t, q)
+   forecast = predict_duong(np.arange(120), params)
+   eur = eur_duong(params, t_max=360, econ_limit=5.0)
+   print(f"EUR = {eur:,.0f} BOE")
+
+Power-Law Exponential (PLE / Ilk)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Power-Law Exponential model (Ilk et al. 2008) is based on the loss-ratio approach.
+It explicitly models the transition from transient to boundary-dominated flow by allowing
+the instantaneous decline rate to vary as a power law.
+
+.. math::
+
+   q(t) = q_i \cdot \exp\!\left(-D_\infty t - \frac{D_1 - D_\infty}{n} \cdot t^n\right)
+
+The instantaneous decline rate is:
+
+.. math::
+
+   D(t) = D_\infty + (D_1 - D_\infty) \cdot t^{-n}
+
+**Parameters:**
+
+- :math:`q_i > 0` — initial production rate
+- :math:`D_\infty \geq 0` — terminal (boundary-dominated) decline rate (1/month)
+- :math:`D_1 > D_\infty` — early-time decline rate at :math:`t = 1`
+- :math:`n \in (0, 1)` — decline exponent (typically 0.3–0.7 for tight gas)
+
+.. code-block:: python
+
+   from decline_curve import fit_ple, predict_ple, eur_ple
+
+   params = fit_ple(t, q)
+   print(f"qi={params.qi:.0f}  D_inf={params.D_inf:.4f}  n={params.n:.3f}")
+   eur = eur_ple(params, t_max=360, econ_limit=5.0)
+
+Stretched Exponential (SEPD)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Stretched Exponential Production Decline model captures anomalous diffusion in
+heterogeneous porous media. Its closed-form EUR makes it attractive for fast probabilistic
+analysis.
+
+.. math::
+
+   q(t) = q_i \cdot \exp\!\left[-\left(\frac{t}{\tau}\right)^n\right]
+
+**Closed-form EUR** (no numerical integration required):
+
+.. math::
+
+   \text{EUR} = \frac{q_i \cdot \tau}{n} \cdot \Gamma\!\left(\frac{1}{n}\right)
+
+**Parameters:**
+
+- :math:`q_i > 0` — initial production rate
+- :math:`\tau > 0` — characteristic decline time (months)
+- :math:`n \in (0, 1]` — stretching exponent
+
+.. code-block:: python
+
+   from decline_curve import fit_sepd, predict_sepd, eur_sepd
+
+   params = fit_sepd(t, q)
+   eur = eur_sepd(params)          # closed form — no t_max needed
+   print(f"EUR = {eur:,.0f} BOE")
+
+Using Shale Variants Through the Main API
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All three models are available through the standard ``forecast()`` dispatcher:
+
+.. code-block:: python
+
+   import decline_curve as dca
+
+   forecast_duong = dca.forecast(series, model="arps", kind="duong", horizon=24)
+   forecast_ple   = dca.forecast(series, model="arps", kind="ple",   horizon=24)
+   forecast_sepd  = dca.forecast(series, model="arps", kind="sepd",  horizon=24)
+
 Model Selection Guidelines
 --------------------------
 

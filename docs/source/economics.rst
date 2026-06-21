@@ -1,214 +1,204 @@
 Economics
-==========
+=========
 
-The economics module provides financial evaluation tools for oil and gas wells, including NPV calculations, cash flow analysis, and payback period determination.
-
-Overview
---------
-
-Economic evaluation is essential for:
-
-* Investment decision making
-* Project ranking and portfolio optimization
-* Risk assessment and sensitivity analysis
-* Performance monitoring and optimization
-
-Functions
----------
+The economics module provides full-cycle financial evaluation for oil and gas wells.
+It goes well beyond simple NPV/payback: royalties, working interest, severance tax,
+ad valorem, fixed and variable OPEX, CAPEX, IRR, breakeven price, and probabilistic
+NPV distributions are all first-class citizens.
 
 .. automodule:: decline_curve.economics
    :members:
    :undoc-members:
    :show-inheritance:
 
-Example Usage
+Overview
+--------
+
+The evaluation workflow is:
+
+1. Build a production forecast (Arps, Duong, PLE, SEPD, or probabilistic)
+2. Describe the well economics with :class:`~decline_curve.economics.WellEconomics`
+3. Call :func:`~decline_curve.economics.cashflow` to get a month-by-month
+   :class:`~decline_curve.economics.CashflowResult`
+4. Compute metrics: :func:`~decline_curve.economics.npv`,
+   :func:`~decline_curve.economics.irr`, :func:`~decline_curve.economics.payout`,
+   :func:`~decline_curve.economics.roi`,
+   :func:`~decline_curve.economics.breakeven_price`
+
+Revenue Model
 -------------
 
-Basic Economic Analysis
-~~~~~~~~~~~~~~~~~~~~~~
+.. math::
+
+   \text{Gross Revenue}_t = Q_t \times P_t \times WI
+
+.. math::
+
+   \text{Net Revenue}_t = \text{Gross Revenue}_t \times (1 - r_{\text{royalty}})
+
+.. math::
+
+   \text{EBITDA}_t = \text{Net Revenue}_t
+       - \text{Severance Tax}_t
+       - \text{Ad Valorem}_t
+       - \text{OPEX}_t
+
+Where :math:`P_t = P_0 \cdot (1 + \delta_{\text{price}})^{t/12}` with optional price
+escalation.
+
+.. math::
+
+   \text{Net Cash Flow}_t = \text{EBITDA}_t - \text{CAPEX}_t
+
+CAPEX enters as a single outflow at :math:`t = 0`.
+
+Discounting
+-----------
+
+NPV uses a **compound monthly rate** derived from the annual rate:
+
+.. math::
+
+   r_m = (1 + r_{\text{annual}})^{1/12} - 1
+
+.. math::
+
+   NPV = \sum_{t=0}^{T} \frac{NCF_t}{(1 + r_m)^t}
+
+The legacy :func:`~decline_curve.economics.economic_metrics` function preserves the
+original simple :math:`r_m = r/12` convention for backwards compatibility.
+
+Quick-Start Example
+-------------------
 
 .. code-block:: python
 
-   import decline_curve as dca
-   import pandas as pd
    import numpy as np
+   from decline_curve.models import fit_arps, predict_arps
+   from decline_curve.economics import WellEconomics, cashflow, npv, irr, payout, roi
 
-   # Create production forecast
-   dates = pd.date_range('2024-01-01', periods=60, freq='MS')
-   production = pd.Series([1000, 950, 900, 850, 800] +
-                         list(np.linspace(800, 200, 55)),
-                         index=dates)
+   # 1. Production forecast
+   t_hist = np.arange(24)
+   q_hist = 1000 * np.exp(-0.025 * t_hist)
+   params = fit_arps(t_hist, q_hist, kind="hyperbolic")
+   q_forecast = predict_arps(np.arange(120), params)
 
-   # Calculate economics
-   econ_results = dca.economics(
-       production=production,
-       price=60.0,  # $/bbl
-       opex=15.0,   # $/bbl operating cost
-       discount_rate=0.10  # 10% annual
+   # 2. Define economics
+   econ = WellEconomics(
+       capex=5_000_000,          # $5 MM CAPEX
+       price=70.0,               # $/BOE
+       royalty_rate=0.1875,      # 3/16 landowner royalty
+       working_interest=1.0,
+       severance_tax_rate=0.046, # Texas rate
+       ad_valorem_rate=0.02,
+       opex_fixed=5_000,         # $5,000/month fixed LOE
+       opex_variable=8.0,        # $8/BOE variable LOE
+       discount_rate=0.10,
    )
 
-   print(f"NPV: ${econ_results['npv']:,.2f}")
-   print(f"Payback: {econ_results['payback_month']} months")
+   # 3. Cashflow
+   result = cashflow(q_forecast, econ)
 
-Advanced Economic Scenarios
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+   # 4. Metrics
+   print(f"NPV (10%): ${npv(result):>12,.0f}")
+   print(f"IRR:       {irr(result):.1%}")
+   print(f"Payout:    month {payout(result)}")
+   print(f"ROI:       {roi(result):.2f}x")
 
-.. code-block:: python
+Breakeven Price
+---------------
 
-   # Compare different price scenarios
-   prices = [40, 50, 60, 70, 80]
-   results = []
-
-   for price in prices:
-       econ = dca.economics(production, price=price, opex=15.0)
-       results.append({
-           'price': price,
-           'npv': econ['npv'],
-           'payback': econ['payback_month']
-       })
-
-   econ_df = pd.DataFrame(results)
-   print(econ_df)
-
-   # Calculate break-even price
-   break_even_price = None
-   for price in np.arange(10, 100, 1):
-       econ = dca.economics(production, price=price, opex=15.0)
-       if econ['npv'] > 0:
-           break_even_price = price
-           break
-
-   print(f"Break-even price: ${break_even_price}/bbl")
-
-Cash Flow Analysis
-~~~~~~~~~~~~~~~~~
+Find the commodity price at which the well breaks even (NPV = 0):
 
 .. code-block:: python
 
-   # Detailed cash flow analysis
-   econ = dca.economics(production, price=60, opex=15)
-   cash_flow = econ['cash_flow']
+   from decline_curve.economics import breakeven_price
 
-   # Monthly cash flow
-   monthly_cf = pd.DataFrame({
-       'date': production.index,
-       'production': production.values,
-       'revenue': production.values * 60,
-       'opex': production.values * 15,
-       'net_cf': cash_flow
-   })
+   be = breakeven_price(q_forecast, econ)
+   print(f"Breakeven: ${be:.2f}/BOE")
 
-   # Cumulative cash flow
-   monthly_cf['cum_cf'] = monthly_cf['net_cf'].cumsum()
+The function uses Brent's method over the range [$0, $500].
 
-   print(monthly_cf.head(10))
-
-Mathematical Background
-----------------------
-
-Economic Calculations
-~~~~~~~~~~~~~~~~~~~~
-
-**Net Present Value (NPV):**
-
-.. math::
-   NPV = \sum_{t=0}^{T} \frac{CF_t}{(1+r)^{t/12}}
-
-Where:
-- :math:`CF_t` = Net cash flow in month t
-- :math:`r` = Annual discount rate
-- :math:`T` = Project life in months
-
-**Monthly Cash Flow:**
-
-.. math::
-   CF_t = (P - OPEX) \times Q_t
-
-Where:
-- :math:`P` = Oil/gas price ($/unit)
-- :math:`OPEX` = Operating expense ($/unit)
-- :math:`Q_t` = Production in month t
-
-**Payback Period:**
-
-The month when cumulative undiscounted cash flow becomes positive:
-
-.. math::
-   \text{Payback} = \min(t) \text{ such that } \sum_{i=0}^{t} CF_i > 0
-
-Discount Rate Considerations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The discount rate should reflect:
-
-* **Risk-free rate** (government bonds)
-* **Risk premium** for oil/gas investments
-* **Company cost of capital**
-* **Project-specific risks**
-
-Typical ranges:
-- Low risk: 8-12%
-- Medium risk: 12-15%
-- High risk: 15-20%
-
-Economic Indicators
-------------------
-
-NPV Interpretation
-~~~~~~~~~~~~~~~~~
-
-* **NPV > 0:** Project creates value, should proceed
-* **NPV = 0:** Project breaks even at discount rate
-* **NPV < 0:** Project destroys value, should reject
-
-Payback Period Guidelines
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-* **< 2 years:** Excellent payback
-* **2-4 years:** Good payback
-* **4-6 years:** Acceptable payback
-* **> 6 years:** Poor payback, high risk
-
-Sensitivity Considerations
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Key variables affecting economics:
-
-1. **Oil/gas prices** (highest impact)
-2. **Operating costs** (medium impact)
-3. **Production decline** (medium impact)
-4. **Discount rate** (low-medium impact)
-
-Best Practices
+Cashflow Table
 --------------
 
-Price Assumptions
-~~~~~~~~~~~~~~~~
+The :class:`~decline_curve.economics.CashflowResult` exposes every line item as a
+NumPy array and can be converted to a DataFrame:
 
-* Use conservative price forecasts
-* Consider price volatility and cycles
-* Include multiple price scenarios
-* Account for price differentials
+.. code-block:: python
 
-Cost Estimates
-~~~~~~~~~~~~~~
+   import pandas as pd
 
-* Include all operating costs (LOE, taxes, etc.)
-* Account for cost inflation
-* Consider economies of scale
-* Include abandonment costs
+   df = pd.DataFrame(result.to_dict())
+   df.index = pd.date_range("2024-01-01", periods=len(q_forecast), freq="MS")
+   print(df[["production", "net_revenue", "opex", "ebitda", "net_cashflow"]].head(12))
 
-Risk Assessment
-~~~~~~~~~~~~~~
+NPV Sensitivity to Discount Rate
+---------------------------------
 
-* Perform sensitivity analysis on key variables
-* Use Monte Carlo simulation for uncertainty
-* Consider correlation between variables
-* Evaluate downside scenarios
+.. code-block:: python
+
+   for rate in [0.08, 0.10, 0.12, 0.15, 0.20]:
+       print(f"  {rate:.0%}  →  ${npv(result, discount_rate=rate):>12,.0f}")
+
+Probabilistic Economics
+-----------------------
+
+Pair with :func:`~decline_curve.probabilistic_forecast.probabilistic_forecast` to get
+P10/P50/P90 NPV distributions:
+
+.. code-block:: python
+
+   import pandas as pd
+   from decline_curve.probabilistic_forecast import probabilistic_forecast
+   from decline_curve.risk_report import calculate_risk_metrics
+
+   dates = pd.date_range("2020-01-01", periods=36, freq="MS")
+   prod = pd.Series(1000 * np.exp(-0.03 * np.arange(36)), index=dates)
+
+   forecast = probabilistic_forecast(
+       prod, model="arps", kind="hyperbolic", horizon=24,
+       n_draws=500, price=70.0, opex=15.0, seed=42,
+   )
+   risk = calculate_risk_metrics(forecast, npv_threshold=1_000_000)
+   print(f"P(NPV > 0):     {risk.prob_positive_npv:.1%}")
+   print(f"Expected NPV:   ${risk.expected_npv:,.0f}")
+   print(f"VaR (P90):      ${risk.value_at_risk_90:,.0f}")
+
+WellEconomics Field Reference
+------------------------------
+
++------------------------+-------------------+-----------------------------------------------+
+| Field                  | Default           | Description                                   |
++========================+===================+===============================================+
+| ``capex``              | (required)        | One-time CAPEX at t=0, in $                   |
++------------------------+-------------------+-----------------------------------------------+
+| ``price``              | (required)        | Commodity price, $/BOE                        |
++------------------------+-------------------+-----------------------------------------------+
+| ``price_escalation``   | 0.0               | Annual price escalation rate                  |
++------------------------+-------------------+-----------------------------------------------+
+| ``royalty_rate``       | 0.1875            | Royalty fraction (3/16 landowner standard)    |
++------------------------+-------------------+-----------------------------------------------+
+| ``working_interest``   | 1.0               | WI fraction                                   |
++------------------------+-------------------+-----------------------------------------------+
+| ``severance_tax_rate`` | 0.046             | Severance tax on net revenue (TX default)     |
++------------------------+-------------------+-----------------------------------------------+
+| ``ad_valorem_rate``    | 0.02              | Ad valorem tax on net revenue                 |
++------------------------+-------------------+-----------------------------------------------+
+| ``opex_fixed``         | 0.0               | Fixed LOE, $/month                            |
++------------------------+-------------------+-----------------------------------------------+
+| ``opex_variable``      | 0.0               | Variable LOE, $/BOE                           |
++------------------------+-------------------+-----------------------------------------------+
+| ``opex_escalation``    | 0.0               | Annual OPEX escalation rate                   |
++------------------------+-------------------+-----------------------------------------------+
+| ``discount_rate``      | 0.10              | Annual discount rate for NPV (10% = 0.10)     |
++------------------------+-------------------+-----------------------------------------------+
+| ``econ_limit``         | 0.0               | Abandon threshold, $/month net (0 = run end)  |
++------------------------+-------------------+-----------------------------------------------+
 
 See Also
 --------
 
-* :doc:`sensitivity` - Sensitivity analysis tools
-* :doc:`reserves` - Reserve estimation
-* :doc:`models` - Production forecasting
+* :doc:`../models` — Decline model reference
+* :doc:`../cookbook/full_economics` — Full worked example with cashflow table
+* :doc:`../cookbook/shale_variants` — Duong vs Arps comparison with economics

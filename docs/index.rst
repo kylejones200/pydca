@@ -1,7 +1,10 @@
 Decline Curve Analysis Documentation
 =====================================
 
-A comprehensive Python library for petroleum decline curve analysis with traditional Arps models, modern time series forecasting (ARIMA, TimesFM, Chronos), economic evaluation, sensitivity analysis, and advanced evaluation metrics.
+A comprehensive Python library for petroleum decline curve analysis. Covers traditional
+Arps models, shale-era decline variants (Duong, PLE, SEPD), full-cycle economics
+(royalties, taxes, CAPEX, IRR, breakeven), probabilistic forecasting, time series
+models (ARIMA, TimesFM, Chronos), and batch analysis tools.
 
 .. image:: https://img.shields.io/badge/python-3.9+-blue.svg
    :target: https://www.python.org/downloads/
@@ -14,13 +17,20 @@ A comprehensive Python library for petroleum decline curve analysis with traditi
 Features
 --------
 
-* **Multi-Phase Forecasting**: Simultaneous oil, gas, and water forecasting ⭐ NEW
-* **Arps Decline Curves**: Exponential, harmonic, and hyperbolic models
+* **Arps Decline Curves**: Exponential, harmonic, and hyperbolic models with Numba JIT
+* **Modified Hyperbolic**: SEC-standard hyperbolic-to-exponential switch at terminal decline
+* **Shale Variants**: Duong, Power-Law Exponential (PLE/Ilk), and SEPD — physically correct for unconventionals
+* **Model Auto-Selection**: ``recommend_model()`` picks the right decline model from data shape and drive mechanism
+* **Full-Cycle Economics**: Royalties, WI, severance tax, ad valorem, CAPEX, IRR, payout, ROI, breakeven price
+* **Scenario Analysis**: Low/base/high price deck comparison with full-cycle metrics per scenario
+* **PRMS Reserves Classification**: SPE-PRMS 1P/2P/3P via Monte Carlo EUR simulation
+* **Type Curve Normalization**: Fetkovich-style dimensionless matching across b-value families
+* **Probabilistic Forecasting**: Monte Carlo P10/P50/P90 with NPV risk metrics (VaR, CVaR)
+* **Multi-Phase Forecasting**: Simultaneous oil, gas, and water forecasting
 * **Time Series Forecasting**: ARIMA, TimesFM, and Chronos models
-* **Data Processing Utilities**: Production-ready data cleaning and preparation ⭐ NEW
-* **Economic Analysis**: NPV, cash flow, and payback calculations
+* **Data Processing Utilities**: Production-ready data cleaning and preparation
 * **Sensitivity Analysis**: Parameter and price sensitivity studies
-* **Reserve Estimation**: EUR calculations with economic limits
+* **Reserve Estimation**: EUR calculations with economic limits (closed-form for SEPD)
 * **Data Loading**: Automated NDIC and regulatory data access
 * **Evaluation Metrics**: RMSE, MAE, SMAPE, MAPE, R²
 * **Visualization**: Professional decline curve and forecast plots
@@ -81,8 +91,12 @@ Documentation
    api/multiphase
    api/data_processing
    models
-   source/sensitivity
    source/economics
+   source/scenarios
+   source/prms
+   source/type_curve_normalization
+   source/recommend_model
+   source/sensitivity
    source/reserves
    source/data_loader
 

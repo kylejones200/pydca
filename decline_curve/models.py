@@ -201,6 +201,87 @@ def _predict_arps_numba(t: np.ndarray, qi: float, di: float, b: float) -> np.nda
     return q_hyp(t, qi, di, b)
 
 
+@dataclass
+class DuongParams:
+    """Duong decline curve parameters for shale/unconventional wells.
+
+    q(t) = q1 * t^(-m) * exp(a/(1-m) * (t^(1-m) - 1))
+
+    Attributes:
+        q1: Rate at t=1 month.
+        a: Correlation coefficient (fracture-matrix coupling).
+        m: Slope of log-log q vs. t plot (typically 0.9–1.2).
+    """
+
+    q1: float
+    a: float
+    m: float
+
+
+@dataclass
+class PLEParams:
+    """Power-Law Exponential (PLE/Ilk) parameters for tight gas.
+
+    q(t) = qi * exp(-D_inf*t - (D1 - D_inf)/n * t^n)
+
+    Attributes:
+        qi: Initial production rate.
+        D_inf: Decline rate at infinite time (terminal exponential rate).
+        D1: Decline rate at t=1 month.
+        n: Time exponent (typically 0.3–0.5 for tight formations).
+    """
+
+    qi: float
+    D_inf: float
+    D1: float
+    n: float
+
+
+@dataclass
+class SEPDParams:
+    """Stretched Exponential Production Decline (SEPD) parameters.
+
+    q(t) = qi * exp(-(t/tau)^n)
+    EUR = qi * (tau/n) * Γ(1/n)  [closed form]
+
+    Attributes:
+        qi: Initial production rate.
+        tau: Characteristic time constant (months).
+        n: Stretch exponent (0 < n <= 1; n=1 recovers exponential).
+    """
+
+    qi: float
+    tau: float
+    n: float
+
+
+@dataclass
+class ModifiedHyperbolicParams:
+    """Modified Hyperbolic (hyperbolic-to-exponential) decline parameters.
+
+    The industry-standard SEC/reserves model for shale wells. Fits a hyperbolic
+    decline (3 parameters) then enforces a terminal decline floor D_lim so the
+    EUR is physically bounded.
+
+    Phase 1 (t < t_switch):  q(t) = qi / (1 + b * di * t)^(1/b)
+    Phase 2 (t >= t_switch): q(t) = q_switch * exp(-d_lim * (t - t_switch))
+
+    t_switch is derived — not fitted — from: D(t_switch) = D_lim
+        t_switch = (di/d_lim - 1) / (b * di)
+
+    Attributes:
+        qi: Initial production rate (BOE/month).
+        di: Initial nominal decline rate (1/month).
+        b: Hyperbolic exponent (0 < b <= 2).
+        d_lim: Terminal decline rate floor (1/month). Default = 0.005 (6%/year).
+    """
+
+    qi: float
+    di: float
+    b: float
+    d_lim: float = 0.005  # 6%/year monthly equivalent
+
+
 def estimate_reserves(params: ArpsParamsLike, t_max: float = 50.0) -> float:
     """Estimate ultimate recoverable reserves using Arps decline curves.
 
