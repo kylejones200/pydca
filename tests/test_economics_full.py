@@ -376,3 +376,56 @@ class TestRiskReportNPVFix:
         forecast = probabilistic_forecast(prod, n_draws=50, seed=0)
         with pytest.raises(ValueError, match="price and opex"):
             calculate_risk_metrics(forecast)
+
+
+class TestMultiPhaseOpex:
+    """Gap 1: gas_opex and water_opex charge phase-specific lifting costs."""
+
+    def _base_econ(self, **kwargs):
+        return WellEconomics(
+            capex=1_000_000, price=70.0, opex_variable=15.0, discount_rate=0.10, **kwargs
+        )
+
+    def test_gas_opex_reduces_npv(self):
+        oil_q = np.full(24, 500.0)
+        gas_q = np.full(24, 200.0)  # 200 MCF/month
+
+        econ_no_gas = self._base_econ(gas_opex=0.0)
+        econ_with_gas = self._base_econ(gas_opex=1.50)
+
+        from decline_curve.economics import npv as calc_npv
+
+        npv_no_gas = calc_npv(cashflow(oil_q, econ_no_gas, gas_production=gas_q))
+        npv_with_gas = calc_npv(cashflow(oil_q, econ_with_gas, gas_production=gas_q))
+
+        # Adding gas lifting cost must reduce NPV
+        assert npv_with_gas < npv_no_gas
+        # Difference should equal PV of gas_opex * gas_q (roughly)
+        expected_extra_opex = 200.0 * 1.50 * 24  # undiscounted
+        assert (npv_no_gas - npv_with_gas) < expected_extra_opex  # discounting shrinks it
+
+    def test_water_opex_reduces_npv(self):
+        oil_q = np.full(24, 500.0)
+        water_q = np.full(24, 300.0)  # 300 BBL/month
+
+        econ_no_water = self._base_econ(water_opex=0.0)
+        econ_with_water = self._base_econ(water_opex=2.00)
+
+        from decline_curve.economics import npv as calc_npv
+
+        npv_no_water = calc_npv(cashflow(oil_q, econ_no_water, water_production=water_q))
+        npv_with_water = calc_npv(cashflow(oil_q, econ_with_water, water_production=water_q))
+
+        assert npv_with_water < npv_no_water
+
+    def test_zero_phase_volumes_no_change(self):
+        """Gas/water arrays of zeros must not change the result vs not passing them."""
+        oil_q = np.linspace(1000, 100, 36)
+        econ = self._base_econ(gas_opex=2.0, water_opex=3.0)
+
+        from decline_curve.economics import npv as calc_npv
+
+        cf_base = cashflow(oil_q, econ)
+        cf_zeros = cashflow(oil_q, econ, gas_production=np.zeros(36), water_production=np.zeros(36))
+
+        assert calc_npv(cf_base) == pytest.approx(calc_npv(cf_zeros))

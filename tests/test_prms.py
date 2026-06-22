@@ -148,3 +148,39 @@ class TestClassifyReserves:
         import decline_curve as dca
         rc = dca.classify_reserves(_SERIES, horizon=60, n_draws=30, seed=0)
         assert isinstance(rc, dca.ReservesClassification)
+
+
+class TestMinHistoryGuard:
+    """Gap 3: classify_reserves enforces minimum history length."""
+
+    @staticmethod
+    def _series(n):
+        dates = pd.date_range("2020-01-01", periods=n, freq="MS")
+        q = 1000.0 * np.exp(-0.03 * np.arange(n))
+        return pd.Series(q, index=dates)
+
+    def test_raises_below_min_months(self):
+        short = self._series(6)
+        with pytest.raises(ValueError, match="at least 12 months"):
+            classify_reserves(short, horizon=60, n_draws=30)
+
+    def test_custom_min_months_override(self):
+        """Caller can lower the bar; 6 months should pass with min_months=6."""
+        short = self._series(6)
+        rc = classify_reserves(short, horizon=60, n_draws=30, seed=0, min_months=6)
+        assert rc.p1 > 0
+
+    def test_warn_below_18_months(self):
+        """14 months passes the 12-month floor but should trigger a UserWarning."""
+        borderline = self._series(14)
+        with pytest.warns(UserWarning, match="14 months"):
+            classify_reserves(borderline, horizon=60, n_draws=30, seed=0)
+
+    def test_no_warn_at_18_months(self):
+        """18+ months must not trigger the low-history warning."""
+        good = self._series(24)
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", UserWarning)
+            # Should not raise
+            classify_reserves(good, horizon=60, n_draws=30, seed=0)

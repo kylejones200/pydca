@@ -1,6 +1,7 @@
 """Tests for uncertainty quantification module."""
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from decline_curve.fitting import FitResult
@@ -196,3 +197,54 @@ class TestQuantifyUncertainty:
         assert uncertainty.eur_p90 is not None
         # P10 EUR should be higher than P90 EUR
         assert uncertainty.eur_p10 >= uncertainty.eur_p90
+
+
+class TestNativeDuongPLEProbabilistic:
+    """Gap 2: Duong and PLE now have native parameter resamplers."""
+
+    @staticmethod
+    def _shale_series(n=36):
+        """Synthetic shale-like transient production (Duong-ish shape)."""
+        dates = pd.date_range("2020-01-01", periods=n, freq="MS")
+        t = np.arange(1, n + 1, dtype=float)
+        q = 800.0 * t ** (-0.9) * np.exp(1.2 / (1.0 - 1.1) * (t ** (1.0 - 1.1) - 1.0))
+        q = np.maximum(q, 1.0)
+        return pd.Series(q, index=dates)
+
+    def test_duong_probabilistic_returns_valid_bands(self):
+        from decline_curve.probabilistic_forecast import probabilistic_forecast
+
+        series = self._shale_series()
+        pf = probabilistic_forecast(series, kind="duong", n_draws=100, horizon=24, seed=7)
+
+        assert pf.p10 is not None
+        assert pf.p50 is not None
+        assert pf.p90 is not None
+        assert len(pf.p50) == len(series) + 24
+        # P10 >= P50 >= P90 at each step
+        np.testing.assert_array_less(pf.p90.values - 1, pf.p50.values + 1)
+
+    def test_duong_metadata_records_kind(self):
+        from decline_curve.parameter_resample import _duong_resample
+
+        series = self._shale_series()
+        draws = _duong_resample(series, n_draws=50, seed=3, horizon=12)
+        assert draws.metadata["kind"] == "duong"
+        assert draws.draws.shape == (50, len(series) + 12)
+
+    def test_ple_probabilistic_returns_valid_bands(self):
+        from decline_curve.probabilistic_forecast import probabilistic_forecast
+
+        series = self._shale_series()
+        pf = probabilistic_forecast(series, kind="ple", n_draws=100, horizon=24, seed=11)
+
+        assert len(pf.p50) == len(series) + 24
+        np.testing.assert_array_less(pf.p90.values - 1, pf.p50.values + 1)
+
+    def test_ple_metadata_records_kind(self):
+        from decline_curve.parameter_resample import _ple_resample
+
+        series = self._shale_series()
+        draws = _ple_resample(series, n_draws=50, seed=5, horizon=12)
+        assert draws.metadata["kind"] == "ple"
+        assert draws.draws.shape == (50, len(series) + 12)

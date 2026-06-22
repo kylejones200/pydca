@@ -29,7 +29,9 @@ class PriceScenario:
         oil_price: Oil price ($/bbl).
         gas_price: Gas price ($/mcf); used by multi-phase runner.
         water_price: Water disposal cost ($/bbl, typically negative).
-        opex: Variable operating cost per unit ($/bbl or $/mcf).
+        opex: Variable oil lifting cost ($/bbl).
+        gas_opex: Variable gas lifting cost ($/mcf).
+        water_opex: Water disposal cost ($/bbl) — charged to opex, not revenue.
         fixed_opex: Fixed operating expenses ($/month).
         capex: One-time capital expenditure at t=0 ($).
         royalty_rate: Royalty fraction (0.1875 = standard 3/16).
@@ -44,6 +46,8 @@ class PriceScenario:
     gas_price: Optional[float] = None
     water_price: Optional[float] = None
     opex: float = 15.0
+    gas_opex: float = 0.0
+    water_opex: float = 0.0
     fixed_opex: float = 0.0
     capex: float = 0.0
     royalty_rate: float = 0.1875
@@ -71,6 +75,8 @@ class PriceScenario:
             ad_valorem_rate=self.ad_valorem_rate,
             opex_fixed=self.fixed_opex,
             opex_variable=self.opex,
+            gas_opex=self.gas_opex,
+            water_opex=self.water_opex,
             discount_rate=self.discount_rate,
         )
 
@@ -200,7 +206,7 @@ def run_multi_phase_scenarios(
         net_rev    = gross_rev - royalty
         sev_tax    = net_rev * scenario.severance_tax_rate
         ad_val     = net_rev * scenario.ad_valorem_rate
-        var_opex   = (oil_q + gas_q) * scenario.opex
+        var_opex   = oil_q * scenario.opex + gas_q * scenario.gas_opex + water_q * scenario.water_opex
         fix_opex   = np.full(n, scenario.fixed_opex)
         total_opex = var_opex + fix_opex
         ebitda     = net_rev - sev_tax - ad_val - total_opex

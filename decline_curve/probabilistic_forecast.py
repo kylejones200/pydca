@@ -259,7 +259,15 @@ def probabilistic_forecast(
         >>> print(f"P50 EUR: {forecast.eur_bands['p50']:,.0f} bbl")
         >>> print(f"P50 NPV: ${forecast.npv_bands['p50']:,.0f}")
     """
-    if model == "arps":
+    if kind == "duong":
+        from .parameter_resample import _duong_resample
+
+        draws = _duong_resample(series, n_draws=n_draws, seed=seed, horizon=horizon)
+    elif kind == "ple":
+        from .parameter_resample import _ple_resample
+
+        draws = _ple_resample(series, n_draws=n_draws, seed=seed, horizon=horizon)
+    elif model == "arps":
         from .parameter_resample import fast_arps_resample
 
         draws = fast_arps_resample(

@@ -11,6 +11,7 @@ Reference:
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -111,6 +112,7 @@ def classify_reserves(
     n_draws: int = 500,
     econ_limit: float = 0.0,
     seed: Optional[int] = None,
+    min_months: int = 12,
 ) -> ReservesClassification:
     """Classify PRMS reserves (1P/2P/3P) via DCA-based probabilistic forecasting.
 
@@ -134,6 +136,8 @@ def classify_reserves(
         econ_limit: Economic limit rate (BOE/month). Truncates each EUR draw at
             the last month the rate stays at or above this value.
         seed: Random seed for reproducibility.
+        min_months: Minimum history required (default 12). Raise ValueError if
+            history is shorter; warn if history is < 18 months.
 
     Returns:
         :class:`ReservesClassification` with P1/P2/P3 and the full EUR distribution.
@@ -147,18 +151,30 @@ def classify_reserves(
         >>> rc = dca.classify_reserves(s, kind='modified_hyperbolic', n_draws=200)
         >>> print(rc.to_series())
     """
+    n_hist = len(series)
+    if n_hist < min_months:
+        raise ValueError(
+            f"classify_reserves requires at least {min_months} months of history "
+            f"({n_hist} provided). Pass min_months={n_hist} to override."
+        )
+    if n_hist < 18:
+        warnings.warn(
+            f"Only {n_hist} months of history — P1/P2/P3 uncertainty bands may be unreliable. "
+            "Consider 18+ months for reserves reporting.",
+            stacklevel=2,
+        )
+
     from .probabilistic_forecast import probabilistic_forecast
 
-    # probabilistic_forecast only handles Arps kinds; map shale variants to
-    # their closest Arps equivalent for the Monte Carlo draws.
-    _kind_map = {
+    # Map shale variants that still fall through to Arps for probabilistic
+    # forecasting (SEPD and modified_hyperbolic) to their Arps equivalent.
+    # Duong and PLE now have native resamplers in probabilistic_forecast.
+    _arps_fallback = {
         "modified_hyperbolic": "hyperbolic",
         "mh": "hyperbolic",
-        "duong": "hyperbolic",
-        "ple": "hyperbolic",
         "sepd": "hyperbolic",
     }
-    kind_for_prob = _kind_map.get(kind, kind)
+    kind_for_prob = _arps_fallback.get(kind, kind)
 
     # probabilistic_forecast returns a ProbabilisticForecast whose .draws
     # attribute is a ForecastDraws with .draws shaped (n_draws, n_periods).

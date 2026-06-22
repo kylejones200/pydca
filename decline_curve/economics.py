@@ -39,7 +39,9 @@ class WellEconomics:
         severance_tax_rate: Severance/production tax rate on gross revenue.
         ad_valorem_rate: Ad valorem/property tax rate on gross revenue.
         opex_fixed: Fixed operating cost in $/month.
-        opex_variable: Variable operating cost in $/BOE.
+        opex_variable: Variable oil/BOE operating cost in $/BOE.
+        gas_opex: Variable gas lifting cost in $/MCF (0 = single-phase).
+        water_opex: Water disposal cost in $/BBL (0 = single-phase).
         opex_escalation: Annual opex escalation rate.
         discount_rate: Annual discount rate for NPV (0.10 = 10%).
         econ_limit: Abandon when net revenue falls below this value in $/month (0 = run to end).
@@ -54,6 +56,8 @@ class WellEconomics:
     ad_valorem_rate: float = 0.02
     opex_fixed: float = 0.0
     opex_variable: float = 0.0
+    gas_opex: float = 0.0
+    water_opex: float = 0.0
     opex_escalation: float = 0.0
     discount_rate: float = 0.10
     econ_limit: float = 0.0
@@ -119,7 +123,12 @@ class CashflowResult:
 # ---------------------------------------------------------------------------
 
 
-def cashflow(production: np.ndarray, econ: WellEconomics) -> CashflowResult:
+def cashflow(
+    production: np.ndarray,
+    econ: WellEconomics,
+    gas_production: Optional[np.ndarray] = None,
+    water_production: Optional[np.ndarray] = None,
+) -> CashflowResult:
     """Build a monthly cashflow from a production forecast and well economics.
 
     The cashflow calculation follows standard petroleum engineering conventions:
@@ -129,9 +138,14 @@ def cashflow(production: np.ndarray, econ: WellEconomics) -> CashflowResult:
     - Taxes applied to net revenue
     - CAPEX is a one-time outflow at month 0
 
+    For multi-phase wells, pass gas and water volumes to apply phase-specific
+    lifting costs (econ.gas_opex and econ.water_opex).
+
     Args:
-        production: Monthly production volumes (BOE/month or MCF/month).
+        production: Monthly oil production volumes (BOE/month or MCF/month).
         econ: Well economic parameters.
+        gas_production: Optional monthly gas production (MCF/month).
+        water_production: Optional monthly water production (BBL/month).
 
     Returns:
         CashflowResult with per-month arrays.
@@ -152,11 +166,13 @@ def cashflow(production: np.ndarray, econ: WellEconomics) -> CashflowResult:
     sev_tax = net_rev * econ.severance_tax_rate
     ad_val = net_rev * econ.ad_valorem_rate
 
-    # OPEX with escalation
+    # OPEX with escalation — phase-specific lifting costs applied when provided
     monthly_opex_esc = (1.0 + econ.opex_escalation) ** (1.0 / 12.0) - 1.0
     opex_fixed_arr = econ.opex_fixed * (1.0 + monthly_opex_esc) ** months
     opex_var_arr = production * econ.opex_variable
-    total_opex = opex_fixed_arr + opex_var_arr
+    gas_q = np.asarray(gas_production, dtype=float) if gas_production is not None else np.zeros(n)
+    water_q = np.asarray(water_production, dtype=float) if water_production is not None else np.zeros(n)
+    total_opex = opex_fixed_arr + opex_var_arr + gas_q * econ.gas_opex + water_q * econ.water_opex
 
     # EBITDA
     ebitda_arr = net_rev - sev_tax - ad_val - total_opex
@@ -253,15 +269,22 @@ def roi(result: CashflowResult) -> float:
     return float((result.cumulative_cashflow[-1] + result.econ.capex) / result.econ.capex)
 
 
-def breakeven_price(production: np.ndarray, econ: WellEconomics) -> float:
+def breakeven_price(
+    production: np.ndarray,
+    econ: WellEconomics,
+    gas_production: Optional[np.ndarray] = None,
+    water_production: Optional[np.ndarray] = None,
+) -> float:
     """Find the commodity price at which NPV = 0.
 
     Uses Brent's method to solve for the breakeven price. Returns NaN if
     a breakeven cannot be found within the search range.
 
     Args:
-        production: Monthly production volumes.
+        production: Monthly oil production volumes.
         econ: Well economic parameters (price field is ignored; solved for).
+        gas_production: Optional monthly gas volumes (passed to cashflow).
+        water_production: Optional monthly water volumes (passed to cashflow).
 
     Returns:
         Breakeven price in $/BOE or NaN.
@@ -279,10 +302,12 @@ def breakeven_price(production: np.ndarray, econ: WellEconomics) -> float:
             ad_valorem_rate=econ.ad_valorem_rate,
             opex_fixed=econ.opex_fixed,
             opex_variable=econ.opex_variable,
+            gas_opex=econ.gas_opex,
+            water_opex=econ.water_opex,
             opex_escalation=econ.opex_escalation,
             discount_rate=econ.discount_rate,
         )
-        return npv(cashflow(production, modified_econ))
+        return npv(cashflow(production, modified_econ, gas_production=gas_production, water_production=water_production))
 
     try:
         # Search from $0 to $500/BOE
