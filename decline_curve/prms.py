@@ -166,15 +166,8 @@ def classify_reserves(
 
     from .probabilistic_forecast import probabilistic_forecast
 
-    # Map shale variants that still fall through to Arps for probabilistic
-    # forecasting (SEPD and modified_hyperbolic) to their Arps equivalent.
-    # Duong and PLE now have native resamplers in probabilistic_forecast.
-    _arps_fallback = {
-        "modified_hyperbolic": "hyperbolic",
-        "mh": "hyperbolic",
-        "sepd": "hyperbolic",
-    }
-    kind_for_prob = _arps_fallback.get(kind, kind)
+    # All variants now have native resamplers in probabilistic_forecast.
+    kind_for_prob = kind
 
     # probabilistic_forecast returns a ProbabilisticForecast whose .draws
     # attribute is a ForecastDraws with .draws shaped (n_draws, n_periods).

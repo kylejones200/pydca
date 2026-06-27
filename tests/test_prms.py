@@ -184,3 +184,63 @@ class TestMinHistoryGuard:
             warnings.simplefilter("error", UserWarning)
             # Should not raise
             classify_reserves(good, horizon=60, n_draws=30, seed=0)
+
+
+# ---------------------------------------------------------------------------
+# Native resamplers — Modified Hyperbolic and SEPD
+# ---------------------------------------------------------------------------
+
+
+def _shale_series(n=36):
+    """Hyperbolic-like series with b=1.4 (typical shale)."""
+    dates = pd.date_range("2020-01-01", periods=n, freq="MS")
+    t = np.arange(n, dtype=float)
+    q = 2000.0 * (1.0 + 1.4 * 0.08 * t) ** (-1.0 / 1.4)
+    return pd.Series(q, index=dates)
+
+
+class TestModifiedHyperbolicResample:
+    """_modified_hyperbolic_resample and classify_reserves(kind='modified_hyperbolic')."""
+
+    def test_returns_forecast_draws(self):
+        from decline_curve.parameter_resample import _modified_hyperbolic_resample
+        s = _shale_series(36)
+        fd = _modified_hyperbolic_resample(s, n_draws=50, seed=0, horizon=24)
+        assert fd.draws.shape == (50, 36 + 24)
+
+    def test_classify_reserves_mh_p1_le_p2_le_p3(self):
+        rc = classify_reserves(_shale_series(36), kind="modified_hyperbolic", horizon=120, n_draws=100, seed=7)
+        assert rc.p1 <= rc.p2 <= rc.p3
+
+    def test_classify_reserves_mh_all_positive(self):
+        rc = classify_reserves(_shale_series(36), kind="modified_hyperbolic", horizon=120, n_draws=50, seed=0)
+        assert rc.p1 > 0 and rc.p2 > 0 and rc.p3 > 0
+
+    def test_classify_reserves_mh_alias(self):
+        """'mh' alias must route to modified_hyperbolic resampler (not hyperbolic fallback)."""
+        rc = classify_reserves(_shale_series(36), kind="mh", horizon=60, n_draws=50, seed=1)
+        assert rc.kind == "mh"
+        assert rc.p1 > 0
+
+
+class TestSEPDResample:
+    """_sepd_resample and classify_reserves(kind='sepd')."""
+
+    def test_returns_forecast_draws(self):
+        from decline_curve.parameter_resample import _sepd_resample
+        s = _shale_series(36)
+        fd = _sepd_resample(s, n_draws=50, seed=0, horizon=24)
+        assert fd.draws.shape == (50, 36 + 24)
+
+    def test_classify_reserves_sepd_p1_le_p2_le_p3(self):
+        rc = classify_reserves(_shale_series(36), kind="sepd", horizon=120, n_draws=100, seed=7)
+        assert rc.p1 <= rc.p2 <= rc.p3
+
+    def test_classify_reserves_sepd_all_positive(self):
+        rc = classify_reserves(_shale_series(36), kind="sepd", horizon=120, n_draws=50, seed=0)
+        assert rc.p1 > 0 and rc.p2 > 0 and rc.p3 > 0
+
+    def test_sepd_no_longer_falls_back_to_hyperbolic(self):
+        """kind stored on result should be 'sepd', not 'hyperbolic'."""
+        rc = classify_reserves(_shale_series(36), kind="sepd", horizon=60, n_draws=50, seed=2)
+        assert rc.kind == "sepd"

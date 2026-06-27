@@ -306,6 +306,163 @@ def _ple_resample(
     )
 
 
+def _modified_hyperbolic_resample(
+    series: pd.Series,
+    n_draws: int = 1000,
+    seed: Optional[int] = None,
+    horizon: int = 12,
+) -> ForecastDraws:
+    """Fast parameter resampling for the Modified Hyperbolic (SEC standard) model.
+
+    Samples qi, di, and b from approximate lognormal/truncated-normal posteriors
+    scaled to relative RMSE.  d_lim is treated as a fixed regulatory constant and
+    is not resampled.
+
+    Args:
+        series: Historical production time series.
+        n_draws: Number of parameter samples.
+        seed: Random seed for reproducibility.
+        horizon: Forecast horizon in months beyond history.
+
+    Returns:
+        ForecastDraws with P10/P50/P90 curves.
+    """
+    from .decline_variants import (
+        ModifiedHyperbolicParams,
+        fit_modified_hyperbolic,
+        predict_modified_hyperbolic,
+    )
+
+    if seed is not None:
+        np.random.seed(seed)
+
+    t = np.arange(len(series))
+    q = series.values
+    params = fit_modified_hyperbolic(t, q)
+
+    q_pred = predict_modified_hyperbolic(t, params)
+    residuals = q - q_pred
+    rmse = float(np.sqrt(np.mean(residuals ** 2)))
+    relative_error = rmse / np.mean(q) if np.mean(q) > 0 else 0.1
+
+    qi_samples = np.random.lognormal(
+        np.log(max(params.qi, 1e-6)), relative_error * 0.5, n_draws
+    )
+    di_samples = np.random.lognormal(
+        np.log(max(params.di, 1e-6)), relative_error * 0.5, n_draws
+    )
+    b_samples = np.clip(
+        np.random.normal(params.b, params.b * relative_error * 0.3, n_draws), 0.0, 2.0
+    )
+
+    n_periods = len(series) + horizon
+    t_full = np.arange(n_periods)
+    draws = np.zeros((n_draws, n_periods))
+
+    for i in range(n_draws):
+        try:
+            sample = ModifiedHyperbolicParams(
+                qi=qi_samples[i], di=di_samples[i], b=b_samples[i], d_lim=params.d_lim
+            )
+            draws[i] = predict_modified_hyperbolic(t_full, sample)
+        except Exception as e:
+            logger.warning(f"Modified Hyperbolic sample {i} failed: {e}")
+            draws[i] = predict_modified_hyperbolic(t_full, params)
+
+    dates = pd.date_range(
+        series.index[0], periods=n_periods, freq=series.index.freq or "MS"
+    )
+
+    return ForecastDraws(
+        draws=draws,
+        dates=dates,
+        metadata={
+            "method": "residual_based",
+            "kind": "modified_hyperbolic",
+            "n_draws": n_draws,
+            "seed": seed,
+            "point_estimate": {
+                "qi": params.qi, "di": params.di, "b": params.b, "d_lim": params.d_lim
+            },
+            "rmse": rmse,
+        },
+    )
+
+
+def _sepd_resample(
+    series: pd.Series,
+    n_draws: int = 1000,
+    seed: Optional[int] = None,
+    horizon: int = 12,
+) -> ForecastDraws:
+    """Fast parameter resampling for the Stretched Exponential (SEPD) model.
+
+    Samples qi and tau from lognormal distributions; n from a truncated normal
+    clipped to [0.1, 2.0].  Scale is tied to relative RMSE.
+
+    Args:
+        series: Historical production time series.
+        n_draws: Number of parameter samples.
+        seed: Random seed for reproducibility.
+        horizon: Forecast horizon in months beyond history.
+
+    Returns:
+        ForecastDraws with P10/P50/P90 curves.
+    """
+    from .decline_variants import SEPDParams, fit_sepd, predict_sepd
+
+    if seed is not None:
+        np.random.seed(seed)
+
+    t = np.arange(len(series))
+    q = series.values
+    params = fit_sepd(t, q)
+
+    q_pred = predict_sepd(t, params)
+    residuals = q - q_pred
+    rmse = float(np.sqrt(np.mean(residuals ** 2)))
+    relative_error = rmse / np.mean(q) if np.mean(q) > 0 else 0.1
+
+    qi_samples = np.random.lognormal(
+        np.log(max(params.qi, 1e-6)), relative_error * 0.5, n_draws
+    )
+    tau_samples = np.random.lognormal(
+        np.log(max(params.tau, 1e-6)), relative_error * 0.5, n_draws
+    )
+    n_samples = np.clip(
+        np.random.normal(params.n, params.n * relative_error * 0.3, n_draws), 0.1, 2.0
+    )
+
+    n_periods = len(series) + horizon
+    t_full = np.arange(n_periods)
+    draws = np.zeros((n_draws, n_periods))
+
+    for i in range(n_draws):
+        try:
+            sample = SEPDParams(qi=qi_samples[i], tau=tau_samples[i], n=n_samples[i])
+            draws[i] = predict_sepd(t_full, sample)
+        except Exception as e:
+            logger.warning(f"SEPD sample {i} failed: {e}")
+            draws[i] = predict_sepd(t_full, params)
+
+    dates = pd.date_range(
+        series.index[0], periods=n_periods, freq=series.index.freq or "MS"
+    )
+
+    return ForecastDraws(
+        draws=draws,
+        dates=dates,
+        metadata={
+            "method": "residual_based",
+            "kind": "sepd",
+            "n_draws": n_draws,
+            "seed": seed,
+            "point_estimate": {"qi": params.qi, "tau": params.tau, "n": params.n},
+            "rmse": rmse,
+        },
+    )
+
+
 def approximate_posterior(
     params: ArpsParams,
     residuals: np.ndarray,

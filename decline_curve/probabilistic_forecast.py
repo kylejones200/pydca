@@ -267,6 +267,14 @@ def probabilistic_forecast(
         from .parameter_resample import _ple_resample
 
         draws = _ple_resample(series, n_draws=n_draws, seed=seed, horizon=horizon)
+    elif kind in ("modified_hyperbolic", "mh"):
+        from .parameter_resample import _modified_hyperbolic_resample
+
+        draws = _modified_hyperbolic_resample(series, n_draws=n_draws, seed=seed, horizon=horizon)
+    elif kind == "sepd":
+        from .parameter_resample import _sepd_resample
+
+        draws = _sepd_resample(series, n_draws=n_draws, seed=seed, horizon=horizon)
     elif model == "arps":
         from .parameter_resample import fast_arps_resample
 

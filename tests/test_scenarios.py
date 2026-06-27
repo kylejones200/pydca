@@ -295,3 +295,68 @@ class TestEdgeCases:
         scenarios = [PriceScenario("base", oil_price=70.0, opex=15.0)]
         results = run_price_scenarios(production, scenarios)
         assert len(results) == 1
+
+
+# ---------------------------------------------------------------------------
+# Per-phase OPEX isolation
+# ---------------------------------------------------------------------------
+
+
+class TestPerPhaseOpex:
+    """Validate that gas_opex and water_opex are charged only to their phase."""
+
+    def _make_prod(self, n=24):
+        t = np.arange(n, dtype=float)
+        oil = 500.0 * np.exp(-0.03 * t)
+        gas = 200.0 * np.exp(-0.02 * t)
+        water = 100.0 * np.exp(-0.01 * t)
+        return oil, gas, water
+
+    def test_gas_opex_does_not_affect_oil_only_run(self):
+        """Adding gas_opex should not change total_opex when gas=0."""
+        oil, _, _ = self._make_prod()
+        zero_gas = np.zeros(len(oil))
+        s_no = PriceScenario("base", oil_price=70.0, opex=15.0, gas_opex=0.0)
+        s_yes = PriceScenario("base", oil_price=70.0, opex=15.0, gas_opex=5.0)
+        df_no = run_multi_phase_scenarios(oil, [s_no], gas_production=zero_gas)
+        df_yes = run_multi_phase_scenarios(oil, [s_yes], gas_production=zero_gas)
+        assert df_no.iloc[0]["total_opex"] == pytest.approx(df_yes.iloc[0]["total_opex"])
+
+    def test_gas_opex_charged_only_to_gas_volumes(self):
+        """Gas OPEX on gas volumes must increase total_opex by gas_q * gas_opex."""
+        oil, gas, _ = self._make_prod(24)
+        gas_opex_rate = 2.0
+        s0 = PriceScenario("no_gas_opex", oil_price=70.0, opex=15.0, gas_opex=0.0)
+        s1 = PriceScenario("with_gas_opex", oil_price=70.0, opex=15.0, gas_opex=gas_opex_rate)
+        df0 = run_multi_phase_scenarios(oil, [s0], gas_production=gas)
+        df1 = run_multi_phase_scenarios(oil, [s1], gas_production=gas)
+        expected_extra = float(gas.sum() * gas_opex_rate)
+        actual_extra = df1.iloc[0]["total_opex"] - df0.iloc[0]["total_opex"]
+        assert actual_extra == pytest.approx(expected_extra, rel=1e-6)
+
+    def test_water_opex_charged_only_to_water_volumes(self):
+        """Water disposal OPEX must increase total_opex by water_q * water_opex."""
+        oil, _, water = self._make_prod(24)
+        water_opex_rate = 3.0
+        s0 = PriceScenario("no_water_opex", oil_price=70.0, opex=15.0, water_opex=0.0)
+        s1 = PriceScenario("with_water_opex", oil_price=70.0, opex=15.0, water_opex=water_opex_rate)
+        df0 = run_multi_phase_scenarios(oil, [s0], water_production=water)
+        df1 = run_multi_phase_scenarios(oil, [s1], water_production=water)
+        expected_extra = float(water.sum() * water_opex_rate)
+        actual_extra = df1.iloc[0]["total_opex"] - df0.iloc[0]["total_opex"]
+        assert actual_extra == pytest.approx(expected_extra, rel=1e-6)
+
+    def test_all_three_phases_independent(self):
+        """Each phase's OPEX is charged only to its own volumes (no cross-phase leakage)."""
+        oil, gas, water = self._make_prod(24)
+        s = PriceScenario(
+            "full",
+            oil_price=70.0,
+            gas_price=3.0,
+            opex=15.0,
+            gas_opex=1.5,
+            water_opex=3.0,
+        )
+        df = run_multi_phase_scenarios(oil, [s], gas_production=gas, water_production=water)
+        expected_opex = oil.sum() * 15.0 + gas.sum() * 1.5 + water.sum() * 3.0
+        assert df.iloc[0]["total_opex"] == pytest.approx(expected_opex, rel=1e-6)
