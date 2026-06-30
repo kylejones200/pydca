@@ -11,7 +11,10 @@ from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
-import yaml
+try:
+    import yaml
+except ImportError:  # optional dependency; only needed for YAML sweep configs
+    yaml = None
 
 from .logging_config import get_logger
 from .panel_analysis import (
@@ -199,6 +202,8 @@ class PanelAnalysisSweep:
         config_path = Path(config_path)
 
         if config_path.suffix in [".yaml", ".yml"]:
+            if yaml is None:
+                raise ImportError("pyyaml is required to load YAML configs; pip install pyyaml")
             with open(config_path) as f:
                 return yaml.safe_load(f)
         elif config_path.suffix == ".json":
