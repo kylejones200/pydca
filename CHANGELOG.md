@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- numpy 2.x compatibility: `np.trapz` was removed in numpy>=2.0; restore it as an
+  alias for `np.trapezoid` at import time so EUR/reserves work on modern numpy.
+- `import decline_curve` no longer hard-fails when `pyyaml` is absent; the YAML
+  config path in `panel_analysis_sweep` is now lazy and raises a clear error only
+  when a YAML config is actually loaded.
+
+### Changed
+- **Public API contract locked.** Added `__all__` to define the supported surface,
+  and hoisted `fit_arps`/`predict_arps` to the package root (still importable from
+  `decline_curve.models`). External consumers — notably `ressmith`, which now
+  delegates its decline/economics math here — depend on this contract.
+
+### Notes
+- The economics convention is effective-annual `(1+r)^(m/12)` via `economics.npv`.
+  The legacy nominal `r/12` path (`economic_metrics` / `dca.economics`) is retained
+  for back-compat but is NOT the canonical entry point.
+
 ## [0.2.1] - 2026-01-08
 
 ### Changed
