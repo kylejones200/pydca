@@ -5,6 +5,16 @@ All notable changes to the Decline Curve Analysis library will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-06-30
+
+First release of the canonical-kernel contract that external libraries
+(`ressmith`) delegate to. Contains everything in the Unreleased section below.
+
+### Added
+- `economics.npv_from_cashflow(net_cashflow, annual_discount_rate, periods_per_year=12)`
+  — effective-annual NPV over a raw monthly cashflow array, for consumers that hold
+  a cashflow series rather than a `CashflowResult`.
+
 ## [Unreleased]
 
 ### Fixed

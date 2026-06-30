@@ -164,4 +164,4 @@ __all__ = [
     "recommend_model", "configure_logging", "get_logger",
 ]
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
