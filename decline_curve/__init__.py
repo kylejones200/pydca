@@ -65,6 +65,7 @@ from .economics import (  # noqa: F401
     CashflowResult,
     cashflow,
     npv,
+    npv_from_cashflow,
     irr,
     payout,
     roi,
@@ -146,8 +147,8 @@ __all__ = [
     "fit_modified_hyperbolic", "predict_modified_hyperbolic", "eur_modified_hyperbolic",
     "forecast_variant",
     # economics (effective-annual DCF — the canonical convention)
-    "WellEconomics", "CashflowResult", "cashflow", "npv", "irr", "payout", "roi",
-    "breakeven_price", "portfolio_economics",
+    "WellEconomics", "CashflowResult", "cashflow", "npv", "npv_from_cashflow",
+    "irr", "payout", "roi", "breakeven_price", "portfolio_economics",
     # reserves / PRMS classification
     "ReservesClassification", "classify_reserves",
     # type-curve normalization

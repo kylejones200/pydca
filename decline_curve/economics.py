@@ -223,6 +223,30 @@ def npv(result: CashflowResult, discount_rate: Optional[float] = None) -> float:
     return float(npf.npv(monthly_rate, result.net_cashflow))
 
 
+def npv_from_cashflow(
+    net_cashflow,
+    annual_discount_rate: float,
+    periods_per_year: int = 12,
+) -> float:
+    """NPV of a raw per-period (default monthly) net-cashflow series.
+
+    The discount rate is ANNUAL and applied at the effective per-period rate
+    ``(1 + r)**(1/periods_per_year) - 1`` — the single canonical convention,
+    identical to :func:`npv`. Period 0 is undiscounted (capex at t=0).
+
+    Provided so other libraries (e.g. ``ressmith``) that already hold a
+    net-cashflow array can discount through this one kernel function instead of
+    reimplementing — and diverging on — the convention.
+
+    Args:
+        net_cashflow: per-period net cashflow (array-like).
+        annual_discount_rate: annual discount rate (0.10 = 10%/yr).
+        periods_per_year: periods per year (12 for monthly cashflows).
+    """
+    period_rate = (1.0 + annual_discount_rate) ** (1.0 / periods_per_year) - 1.0
+    return float(npf.npv(period_rate, np.asarray(net_cashflow, dtype=float)))
+
+
 def irr(result: CashflowResult) -> float:
     """Internal Rate of Return (annual) of a cashflow.
 
